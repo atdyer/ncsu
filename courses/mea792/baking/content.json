@@ -1,0 +1,42 @@
+{
+  "index": {
+    "navbar-text": "Tristan Dyer",
+    "navbar-text-link": "https://github.com/atdyer"
+  },
+  "assignment1": {
+    "navbar-text": "Assignment 1",
+    "navbar-text-link": "#"
+  },
+  "assignment2": {
+    "navbar-text": "Assignment 2",
+    "navbar-text-link": "#"
+  },
+  "assignment3": {
+    "navbar-text": "Assignment 3",
+    "navbar-text-link": "#"
+  },
+  "assignment4": {
+    "navbar-text": "Assignment 4",
+    "navbar-text-link": "#"
+  },
+  "assignment5": {
+    "navbar-text": "Assignment 5",
+    "navbar-text-link": "#"
+  },
+  "assignment6": {
+    "navbar-text": "Assignment 6",
+    "navbar-text-link": "#"
+  },
+  "assignment7": {
+    "navbar-text": "Assignment 7",
+    "navbar-text-link": "#"
+  },
+  "assignment8": {
+    "navbar-text": "Assignment 8",
+    "navbar-text-link": "#"
+  },
+  "project": {
+    "navbar-text": "Final Project",
+    "navbar-text-link": "#"
+  }
+}
