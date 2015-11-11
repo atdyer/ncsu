@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>MEA792 - Tristan Dyer</title>
 
+    <!-- Include CSS -->
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -17,6 +18,12 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
                 <a class="navbar-brand" href="index.html">MEA792 UAV/LIDAR Data Analytics</a>
             </div>
             <div id="navbar" class="navbar-collapse collapse">
@@ -45,6 +52,31 @@
             </div>
         </div>
     </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <ul id="side" class="nav nav-sidebar">
+                    <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#motivation">Motivation</a></li>
+                    <li><a href="#planning">Flight Planning</a></li>
+                    <li><a href="#verification">Flight Verification</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" data-spy="scroll" data-target="#side">
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header" style="height: 500px;">Overview</h1>
+                <a class="anchor" id="motivation"></a>
+                <h1 class="page-header" style="height: 500px;">Motivation</h1>
+                <a class="anchor" id="planning"></a>
+                <h1 class="page-header" style="height: 500px;">Flight Planning</h1>
+                <a class="anchor" id="verification"></a>
+                <h1 class="page-header" style="height: 500px;">Flight Verification</h1>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Include scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>

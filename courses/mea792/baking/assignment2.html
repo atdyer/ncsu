@@ -11,6 +11,31 @@
 <body>
 
     <!--(bake navbar.html _section="assignment2")-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3 col-md-2 sidebar">
+                <ul id="side" class="nav nav-sidebar">
+                    <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#motivation">Motivation</a></li>
+                    <li><a href="#planning">Flight Planning</a></li>
+                    <li><a href="#verification">Flight Verification</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" data-spy="scroll" data-target="#side">
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header" style="height: 500px;">Overview</h1>
+                <a class="anchor" id="motivation"></a>
+                <h1 class="page-header" style="height: 500px;">Motivation</h1>
+                <a class="anchor" id="planning"></a>
+                <h1 class="page-header" style="height: 500px;">Flight Planning</h1>
+                <a class="anchor" id="verification"></a>
+                <h1 class="page-header" style="height: 500px;">Flight Verification</h1>
+
+            </div>
+        </div>
+    </div>
+
     <!--(bake scripts.html)-->
 
 </body>

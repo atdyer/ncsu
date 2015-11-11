@@ -1,41 +1,61 @@
 {
   "index": {
+    "navbar-container": "container",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Tristan Dyer",
     "navbar-text-link": "https://github.com/atdyer"
   },
   "assignment1": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 1",
     "navbar-text-link": "#"
   },
   "assignment2": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 2",
     "navbar-text-link": "#"
   },
   "assignment3": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 3",
     "navbar-text-link": "#"
   },
   "assignment4": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 4",
     "navbar-text-link": "#"
   },
   "assignment5": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 5",
     "navbar-text-link": "#"
   },
   "assignment6": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 6",
     "navbar-text-link": "#"
   },
   "assignment7": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 7",
     "navbar-text-link": "#"
   },
   "assignment8": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Assignment 8",
     "navbar-text-link": "#"
   },
   "project": {
+    "navbar-container": "container-fluid",
+    "navbar-style": "navbar-fixed-top",
     "navbar-text": "Final Project",
     "navbar-text-link": "#"
   }
