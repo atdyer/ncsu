@@ -29,7 +29,6 @@
                 <a class="anchor" id="overview"></a>
                 <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/analysis.html"><i class="fa fa-university fa-xs"></i></a></h1>
 
-
                 <!-- DSM COMPARISON -->
                 <a class="anchor" id="dsm"></a>
                 <h1 class="page-header">DSM Comparison - Influence of GCPs</h1>
@@ -41,7 +40,6 @@
                     the two datasets. The following images show this technique using sample data from the Lake Wheeler
                     flight:
                 </p>
-
 
                 <div class="col-xs-12 col-md-4">
                     <img class="big-image img-thumbnail center-block" src="img/assignment4/sample_no_gcp_hist.png"/>
@@ -64,14 +62,29 @@
                 <div class="clearfix"></div>
 
                 <p>
+                    The first two images show the DSMs and the third shows the difference between the two, calculated
+                    using the following commands:
+                </p>
+
+                <div class="bs-callout bs-callout-default grass">
+                    g.region rast=sample_DSM -p<br>
+                    r.mapcalc expression="GCP_noGCP = sample_DSM - sample_DSM_noGCPs"
+                </div>
+
+                <p>
                     Comparing the results in the first two images by eye, it appears that they are essentially
-                    identical. However, if we perform a subtraction, we can reveal the `bowl effect' that is introduced
+                    identical. However, if we perform a subtraction, we can reveal the 'bowl effect' that is introduced
                     to the data when GCPs are not used, as seen in the image on the right.
                 </p>
 
                 <p>
-                    This same effect can be seen in the June 20th flight data:
+                    This same effect can be seen in the June 20th flight data by running the following commands:
                 </p>
+
+                <div class="bs-callout bs-callout-default grass">
+                    g.region rast=2015_06_20_DSM_agi_11GCP -p<br>
+                    r.mapcalc expression="agi_GCP_agi_noGCP = 2015_06_20_DSM_agi_11GCP - 2015_06_20_DSM_agi_noGCP"
+                </div>
 
                 <div class="col-xs-12 col-md-4">
                     <img class="big-image img-thumbnail center-block" src="img/assignment4/june_agisoft_no_gcp.png"/>
@@ -104,6 +117,11 @@
                     data in Pix4D results in a similar effect:
                 </p>
 
+                <div class="bs-callout bs-callout-default grass">
+                    <strong>g.region</strong> rast=2015_06_20_pix4d_11GCP_dsm -p<br>
+                    <strong>r.mapcalc</strong> expression="p4d_GCP_p4d_noGCP = 2015_06_20_pix4d_11GCP_dsm - 2015_06_20_DSM_pix4d_NoGCP"
+                </div>
+
                 <div class="col-xs-12 col-md-4">
                     <img class="big-image img-thumbnail center-block" src="img/assignment4/june_pix_no_gcp.png"/>
                     <p class="text-center caption">
@@ -126,10 +144,67 @@
 
                 <p>
                     Comparing the bowls from the two softwares, it appears that the bowl generated in Pix4D is slightly
-                    smaller in size. In order to really compare bowl size, we could find the elevation of the `bottom'
-                    of each bowl as well as the elevation of the top `rim' of each bowl, and compare the height of each
-                    bowl.
+                    smaller in size. In order to get a better idea for which software package produces a larger bowl,
+                    we can play with the color tables so that the 'rim' and 'bottom' (which is actually the 'top', as
+                    these are inverted bowls) are shown.
                 </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/agi_bowl.png"/>
+                    <p class="text-center caption">
+                        <strong>The bowl effect in Agisoft Photoscan</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/pix_bowl.png"/>
+                    <p class="text-center caption">
+                        <strong>The bowl effect in Pix4D</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>The color tables used to produces these images are as follows:</p>
+
+                <div class="col-xs-12 col-md-6">
+                    <div class="bs-callout bs-callout-default grass">
+                        0% blue<br>
+                        32 blue<br>
+                        33 white<br>
+                        41 white<br>
+                        42 red<br>
+                        100% red<br>
+                    </div>
+                    <p class="text-center caption">
+                        <strong>Agisoft Photoscan Color Table</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <div class="bs-callout bs-callout-default grass">
+                        0% blue<br>
+                        69 blue<br>
+                        70 white<br>
+                        72 white<br>
+                        73 red<br>
+                        100% red<br>
+                    </div>
+                    <p class="text-center caption">
+                        <strong>Pix4D Color Table</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Clearly the Agisoft bowl is much more pronounced. The vertical distance from the rim to the bottom
+                    of the bowl is approximately 9 meters, whereas the vertical distance from the rim to the bottom
+                    of the bowl produced by Pix4D is approximately 3 meters. The effect can be seen even more clearly
+                    when viewing the Agisoft bowl in 3D with a high z-exaggeration:
+                </p>
+
+                <img class="big-image img-thumbnail center-block" src="img/assignment4/agi_bowl_3d.png"/>
+                <p class="text-center caption">
+                    <strong>The bowl effect in Agisoft Photoscan (viewed in 3D)</strong>
+                </p>
+
                 <p>
                     Regardless of bowl size, it is clear that we need to avoid introducing this effect into the data.
                     If GCPs are not used and the bowl effect is in the resulting DEM, any processing performed on the
