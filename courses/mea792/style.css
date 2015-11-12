@@ -2,7 +2,12 @@
 /* Set font and move content down because of fixed navbar */
 body {
     font-family: 'Open Sans', sans-serif;
-    padding-top: 50px;
+    padding-top: 30px;
+}
+
+/* Scrollspy stuff */
+.content {
+    position: relative;
 }
 
 /* When following anchors, we need an offset because of the fixed navbar */
@@ -90,22 +95,22 @@ body {
     margin-top: 0;
 }
 
+.page-header {
+    padding-top: 25px;
+}
+
+.caption {
+    margin-bottom: 40px;
+}
 
 /*
- * Placeholder dashboard ideas
+ * Images
  */
 
-.placeholders {
-    margin-bottom: 30px;
-    text-align: center;
-}
-.placeholders h4 {
-    margin-bottom: 0;
-}
-.placeholder {
-    margin-bottom: 20px;
-}
-.placeholder img {
-    display: inline-block;
-    border-radius: 50%;
+.big-image {
+    max-width: 90%;
+    height: auto;
+    display: block;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }

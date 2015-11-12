@@ -11,7 +11,214 @@
 <body>
 
     <!--(bake navbar.html _section="assignment4")-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#dsm">DSM Comparison</a></li>
+                    <li><a href="#software">Software Comparison</a></li>
+                    <li><a href="#processing">Processing Artifacts</a></li>
+                    <li><a href="#terrain">Terrain Analysis</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- OVERVIEW -->
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/analysis.html"><i class="fa fa-university fa-xs"></i></a></h1>
+
+
+                <!-- DSM COMPARISON -->
+                <a class="anchor" id="dsm"></a>
+                <h1 class="page-header">DSM Comparison - Influence of GCPs</h1>
+
+                <p>
+                    In order to determine the effect of GCPs (Ground Control Points) on the DSMs generated using UAS
+                    imagery processing techniques, we can simply generate two DSMs for a single dataset, one using GCPs
+                    and the other without using GCPs. A third DSM can then be calculated to show the difference between
+                    the two datasets. The following images show this technique using sample data from the Lake Wheeler
+                    flight:
+                </p>
+
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/sample_no_gcp_hist.png"/>
+                    <p class="text-center caption">
+                        <strong>Without GCPs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/sample_gcp_hist.png"/>
+                    <p class="text-center caption">
+                        <strong>With GCPs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/sample_bowl.png"/>
+                    <p class="text-center caption">
+                        <strong>The bowl effect in the Lake Wheeler sample data, processed using Agisoft Photoscan</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Comparing the results in the first two images by eye, it appears that they are essentially
+                    identical. However, if we perform a subtraction, we can reveal the `bowl effect' that is introduced
+                    to the data when GCPs are not used, as seen in the image on the right.
+                </p>
+
+                <p>
+                    This same effect can be seen in the June 20th flight data:
+                </p>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_agisoft_no_gcp.png"/>
+                    <p class="text-center caption">
+                        <strong>June 20th Flight, Without GCPs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_agisoft_gcp.png"/>
+                    <p class="text-center caption">
+                        <strong>June 20th Flight, With GCPs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_agisoft_bowl.png"/>
+                    <p class="text-center caption">
+                        <strong>The bowl effect in the June 20th flight data, processed using Agisoft Photoscan</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Because the left two images use the same color scale, it is actually easy to see the bowl effect before
+                    performing a subtraction. The DSM without GCPs clearly has an area of lower elevation in the center,
+                    as compared to the DSM with GCPs. The bowl effect can be seen clearly in the image on the right.
+                </p>
+
+                <p>
+                    Additionally, we can see that the bowl effect is not unique to Agisoft Photoscan. Processing the
+                    data in Pix4D results in a similar effect:
+                </p>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_pix_no_gcp.png"/>
+                    <p class="text-center caption">
+                        <strong>June 20th Flight, Without GCPs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_pix_gcp.png"/>
+                    <p class="text-center caption">
+                        <strong>June 20th Flight, With GCPs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_pix_bowl.png"/>
+                    <p class="text-center caption">
+                        <strong>The bowl effect in the June 20th flight data, processed using Pix4D</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Comparing the bowls from the two softwares, it appears that the bowl generated in Pix4D is slightly
+                    smaller in size. In order to really compare bowl size, we could find the elevation of the `bottom'
+                    of each bowl as well as the elevation of the top `rim' of each bowl, and compare the height of each
+                    bowl.
+                </p>
+                <p>
+                    Regardless of bowl size, it is clear that we need to avoid introducing this effect into the data.
+                    If GCPs are not used and the bowl effect is in the resulting DEM, any processing performed on the
+                    data will propagate these errors and could have a negative effect on the results. For example, a
+                    watershed analysis could be heavily influenced by the bowl effect because water will always tend
+                    to flow to the bottom of the bowl.
+                </p>
+
+
+                <!-- SOFTWARE COMPARISON -->
+                <a class="anchor" id="software"></a>
+                <h1 class="page-header">Software Comparison - Photoscan, Pix4D, and Trimble</h1>
+
+                <p>
+                    DSMs have been generated using the June 20th flight data in three different software packages.
+                    Agisoft Photoscan and Pix4D data have been seen in the previous section, and the third software
+                    package, Trimble Business Center can produce similar DSMs. All three DSMs, generated with the
+                    use of GCPs, are pictured below:
+                </p>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_agisoft_gcp.png"/>
+                    <p class="text-center caption">
+                        <strong>Agisoft Photoscan DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_pix_gcp.png"/>
+                    <p class="text-center caption">
+                        <strong>Pix4D DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/june_trimble.png"/>
+                    <p class="text-center caption">
+                        <strong>Trimble Business Center DSM</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    To the naked eye, the results of all three DSMs appear very similar. However, comparing each of
+                    the three DSMs to each other by performing a subtraction reveals some interesting artifacts:
+                </p>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/pix-agisoft.png"/>
+                    <p class="text-center caption">
+                        <strong>Agisoft Photoscan DSM subtracted from the Pix4D DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/agisoft-trimble.png"/>
+                    <p class="text-center caption">
+                        <strong>Trimble DSM subtracted from the Agisoft Photoscan DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/pix-trimble.png"/>
+                    <p class="text-center caption">
+                        <strong>Trimble DSM subtracted from the Pix4D DSM</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This comparison reveals that one of software packages is leaving artifacts in the DSM, generated at
+                    the edges of the images used to produce the DSM. Because the Trimble software is a common baseline
+                    in both of the images presenting artifacts, we can conclude that it is the software introducing
+                    these errors.
+                </p>
+
+                <!-- PROCESSING ARTIFACTS-->
+                <a class="anchor" id="processing"></a>
+                <h1 class="page-header">Processing Artifacts</h1>
+
+
+                <!-- TERRAIN ANALYSIS -->
+                <a class="anchor" id="terrain"></a>
+                <h1 class="page-header">Terrain Analysis - Change Detection</h1>
+            </div>
+        </div>
+    </div>
+
     <!--(bake scripts.html)-->
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+    </script>
 
 </body>
 </html>

@@ -12,7 +12,7 @@
     <link href="style.css" rel="stylesheet" type="text/css">
 
 </head>
-<body>
+<body data-spy="scroll" data-target="#side">
 
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
@@ -55,23 +55,116 @@
 
     <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-3 col-md-2 sidebar">
-                <ul id="side" class="nav nav-sidebar">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul class="nav nav-sidebar">
                     <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
                     <li><a href="#motivation">Motivation</a></li>
                     <li><a href="#planning">Flight Planning</a></li>
                     <li><a href="#verification">Flight Verification</a></li>
                 </ul>
             </div>
-            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main" data-spy="scroll" data-target="#side">
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
                 <a class="anchor" id="overview"></a>
-                <h1 class="page-header" style="height: 500px;">Overview</h1>
+                <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/flight_plan.html"><i class="fa fa-university fa-xs"></i></a></h1>
+
+                <p>
+                    In this assigment you need to justify the choice of the flight area and prove that the geographical
+                    and legal conditions allow for a safe flight execution. You will present your idea to your
+                    collegues, so try to find an interesting research problem. The presentation needs to be short
+                    (2-3min, just couple slides) and doesn’t need to include all the information from the assignment.
+                </p>
+
                 <a class="anchor" id="motivation"></a>
-                <h1 class="page-header" style="height: 500px;">Motivation</h1>
+                <h1 class="page-header">Motivation</h1>
+
+                <p>
+                    The goal of this flight, is to collect aerial imagery of the FRF in Duck, NC so that imagery
+                    processing techniques can be compared with LIDAR measurement techniques in a coastal setting.
+                    We hope to be able to determine if beach volume can be accurately calculated using the DSMs
+                    generated using aerial imagery, thus providing a much more cost effective way of studying the
+                    evolution of our beaches as compared to current LIDAR techniques.
+                </p>
+
                 <a class="anchor" id="planning"></a>
-                <h1 class="page-header" style="height: 500px;">Flight Planning</h1>
+                <h1 class="page-header">Flight Planning</h1>
+
+                <p>
+                    The following images show the target area, projected flight plan, and take-off and landing
+                    locations for the Trimble UX5 flight:
+                </p>
+
+                <img src="img/assignment1/duck-area.png" class="big-image img-thumbnail center-block" alt="Duck Flight Area">
+
+                <p>
+                    The flight area is private government property, owned by the US Army Corps of Engineers (permission
+                    granted through research funding). The only obstacles in the area are a small gazebo in a parking
+                    lot off the side of the main road, the main FRF building as well as two garages, and low shrubs and
+                    bushes. While the area does not currently have a COA, aeronautical charts show that the property is
+                    not located in any restricted airspace.
+                </p>
+
+                <p>
+                    The FRF property is approximate 1km alongshore and 0.6km wide, giving an area of 0.6km2. However,
+                    the most important imagery to obtain is the beach itself. Ideally, I'd like to plan a mission that
+                    flies very low over the beach in order to obtain higher resolution imagery (on the order of
+                    millimeters/pixel) in order to compare with the extremely high resolution LIDAR data we collect.
+                </p>
+
+                <img src="img/assignment1/duck-flight.png" class="big-image img-thumbnail center-block" alt="Take-off and Landing Locations">
+
+                <dl class="dl-horizontal">
+                    <dt>Take-off</dt>
+                    <dd>
+                        <strong>
+                            <a href="https://www.google.com/maps/place/36%C2%B010'52.2%22N+75%C2%B045'17.1%22W/@36.181163,-75.754753,239m/data=!3m2!1e3!4b1!4m2!3m1!1s0x0:0x0">36.181163, -75.754753</a>
+                        </strong>
+                    </dd>
+                    <dt></dt>
+                    <dd>
+                        Take-off location is from the main entrance road to the FRF. It is long and straight, and the
+                        direction chosen is typically into the wind, meaning easier takeoff.
+                    </dd>
+                    <dt>Landing</dt>
+                    <dd>
+                        <strong>
+                            <a href="https://www.google.com/maps/place/36%C2%B011'01.0%22N+75%C2%B045'08.6%22W/@36.183612,-75.752389,258m/data=!3m2!1e3!4b1!4m2!3m1!1s0x0:0x0">36.183612, -75.752389</a>
+                        </strong>
+                    </dd>
+                    <dt></dt>
+                    <dd>
+                        Landing location is on the main dirt access road on the North Property, chosen for a softer
+                        landing.
+                    </dd>
+                    <dt>Alternate Landing</dt>
+                    <dd>
+                        <strong>
+                            <a href="https://www.google.com/maps/place/36%C2%B011'03.0%22N+75%C2%B045'15.1%22W/@36.184153,-75.754195,239m/data=!3m2!1e3!4b1!4m2!3m1!1s0x0:0x0">36.184153, -75.754195</a>
+                        </strong>
+                    </dd>
+                    <dt></dt>
+                    <dd>
+                        Alternate landing is in a large dirt field, west of the dirt access road used as the primary
+                        landing location.
+                    </dd>
+                </dl>
+
                 <a class="anchor" id="verification"></a>
-                <h1 class="page-header" style="height: 500px;">Flight Verification</h1>
+                <h1 class="page-header">Flight Verification</h1>
+
+                <p>
+                    I was unable to find a high resolution DEM that covered the entire flight area, so I worked with
+                    the NCSU Lake Wheeler area data to practice using GRASS GIS to ensure that take-off and landing had
+                    sufficient area and that the flight altitude was high enough to complete the flight without hitting
+                    obstacles. The following image shows elevation differences between the DEM and flight elevations
+                    (black = low difference, white = high difference):
+                </p>
+
+                <img src="img/assignment1/flight.png" class="big-image img-thumbnail center-block" alt="Flight Verification">
+
+                <p>
+                    However, I will be coming back to this assignment with the DEM that I'll generate using the image
+                    processing techniques in the next assignment, just as a proof of concept.
+                </p>
 
             </div>
         </div>
@@ -80,6 +173,10 @@
     <!-- Include scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+    </script>
 
 </body>
 </html>
