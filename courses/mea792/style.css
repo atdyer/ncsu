@@ -22,6 +22,15 @@ body {
     font-family: monospace;
 }
 
+.inline-code {
+    font-family: monospace;
+    background-color: #eeeeee;
+    box-shadow: 3px 0 0 #eeeeee, -3px 0 0 #eeeeee;
+    padding: 3px 0;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
 
 /*
  * Global add-ons
