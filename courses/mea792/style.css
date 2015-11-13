@@ -14,7 +14,7 @@ body {
 .anchor {
     display: block;
     position: relative;
-    top: -100px;
+    top: -50px;
     visibility: hidden;
 }
 
@@ -73,6 +73,15 @@ body {
     }
 }
 
+/* hide sidebar submenus by default*/
+/*#sidebar.nav .nav {*/
+    /*display: none;*/
+/*}*/
+/* show sub menu when parent is active */
+/*#sidebar.nav>.active>ul {*/
+    /*display: block;*/
+/*}*/
+
 /* Sidebar navigation */
 .nav-sidebar {
     margin-right: -21px; /* 20px padding + 1px border */
@@ -83,11 +92,32 @@ body {
     padding-right: 20px;
     padding-left: 20px;
 }
+
 .nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
     color: #fff;
     background-color: #428bca;
+}
+
+.nav-sidebar-sub {
+    margin-right: -21px;
+    margin-bottom: 0px;
+    margin-left: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.nav-sidebar-sub > li > a {
+    padding-right: 20px;
+    padding-left: 40px;
+}
+
+.nav-sidebar-sub > .active > a,
+.nav-sidebar-sub > .active > a:hover,
+.nav-sidebar-sub > .active > a:focus {
+    border:0 #428bca solid;
+    border-right-width: 7px;
 }
 
 

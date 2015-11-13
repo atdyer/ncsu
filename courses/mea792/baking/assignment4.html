@@ -15,11 +15,20 @@
     <div class="container-fluid">
         <div class="row">
             <div id="side" class="col-sm-3 col-md-2 sidebar">
-                <ul class="nav nav-sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
                     <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
                     <li><a href="#dsm">DSM Comparison</a></li>
                     <li><a href="#software">Software Comparison</a></li>
-                    <li><a href="#processing">Processing Artifacts</a></li>
+                    <li>
+                        <a href="#processing">Processing Artifacts</a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#aspect">r.slope.aspect</a></li>
+                            <li class=""><a class="grass" href="#relief">r.local.relief</a></li>
+                            <li class=""><a class="grass" href="#pca">r.shaded.pca</a></li>
+                            <li class=""><a class="grass" href="#skyview">r.skyview</a></li>
+                            <li class=""><a href="#others">Others</a></li>
+                        </ul>
+                    </li>
                     <li><a href="#terrain">Terrain Analysis</a></li>
                 </ul>
             </div>
@@ -289,6 +298,7 @@
                 </p>
 
                 <!-- r.slope.aspect -->
+                <a class="anchor" id="aspect"></a>
                 <h3 class="grass">r.slope.aspect</h3>
 
                 <p>
@@ -347,6 +357,7 @@
 
 
                 <!-- r.local.relief -->
+                <a class="anchor" id="relief"></a>
                 <h3 class="grass">r.local.relief</h3>
 
                 <p>
@@ -377,6 +388,7 @@
                 <div class="clearfix"></div>
 
                 <!-- r.shaded.pca -->
+                <a class="anchor" id="pca"></a>
                 <h3 class="grass">r.shaded.pca</h3>
 
                 <p>
@@ -406,6 +418,7 @@
                 <div class="clearfix"></div>
 
                 <!-- r.skyview -->
+                <a class="anchor" id="skyview"></a>
                 <h3 class="grass">r.skyview</h3>
 
                 <p>
@@ -438,6 +451,7 @@
 
 
                 <!-- Others -->
+                <a class="anchor" id="others"></a>
                 <h3>Others</h3>
 
                 <p>
@@ -482,6 +496,76 @@
                 <!-- TERRAIN ANALYSIS -->
                 <a class="anchor" id="terrain"></a>
                 <h1 class="page-header">Terrain Analysis - Change Detection</h1>
+
+                <p>
+                    If multiple flights have been used to collect data over the same area on different dates,
+                    the DSMs generated from aerial imagery can be used to detect change in the
+                    topography over time. In this example, we have data from flights conducted over the Lake Wheeler
+                    site on June 20th and October 6th.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/agisoft_june.png"/>
+                    <p class="text-center caption">
+                        <strong>June 20th Flight</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/agisoft_october.png"/>
+                    <p class="text-center caption">
+                        <strong>October 6th Flight</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    By performing a simple subtraction, we can see how the terrain has changed over time.
+                    Because we subtract the December DSM from the June DSM, positive values will indicate erosion or
+                    removal of material, and negative values will indicate accretion or the addition of material.
+                </p>
+
+                <div class="bs-callout bs-callout-default grass">
+                    <strong>g.region</strong> rast=2015_06_20_DSM_agi_11GCP -p<br>
+                    <strong>r.mapcalc</strong> "diff_jun_oct_agis = 2015_06_20_DSM_agi_11GCP - 2015_10_06_DSM_agi_8GCPs"
+                </div>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/agisoft_differences.png"/>
+                    <p class="text-center caption">
+                        <strong>June flight minus October flight</strong>
+                    </p>
+                </div>
+
+                <p>
+                    We can see clearly that about half of the fields (in red) were subject to either erosion or removal
+                    of crops, while the other half (in blue) were likely tilled to raise the soil. However, we can see
+                    that the road appears to have sunk, and while this is entirely possible, it is unlikely to have
+                    sunk that uniformly over such a small period of time. This likely indicates inaccuracies in the
+                    computations used to generate the DSMs. Additionally, if we modify the color table as follows, we
+                    can see the majority of the significant change (i.e. greater in magnitude than 0.5 meters) in
+                    the fields was due to erosion or removal of crops.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <div class="bs-callout bs-callout-default grass">
+                        0% blue<br>
+                        -0.6 blue<br>
+                        -0.5 white<br>
+                        0 white<br>
+                        0.5 white<br>
+                        0.6 red<br>
+                        100% red<br>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment4/agisoft_differences_spread.png"/>
+                    <p class="text-center caption">
+                        <strong>June flight minus October flight (custom color table)</strong>
+                    </p>
+                </div>
+
             </div>
         </div>
     </div>
@@ -490,6 +574,12 @@
 
     <script>
         $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
     </script>
 
 </body>
