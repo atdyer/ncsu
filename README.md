@@ -6,7 +6,7 @@
 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/) (should come with Node.js)
-- [grunt](http://gruntjs.com/) - Easiest to do a global install with `npm install -g grunt` (probably will need sudo)
+- [grunt](http://gruntjs.com/) - Easiest to do a global install with `npm install -g grunt-cli` (probably will need sudo)
 
 ---
 
@@ -14,7 +14,7 @@
 
 ##### Navigate to site subdirectory
 ```bash
-cd courses/couse_name/`
+cd courses/couse_name/
 ```
 
 ##### Install required node packages

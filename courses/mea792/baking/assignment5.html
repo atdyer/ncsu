@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="UTF-8">
-    <title>MEA792 - Tristan Dyer</title>
+    <title>MEA792 - Assignment 5 - Tristan Dyer</title>
 
     <!--(bake css.html)-->
 
@@ -11,7 +11,55 @@
 <body>
 
     <!--(bake navbar.html _section="assignment5")-->
-    <!--(bake scripts.html)-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
+                    <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#explore">Quick Data Exploration</a></li>
+                    <li><a href="#density">Point Density</a></li>
+                    <li><a href="#binning">Raster Binning and Classification</a></li>
+                    <li><a href="#highres">High Resolution DEM/DSM</a></li>
+                    <li><a href="#diffs">DEM and GCP Differences</a></li>
+                    <li><a href="#vis">Point Density Visualization</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- OVERVIEW -->
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/analysis.html"><i class="fa fa-university fa-xs"></i></a></h1>
+
+                <!-- DATA EXPLORATION -->
+                <a class="anchor" id="explore"></a>
+                <h1 class="page-header">Quick Data Exploration</h1>
+
+                <!-- POINT DENSITY -->
+                <a class="anchor" id="density"></a>
+                <h1 class="page-header">Point Density</h1>
+
+                <!-- BINNING -->
+                <a class="anchor" id="binning"></a>
+                <h1 class="page-header">Raster Binning and Classification</h1>
+
+                <!-- HIGH RES DEM/DSM -->
+                <a class="anchor" id="highres"></a>
+                <h1 class="page-header">High Resolution DEM/DSM</h1>
+
+                <!-- DIFFERENCES -->
+                <a class="anchor" id="diffs"></a>
+                <h1 class="page-header">DEM and GCP Differences</h1>
+
+                <!-- VISUALIZATION -->
+                <a class="anchor" id="vis"></a>
+                <h1 class="page-header">Point Density Visualization</h1>
+
+            </div>
+        </div>
+    </div>
+
+                <!--(bake scripts.html)-->
 
 </body>
 </html>
