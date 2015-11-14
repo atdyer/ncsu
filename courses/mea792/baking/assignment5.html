@@ -29,37 +29,391 @@
 
                 <!-- OVERVIEW -->
                 <a class="anchor" id="overview"></a>
+                <span>
                 <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/analysis.html"><i class="fa fa-university fa-xs"></i></a></h1>
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading"><h2 class="panel-title">Note</h2></div>
+                    <div class="panel-body">
+                        A number of commands will be run from the command-line in this assignment. When starting GRASS
+                        GIS, a shell window will be opened. This is the shell window that I will be running most
+                        GRASS modules from. Commands run from this window are indicated by a callout box with a
+                        green border, as shown here.
+
+                        <div class="col-xs-12 col-md-12">
+                            <div class="bs-callout bs-callout-success grass">
+                                tristan@tristan-PC:$ <strong>echo</strong> "Hello, World"<br>
+                                Hello, World
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="clearfix"></div>
+
+                </div>
+                </span>
 
                 <!-- DATA EXPLORATION -->
                 <a class="anchor" id="explore"></a>
+                <span>
                 <h1 class="page-header">Quick Data Exploration</h1>
+
+                <p>
+                    First, we'll take a quick look at the data we're going to be using in this assignment. We can
+                    easily explore LAS files (<a href="http://www.asprs.org/Committee-General/LASer-LAS-File-Format-Exchange-Activities.html">doc</a>)
+                    using the <a href="http://www.liblas.org/">libLAS</a>
+                    <a href="http://www.liblas.org/utilities/index.html">utility applications</a> which are included
+                    with GRASS GIS. Use the <span class="inline-code">lasinfo</span> utility program to display
+                    information about the data we're using.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>cd</strong> /path/to/data/directory<br>
+                        tristan@tristan-PC:$ <strong>lasinfo</strong> mid_pines_spm_2013.las
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This will print a lot of information about the file, most of which is stored in the file header.
+                    We are interested in the both the bounding box and the number of points by classification.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <div class="bs-callout bs-callout-default grass">
+                        Minimum and Maximum Attributes (min,max)<br>
+                        ---------------------------------------------------------<br>
+                        Min X, Y, Z: 		636271.27, 218694.44, 88.73<br>
+                        Max X, Y, Z: 		637795.27, 220218.44, 155.81<br>
+                        Bounding Box:		636271.27, 218694.44, 637795.27, 220218.44
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-6">
+                    <div class="bs-callout bs-callout-default grass">
+                        Point Classifications<br>
+                        ---------------------------------------------------------<br>
+                        1340658 Unclassified (1)<br>
+                        2580704 Ground (2)<br>
+                        66 Low Point (noise) (7)<br>
+                        1960603 Reserved for ASPRS Definition (11)
+
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    We want to set the GRASS region to be equal to that of the data (i.e. the bounding box of the data).
+                    The <span class="inline-code">r.in.lidar</span> (<a href="https://grass.osgeo.org/grass70/manuals/r.in.lidar.html">doc</a>)
+                    module can print out a region based on the bounding
+                    box of the data, which can then be copy/pasted into the <span class="inline-code">g.region</span>
+                    module to set the region.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.in.lidar</strong> -sgo input=mid_pines_spm_2013.las<br>
+                        Over-riding projection check<br>
+                        n=220218.440000 s=218694.440000 e=637795.270000 w=636271.270000 b=88.730000 t=155.810000
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    We're interested in the N/S and E/W bounding box, and will only need 1m accuracy, so set the
+                    region as follows:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>g.region</strong> n=220218 s=218694 e=637795 w=636271 res=1 -pa<br>
+                        projection: 99 (Lambert Conformal Conic)<br>
+                        zone:       0<br>
+                        datum:      nad83<br>
+                        ellipsoid:  grs80<br>
+                        north:      220218<br>
+                        south:      218694<br>
+                        west:       636271<br>
+                        east:       637795<br>
+                        nsres:      1<br>
+                        ewres:      1<br>
+                        rows:       1524<br>
+                        cols:       1524<br>
+                        cells:      2322576
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    The <span class="inline-code">-a</span> flag ensures that the region will be aligned to the
+                    resolution as opposed to the specific bounds, although in this case it is not necessary, as
+                    both are able to be propery aligned.
+                </p>
+                </span>
 
                 <!-- POINT DENSITY -->
                 <a class="anchor" id="density"></a>
+                <span>
                 <h1 class="page-header">Point Density</h1>
+
+                <p>
+                    Next, we'd like to calculate the point density of the LIDAR data inside of the region we just defined.
+                    This means we want to count how many LIDAR points are inside of each cell in the computational
+                    region. Use the <span class="inline-code">method=n</span> option of <span class="inline-code">
+                    r.in.lidar</span> to count the number of points per cell.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.in.lidar</strong> -o input=mid_pines_spm_2013.las output=mid_pines_dens_all method=n
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/density_all.png"/>
+                    <p class="text-center caption">
+                        <strong>Point Density of All Returns</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    In this image, we can clearly see the overlap of the flight path. There is a higher density of points
+                    in the overlapping area because the LIDAR scans that area twice. Additionally, we can see that there
+                    is a higher density of points where there is dense vegetation. This is because the LIDAR scanner
+                    is capable of receiving multiple returns from a single light pulse. This is due to the fact that
+                    the light pulse emitted from the scanner essentially acts the same way a flashlight does. When you shine a
+                    flashlight onto a wall, you see a large circle of light. Rather than the laser pulse hitting some object
+                    at some infinitely small point, the laser pulse will project some (small) circle of light onto whatever
+                    object it hits first. If the footprint of
+                    the emitted laser pulse happens to fall partially on a close object and partially on a far-away
+                    object, the scanner will detect two points. This is much more likely to happen when scanning dense
+                    vegetation as opposed to flat ground, so we get a higher density of points in the areas of dense
+                    vegetation.
+                </p>
+
+                <p>
+                    Now, say we want to compute the density of only <i>ground</i> points. We can filter out non-ground
+                    points when reading in the data from file by specifying a class filter with the
+                    <span class="inline-code">r.in.lidar</span> command.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.in.lidar</strong> -o input=mid_pines_spm_2013.las output=mid_pines_dens_ground class_filter=2 method=n
+                    </div>
+                </div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/density_all_hist.png"/>
+                    <p class="text-center caption">
+                        <strong>Point Density of All Returns</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/density_ground.png"/>
+                    <p class="text-center caption">
+                        <strong>Point Density of Ground Returns</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Comparing the density of all returns with the density of ground returns (with histogram equalization
+                    applied to both, as seen above) yields some interesting results. First, we see that areas of dense
+                    vegetation typically have either 0 or 1 ground return per cell. This is expected, as it is much less
+                    likely for a laser pulse to reach the ground when there is vegetation in the way. Next,
+                    we see that the large swath
+                    of high density points where the flight lines overlapped is not visible in the ground returns. In
+                    the open fields, this would seem contradictory because almost every return from those areas should
+                    be ground returns. This tells us that whatever algorithm was used to perform the classification
+                    probably only allowed a certain number of ground return points per some unit of area. Using
+                    <a href="http://www.danielgm.net/cc/">CloudCompare</a> to visualize all points in the cloud by
+                    classification, we can see that a lot of the returns in the overlapping area are classified as
+                    11 (Reserved for ASPRS Definition), meaning that the classification algorithm probably determined
+                    the most likely ground point and left the rest for further classification.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/class-cc.png"/>
+                    <p class="text-center caption">
+                        <strong>All points colored by classification in CloudCompare</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Finally, we see that there is a very distinct line running through the exact center of the
+                    flight-line overlap. My best guess is that whatever algorithm was used to perform the classification
+                    ran along the center of each flight path and looked out to the center of the overlaps
+                    on either side of the flight path. The image above that shows the density of all returns does not
+                    have this line, which suggests that the line is only part of the point classification.
+                    Additionally, if we use CloudCompare to zoom in to the line and view it from
+                    an angle, it appears that the classification method inverts along the line (possibly due to the
+                    algorithm following the direction of the flight path) for no apparent reason.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/skew.png"/>
+                    <p class="text-center caption">
+                        <strong>The line that runs through the middle of the flight path overlap</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                </span>
 
                 <!-- BINNING -->
                 <a class="anchor" id="binning"></a>
+                <span>
                 <h1 class="page-header">Raster Binning and Classification</h1>
+
+                <p>
+                    In this section, we wish to create a classified raster map where the value of each cell is one of
+                    the following classes:
+                </p>
+
+                <ul>
+                    <li><strong>1</strong> - ground</li>
+                    <li><strong>2</strong> - vegetation</li>
+                    <li><strong>3</strong> - buildings</li>
+                </ul>
+
+                <p>
+                    In order to do this, we'll create three different raster maps. The first is a DSM, in which each
+                    cell of the raster is equal to the elevation of the highest LIDAR return in that cell, regardless
+                    of classification.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.in.lidar</strong> -o input=mid_pines_spm_2013.las output=mid_pines_all_max method=max resolution=3 class_filter=1,2
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Note that we're creating a 3m resolution raster. In the previous section, we
+                    were looking at the density of a 1m raster, and most of the cells either had 0, 1, or 2 returns
+                    per cell. In order to produce a raster with fewer holes, we increase the resolution to 3m in order
+                    to guarantee that points will fall within practically every cell.
+                </p>
+
+                <p>
+                    Next, we'll create a surface based on last return, which will represent the vegetative canopy.
+                    Note that in this command, we are only considering last returns. It is important to note that a
+                    LIDAR pulse is <i>only considered to have a last return if there is more than one return</i>. This
+                    means that a LIDAR pulse that produces a single return will not classify that return as first and
+                    last, it will only be classified as first. We'll take the average of all last returns in each cell
+                    in order to represent the average depth that the LIDAR pulses were able to penetrate the canopy
+                    in each cell.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.in.lidar</strong> -o input=mid_pines_spm_2013.las output=mid_pines_last_mean resolution=3 method=mean return_filter=last class_filter=1,2
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Finally, we create a raster which represents the ground surface based on the point classification in
+                    the LAS file.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.in.lidar</strong> -o input=mid_pines_spm_2013.las output=mid_pines_ground_mean resolution=3 class_filter=2
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/all_max.png"/>
+                    <p class="text-center caption">
+                        <strong>DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/last_mean.png"/>
+                    <p class="text-center caption">
+                        <strong>Canopy</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/ground_mean.png"/>
+                    <p class="text-center caption">
+                        <strong>Ground</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Now we combine the surfaces using the following logic:
+                </p>
+
+                <ul>
+                    <li>If the cell is not null in the canopy raster, the cell is vegetation (class 2)</li>
+                    <li>Otherwise, if the cell is not null in the ground raster, the cell is ground (class 1)</li>
+                    <li>Otherwise, if the cell is not null in the DSM, the cell is a building (class 3)</li>
+                    <li>Otherwise, there's nothing in the cell and it is null</li>
+                </ul>
+
+                <p>
+                    which can be run in <span class="inline-code">r.mapcalc</span> as follows:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>r.mapcalc</strong> "classes = if( ! isnull(mid_pines_last_mean), 2, if( !isnull(mid_pines_ground_mean), 1, if( !isnull(mid_pines_all_max),3, null())))"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/classes.png"/>
+                    <p class="text-center caption">
+                        <strong>Raster Classification</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                </span>
 
                 <!-- HIGH RES DEM/DSM -->
                 <a class="anchor" id="highres"></a>
+                <span>
                 <h1 class="page-header">High Resolution DEM/DSM</h1>
+                </span>
 
                 <!-- DIFFERENCES -->
                 <a class="anchor" id="diffs"></a>
+                <span>
                 <h1 class="page-header">DEM and GCP Differences</h1>
+                </span>
 
                 <!-- VISUALIZATION -->
                 <a class="anchor" id="vis"></a>
+                <span>
                 <h1 class="page-header">Point Density Visualization</h1>
+                </span>
 
             </div>
         </div>
     </div>
 
-                <!--(bake scripts.html)-->
+    <!--(bake scripts.html)-->
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
+    </script>
 
 </body>
 </html>
