@@ -426,13 +426,163 @@
                 <a class="anchor" id="highres"></a>
                 <h1 class="page-header">High Resolution DEM/DSM</h1>
 
+                <p>
+                    In this section, we will import the point cloud as vector data, rather than as raster, and use it
+                    to generate a higher resolution DEM and DSM using spline interpolation. First, import the point
+                    cloud twice, once with all first-returns and once with only points classified as ground.
+                </p>
 
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>v.in.lidar</strong> -t -o input=mid_pines_spm_2013.las output=mid_pines_ground class_filter=2<br>
+                        tristan@tristan-PC:$ <strong>v.in.lidar</strong> -t -o input=mid_pines_spm_2013.las output=mid_pines_surface class_filter=1,2 return_filter=first
+                    </div>
+                </div>
+                <div class="clearfix"></div>
 
+                <p>
+                    Next, check the overall point density using <span class="inline-code">v.outlier</span>
+                    (<a href="https://grass.osgeo.org/grass64/manuals/v.outlier.html">doc</a>).
+                </p>
 
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>v.outlier</strong> -e input=mid_pines_ground output=dummy outlier=dummy<br>
+                        Estimated point density: 1.111<br>
+                        Estimated mean distance between points: 0.9487
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                As you can see, the point cloud has a density of approximately 1.1 points per square meter and the
+                average distance between points is almost a meter. Therefore,
+                we want to choose a resolution that will result in holes, and thus allow interpolation to occur. We'll
+                choose a resolution of 0.3 meters. Set the resolution using <span class="inline-code">g.region</span>
+                and generate the rasters using <span class="inline-code">v.surf.rst</span>
+                (<a href="https://grass.osgeo.org/grass64/manuals/v.surf.rst.html">doc</a>).
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>g.region</strong> res=0.3<br>
+                        tristan@tristan-PC:$ <strong>v.surf.rst</strong> input=mid_pines_ground elevation=mid_pines_ground_elev slope=mid_pines_ground_slope pcurv=mid_pines_ground_profcurv npmin=80 tension=20 smooth=1<br>
+                        tristan@tristan-PC:$ <strong>v.surf.rst</strong> input=mid_pines_surface elevation=mid_pines_surface_elev slope=mid_pines_surface_slope pcurv=mid_pines_surface_profcurv npmin=80 tension=20 smooth=1<br>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/dense_ground_elevation.png"/>
+                    <p class="text-center caption">
+                        <strong>Ground Elevation</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/dense_ground_slope.png"/>
+                    <p class="text-center caption">
+                        <strong>Ground Slope</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/dense_ground_curve.png"/>
+                    <p class="text-center caption">
+                        <strong>Ground Profile Curvature</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/dense_surface_elevation.png"/>
+                    <p class="text-center caption">
+                        <strong>Surface Elevation</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/dense_surface_slope.png"/>
+                    <p class="text-center caption">
+                        <strong>Surface Slope</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/dense_surface_curve.png"/>
+                    <p class="text-center caption">
+                        <strong>Surface Profile Curvature</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    As you can see, we have now generated a higher resolution DEM and DSM compared to using
+                    <span class="inline-code">r.in.lidar</span>. If we view them in 3D, we can easily see the extra detail.
+                    The following four images
+                    show a 3D view of both the 1m and 0.3m resolution DSMs (it's useful to right-click and open each in
+                    a new tab to be able to toggle quickly between them) colored by the classifications we created
+                    in the previous section.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/low_res_out.png"/>
+                    <p class="text-center caption">
+                        <strong>1m resolution DSM from <span class="inline-code">r.in.lidar</span></strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/high_res_out.png"/>
+                    <p class="text-center caption">
+                        <strong>0.3m resolution DSM from <span class="inline-code">v.in.lidar</span> </strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/low_res.png"/>
+                    <p class="text-center caption">
+                        <strong>1m resolution DSM from <span class="inline-code">r.in.lidar</span> (zoomed)</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/high_res.png"/>
+                    <p class="text-center caption">
+                        <strong>0.3m resolution DSM from <span class="inline-code">v.in.lidar</span> (zoomed)</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This 3D animation allows us to see the where the surface canopy separates from the ground in the 0.3m
+                    resolution rasters, using a cutting plane to view inside of and underneath the canopy surface:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment5/animation.gif"/>
+                    <p class="text-center caption">
+                        <strong>Visualization of ground DEM and DSM using cross-sections</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
 
                 <!-- DIFFERENCES -->
                 <a class="anchor" id="diffs"></a>
                 <h1 class="page-header">DEM and GCP Differences</h1>
+
+                <table class="table table-condensed table-hover">
+                    <thead>
+                        <tr><th>GCP Elevation</th><th>DEM Elevation</th><th>Difference</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>105.06</td><td>105.0564</td><td>0.00360000000000582</td></tr>
+                        <tr><td>104.533</td><td>104.5714</td><td>-0.0383999999999958</td></tr>
+                        <tr><td>111.888</td><td>111.8264</td><td>0.0615999999999985</td></tr>
+                        <tr><td>115.335</td><td>115.4862</td><td>-0.151200000000003</td></tr>
+                        <tr><td>111.315</td><td>111.3821</td><td>-0.0670999999999964</td></tr>
+                        <tr><td>112.526</td><td>112.5003</td><td>0.0257000000000005</td></tr>
+                        <tr><td>106.947</td><td>106.9645</td><td>-0.0174999999999983</td></tr>
+                        <tr><td>111.069</td><td>111.1376</td><td>-0.0686000000000035</td></tr>
+                        <tr><td>109.971</td><td>110.0439</td><td>-0.07289999999999</td></tr>
+                        <tr><td>107.193</td><td>107.3439</td><td>-0.150900000000007</td></tr>
+                        <tr><td>109.034</td><td>109.0509</td><td>-0.0168999999999926</td></tr>
+                        <tr><td>116.12</td><td>116.2348</td><td>-0.114800000000002</td></tr>
+                    </tbody>
+                </table>
 
 
 
@@ -452,6 +602,7 @@
     <!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>-->
     <script src="lib/jquery/jquery-2.1.4.min.js"></script>
     <script src="lib/jquery/jquery.scrollTo.min.js"></script>
+    <script src="lib/jquery/jquery.lazyload.min.js"></script>
     <script src="lib/bootstrap/bootstrap.min.js"></script>
 
     <script>
