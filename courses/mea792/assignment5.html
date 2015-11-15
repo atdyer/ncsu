@@ -7,8 +7,10 @@
 
     <!-- Include CSS -->
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,600,700'>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">-->
+    <link href="lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet" type="text/css">
 
 </head>
@@ -70,7 +72,6 @@
 
                 <!-- OVERVIEW -->
                 <a class="anchor" id="overview"></a>
-                <span>
                 <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/analysis.html"><i class="fa fa-university fa-xs"></i></a></h1>
 
                 <div class="panel panel-primary">
@@ -92,11 +93,11 @@
                     <div class="clearfix"></div>
 
                 </div>
-                </span>
+
+
 
                 <!-- DATA EXPLORATION -->
                 <a class="anchor" id="explore"></a>
-                <span>
                 <h1 class="page-header">Quick Data Exploration</h1>
 
                 <p>
@@ -191,11 +192,11 @@
                     resolution as opposed to the specific bounds, although in this case it is not necessary, as
                     both are able to be propery aligned.
                 </p>
-                </span>
+
+
 
                 <!-- POINT DENSITY -->
                 <a class="anchor" id="density"></a>
-                <span>
                 <h1 class="page-header">Point Density</h1>
 
                 <p>
@@ -303,11 +304,10 @@
                 </div>
                 <div class="clearfix"></div>
 
-                </span>
+
 
                 <!-- BINNING -->
                 <a class="anchor" id="binning"></a>
-                <span>
                 <h1 class="page-header">Raster Binning and Classification</h1>
 
                 <p>
@@ -420,34 +420,39 @@
                 </div>
                 <div class="clearfix"></div>
 
-                </span>
+
 
                 <!-- HIGH RES DEM/DSM -->
                 <a class="anchor" id="highres"></a>
-                <span>
                 <h1 class="page-header">High Resolution DEM/DSM</h1>
-                </span>
+
+
+
+
 
                 <!-- DIFFERENCES -->
                 <a class="anchor" id="diffs"></a>
-                <span>
                 <h1 class="page-header">DEM and GCP Differences</h1>
-                </span>
+
+
 
                 <!-- VISUALIZATION -->
                 <a class="anchor" id="vis"></a>
-                <span>
                 <h1 class="page-header">Point Density Visualization</h1>
-                </span>
+
+
 
             </div>
         </div>
     </div>
 
     <!-- Include scripts -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
+    <!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js"></script>-->
+    <script src="lib/jquery/jquery-2.1.4.min.js"></script>
+    <script src="lib/jquery/jquery.scrollTo.min.js"></script>
+    <script src="lib/bootstrap/bootstrap.min.js"></script>
 
     <script>
         $( 'body' ).scrollspy( {target: '#side'} );
