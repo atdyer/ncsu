@@ -22,7 +22,6 @@
                     <li><a href="#binning">Raster Binning and Classification</a></li>
                     <li><a href="#highres">High Resolution DEM/DSM</a></li>
                     <li><a href="#diffs">DEM and GCP Differences</a></li>
-                    <li><a href="#vis">Point Density Visualization</a></li>
                 </ul>
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
@@ -31,25 +30,26 @@
                 <a class="anchor" id="overview"></a>
                 <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/analysis.html"><i class="fa fa-university fa-xs"></i></a></h1>
 
-                <div class="panel panel-primary">
-                    <div class="panel-heading"><h2 class="panel-title">Note</h2></div>
-                    <div class="panel-body">
-                        A number of commands will be run from the command-line in this assignment. When starting GRASS
-                        GIS, a shell window will be opened. This is the shell window that I will be running most
-                        GRASS modules from. Commands run from this window are indicated by a callout box with a
-                        green border, as shown here.
+                <p>
+                    In this assignment we'll import, analyze, and explore LIDAR point cloud data for the Mid Pines area, we'll
+                    compute bare earth and canopy surfaces from the LIDAR data, and use visualization techniques to
+                    highlight subtle terrain features. We'll cover two different ways of bringing LIDAR data into
+                    GRASS GIS, weighing the pros and cons of each.
+                </p>
 
-                        <div class="col-xs-12 col-md-12">
-                            <div class="bs-callout bs-callout-success grass">
-                                tristan@tristan-PC:$ <strong>echo</strong> "Hello, World"<br>
-                                Hello, World
-                            </div>
+                <p>
+                    A number of commands will be run from the command-line in this assignment. When starting GRASS
+                    GIS, a shell window will be opened. This is the shell window that I will be running most
+                    GRASS modules from. Commands run from this window are indicated by a callout box with a
+                    green border, as shown here.
+
+                    <div class="col-xs-12 col-md-12">
+                        <div class="bs-callout bs-callout-success grass">
+                            tristan@tristan-PC:$ <strong>echo</strong> "Hello, World"<br>
+                            Hello, World
                         </div>
-
                     </div>
-                    <div class="clearfix"></div>
-
-                </div>
+                </p>
 
 
 
@@ -521,33 +521,88 @@
                 <a class="anchor" id="diffs"></a>
                 <h1 class="page-header">DEM and GCP Differences</h1>
 
+                <p>
+                    Next, we'll compute the difference in elevation between the GCPs and the high resolution ground
+                    surface we've just generated from the LIDAR data. The GCP locations are in the PERMANENT mapset
+                    as <span class="inline-code">GCP_12_degrees</span>. We're going to copy that data to a new
+                    vector dataset, add two columns (one for the DEM elevation, and one for the difference between
+                    the DEM elevation and the GCP elevation), put the elevation values from the
+                    <span class="inline-code">mid_pines_ground_elev</span> raster at the GCP locations into the table,
+                    and finally, compute and display the differences.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>g.copy</strong> vect=GCP_12_degrees,GCP_12_differences<br>
+                        tristan@tristan-PC:$ <strong>v.db.addcolumn</strong> map=GCP_12_differences columns="dem_height DOUBLE, height_difference DOUBLE"<br>
+                        tristan@tristan-PC:$ <strong>v.what.rast</strong> -i map=GCP_12_differences raster=mid_pines_ground_elev column=dem_height<br>
+                        tristan@tristan-PC:$ <strong>v.db.update</strong> map=GCP_12_differences column=height_difference qcolumn="ASL - dem_height"<br>
+                        tristan@tristan-PC:$ <strong>v.db.select</strong> map=GCP_12_differences columns=ASL,dem_height,height_difference
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    These commands will print the followed data (which I have cleaned up for presentation):
+                </p>
+
                 <table class="table table-condensed table-hover">
                     <thead>
-                        <tr><th>GCP Elevation</th><th>DEM Elevation</th><th>Difference</th></tr>
+                        <tr><th>GCP Elevation (m)</th><th>DEM Elevation (m)</th><th>Difference (m)</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>105.06</td><td>105.0564</td><td>0.00360000000000582</td></tr>
-                        <tr><td>104.533</td><td>104.5714</td><td>-0.0383999999999958</td></tr>
-                        <tr><td>111.888</td><td>111.8264</td><td>0.0615999999999985</td></tr>
-                        <tr><td>115.335</td><td>115.4862</td><td>-0.151200000000003</td></tr>
-                        <tr><td>111.315</td><td>111.3821</td><td>-0.0670999999999964</td></tr>
-                        <tr><td>112.526</td><td>112.5003</td><td>0.0257000000000005</td></tr>
-                        <tr><td>106.947</td><td>106.9645</td><td>-0.0174999999999983</td></tr>
-                        <tr><td>111.069</td><td>111.1376</td><td>-0.0686000000000035</td></tr>
-                        <tr><td>109.971</td><td>110.0439</td><td>-0.07289999999999</td></tr>
-                        <tr><td>107.193</td><td>107.3439</td><td>-0.150900000000007</td></tr>
-                        <tr><td>109.034</td><td>109.0509</td><td>-0.0168999999999926</td></tr>
-                        <tr><td>116.12</td><td>116.2348</td><td>-0.114800000000002</td></tr>
+                        <tr><td>105.06</td><td>105.0564</td><td>0.0036</td></tr>
+                        <tr><td>104.533</td><td>104.5714</td><td>-0.0384</td></tr>
+                        <tr><td>111.888</td><td>111.8264</td><td>0.0616</td></tr>
+                        <tr><td>115.335</td><td>115.4862</td><td>-0.1512</td></tr>
+                        <tr><td>111.315</td><td>111.3821</td><td>-0.0671</td></tr>
+                        <tr><td>112.526</td><td>112.5003</td><td>0.0257</td></tr>
+                        <tr><td>106.947</td><td>106.9645</td><td>-0.0175</td></tr>
+                        <tr><td>111.069</td><td>111.1376</td><td>-0.0686</td></tr>
+                        <tr><td>109.971</td><td>110.0439</td><td>-0.0729</td></tr>
+                        <tr><td>107.193</td><td>107.3439</td><td>-0.1509</td></tr>
+                        <tr><td>109.034</td><td>109.0509</td><td>-0.0169</td></tr>
+                        <tr><td>116.12</td><td>116.2348</td><td>-0.1148</td></tr>
                     </tbody>
                 </table>
 
+                <p>
+                    Next, compute the univariate statistics.
+                </p>
 
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        tristan@tristan-PC:$ <strong>v.univar</strong> -e GCP_12 column=height_difference<br>
+                        number of features with non NULL attribute: 12<br>
+                        number of missing attributes: 0<br>
+                        number of NULL attributes: 0<br>
+                        minimum: -0.1512<br>
+                        maximum: 0.0616<br>
+                        range: 0.2128<br>
+                        sum: -0.6074<br>
+                        mean: -0.0506167<br>
+                        mean of absolute values: 0.0657667<br>
+                        population standard deviation: 0.0639817<br>
+                        population variance: 0.00409366<br>
+                        population coefficient of variation: 1.26404<br>
+                        sample standard deviation: 0.0668267<br>
+                        sample variance: 0.00446581<br>
+                        kurtosis: -1.22607<br>
+                        skewness: -0.0610031<br>
+                        1st quartile: -0.1148<br>
+                        median (even number of cells): -0.05275<br>
+                        3rd quartile: -0.0169<br>
+                        90th percentile: 0.0257
+                    </div>
+                </div>
+                <div class="clearfix"></div>
 
-                <!-- VISUALIZATION -->
-                <a class="anchor" id="vis"></a>
-                <h1 class="page-header">Point Density Visualization</h1>
-
-
+                <p>
+                    From this statistical data we can see that, on average, the LIDAR derived DEM was within about 5cm
+                    of the elevation of the GCPs. This is very accurate, which is not unusual for LIDAR data, but I would
+                    be interested in seeing how the LIDAR data was georectified. If it was done so using these GCPs, then
+                    we would expect the accuracy to be at least this high.
+                </p>
 
             </div>
         </div>
