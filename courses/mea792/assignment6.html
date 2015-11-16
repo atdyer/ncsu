@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="UTF-8">
-    <title>MEA792 - Tristan Dyer</title>
+    <title>MEA792 - Assignment 6 - Tristan Dyer</title>
 
     <!-- Include CSS -->
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,600,700'>
@@ -54,6 +54,265 @@
             </div>
         </div>
     </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
+                    <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#diffs">LIDAR and UAS DEM Differences</a></li>
+                    <li><a href="#correcting">Correcting LIDAR Shift</a> </li>
+                    <li><a href="#patching">Patching UAS DSM with LIDAR DSM</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- OVERVIEW -->
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header">Overview&nbsp;<a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/fusion_uas_lidar.html"><i class="fa fa-university fa-xs"></i></a></h1>
+
+                <p>
+                    In this assignment, we'll analyze the differences between the LIDAR and UAS derived digital elevation
+                    models and digital surface models.
+                </p>
+
+                <a class="anchor" id="diffs"></a>
+                <h1 class="page-header">LIDAR and UAS DEM Differences</h1>
+
+                <p>
+                    In this section, we'll evaluate the various DSMs in order to determine which are suitable for fusion.
+                    We'll compare differences at GCP locations, as well as identify potential systematic error and
+                    identify distortions.
+                </p>
+
+                <p>
+                    From the previous assignment, we know that the <span class="inline-code">mid_pines_ground_elev</span>
+                    raster has an average error of around 5cm when compared to the GCPs. Therefore, we'll use it as a
+                    baseline to compare the UAS DSMs to in order to determine which UAS DSM we'd like to use in our
+                    fusion. Compute these differences using <span class="inline-code">r.mapcalc</span>:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> rast=mid_pines_ground_elev -p<br>
+                        <strong>r.mapcalc</strong> "diff_lidardsm_agi_june = mid_pines_ground_elev - 2015_06_20_DSM_agi_11GCP"<br>
+                        <strong>r.mapcalc</strong> "diff_lidardsm_pix4d_june = mid_pines_ground_elev - 2015_06_20_pix4d_11GCP_dsm"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                Using the following color table, we can see the differences between the UAS and LIDAR derived DSMs:
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-default grass">
+                        -40 red<br>
+                        -1 orange<br>
+                        -0.5 yellow<br>
+                        -0.1 grey<br>
+                        0 white<br>
+                        0.1 grey<br>
+                        0.5 cyan<br>
+                        1 aqua<br>
+                        35 blue
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/diff_lidar_agisoft.png"/>
+                    <p class="text-center caption">
+                        <strong>Difference between LIDAR and Agisoft DSMs</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/diff_lidar_pix.png"/>
+                    <p class="text-center caption">
+                        <strong>Difference between LIDAR and Pix4D DSMs</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Comparing the two difference rasters, we can see that both the Agisoft and Pix4D DSMs are fairly
+                    accurate (as compared to the LIDAR DSM) on bare earth surfaces. The Agisoft DSM appears to be
+                    systematically lower than the LIDAR DSM in a large portion of the southern fields, while the
+                    Pix4D DSM appears to by systematically lower than the LIDAR DSM in a large portion of the northeast
+                    corner of the raster. We can use the profile tool to further show this systematic error (i.e.
+                    averaging the differences in a given area doesn't reduce the overall difference).
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/road_agi.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile Line on the Agisoft Difference Raster</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/road_pix.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile Line on the Pix4D Difference Raster</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/road_profile.png"/>
+                    <p class="text-center caption">
+                        <strong>Plot of Difference Values Along Profile Line</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This plot clearly shows a divergence in differences between the two software packages along the road.
+                    The Agisoft differences (in blue) tend to hang out around zero difference, not really showing a
+                    systematic difference. Pix4D (in red) on the other hand, has a gradual increase in difference
+                    along the profile line, indicating that the Pix4D raster is typically lower in elevation than the
+                    LIDAR raster. Additionally, we see a sharp drop of about 15cm in both difference plots at about 230m in the
+                    profile plot. Because it occurs in both plots, we can infer that the drop (assuming it does not
+                    actually exist in the real world) is an artifact found in the LIDAR DSM. Going back to
+                    <a href="assignment5.html">Assignment 5</a>, recall that there was a distinct line going through
+                    the center of the flight-line overlap that we determined to be an artifact of the classification
+                    algorithm.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/field_agi.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile Line on the Agisoft Difference Raster</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/field_pix.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile Line on the Pix4D Difference Raster</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/field_profile.png"/>
+                    <p class="text-center caption">
+                        <strong>Plot of Difference Values Along Profile Line</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This plot clearly shows that the Pix4D (in red) DSM has very little difference from the LIDAR DSM
+                    along the profile line in the southern fields. The Agisoft (in blue) DSM, however, is systematically
+                    lower than the LIDAR DSM (because difference values are positive). Additionally, we can see a large
+                    jump in negative differences in both rasters where the profile line crosses over an area of dense
+                    vegetation. Because the imagery used to generate the UAS DSMs was taken (years) later than the
+                    LIDAR data was collected, there are significant differences in vegetation height. This plot suggests
+                    that there was much taller vegetation in that are when the UAS was flown as compared to when the
+                    LIDAR data was collected.
+                </p>
+
+
+                <a class="anchor" id="correcting"></a>
+                <h1 class="page-header">Correcting LIDAR Shift</h1>
+
+                <p>
+                    As we have seen in the previous section, there are areas of systematic error between the LIDAR
+                    derived and UAS derived DSMs. We have seen that this difference is very small, but if we wanted
+                    to correct for this data, we could determine an overall systematic shift and subtract it from
+                    either the LIDAR or UAS DSMs. Here, I'm going to correct the LIDAR DSM since it is used to calculate
+                    differences in both of the UAS DSMs. Recall from <a href="assignment5.html">Assignment 5</a> that
+                    we had a very small (on the order of a few centimeters) difference in elevation at the GCP locations.
+                    Averaging the differences at each GCP location gives an average difference of 0.051m (5.1cm).
+                    This is a good starting point when considering a shift value. We apply this shift and calculate
+                    the new differences using <span class="inline-code">r.mapcalc</span>.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> rast=mid_pines_surface_elev -p<br>
+                        <strong>r.mapcalc</strong> "corrected_lidar = mid_pines_surface_elev - 0.051"<br>
+                        <strong>r.mapcalc</strong> "corrected_agisoft_diff = corrected_lidar - 2015_06_20_DSM_agi_11GCP"<br>
+                        <strong>r.mapcalc</strong> "corrected_pix_diff = corrected_lidar - 2015_06_20_pix4d_11GCP_dsm"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    The following four images show the differences before and after correction of the LIDAR DSM:
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/diff_lidar_agisoft.png"/>
+                    <p class="text-center caption">
+                        <strong>Original Agisoft/LIDAR Differences</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/corrected_agi_diff.png"/>
+                    <p class="text-center caption">
+                        <strong>Corrected Agisoft/LIDAR Differences</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/diff_lidar_pix.png"/>
+                    <p class="text-center caption">
+                        <strong>Original Pix4D/LIDAR Differences</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/corrected_pix_diff.png"/>
+                    <p class="text-center caption">
+                        <strong>Corrected Pix4D/LIDAR Differences</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    As we can see, in both cases the differences appear to have shrunk. This can be confirmed by once
+                    again viewing profiles along selected areas. The profiles in the following sections show the
+                    original differences we calculated along with the new, corrected, differences we've calculated along
+                    profiles similar to those used in the previous section.
+                </p>
+
+                <h2>Road Profiles</h2>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/corrected_agi_road.png"/>
+                    <p class="text-center caption">
+                        <strong>Agisoft: Original (red) vs. Corrected (blue)</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/corrected_pix_road.png"/>
+                    <p class="text-center caption">
+                        <strong>Pix4D: Original (red) vs. Corrected (blue)</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <h2>Southern Field Profiles</h2>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/corrected_agi_field.png"/>
+                    <p class="text-center caption">
+                        <strong>Agisoft: Original (red) vs. Corrected (blue)</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/profiles/corrected_pix_field.png"/>
+                    <p class="text-center caption">
+                        <strong>Pix4D: Original (red) vs. Corrected (blue)</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+
+                <a class="anchor" id="patching"></a>
+                <h1 class="page-header">Patching UAS DSM with LIDAR DSM</h1>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Include scripts -->
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
     <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
@@ -62,6 +321,16 @@
     <script src="lib/jquery/jquery.scrollTo.min.js"></script>
     <script src="lib/jquery/jquery.lazyload.min.js"></script>
     <script src="lib/bootstrap/bootstrap.min.js"></script>
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
+    </script>
 
 </body>
 </html>
