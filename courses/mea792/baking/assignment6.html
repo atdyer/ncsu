@@ -266,7 +266,49 @@
                 <a class="anchor" id="patching"></a>
                 <h1 class="page-header">Patching UAS DSM with LIDAR DSM</h1>
 
-                
+                <p>
+                    In this section, we'll be patching the UAS DSM with data from the LIDAR DSM. We'll use the corrected
+                    LIDAR DSM in order to minimize hard jumps at the edges of the patch. Start by selecting a region
+                    within the UAS DSM that has very little distortion or differences from the corrected LIDAR
+                    DSM and clipping it down to only include that region. I'll be using the Pix4D DSM.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> n=219720.9 s=219257.1 w=636762.9 e=637190.4 res=0.3 -p<br>
+                        <strong>r.mapcalc</strong> "pix_clipped = 2015_06_20_DSM_agi_11GCP"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Now, patch the DSM with data from the corrected LIDAR DSM. We can use
+                    <span class="inline-code">r.local.relief</span> to check for these patch edges. Note that the
+                    resolution of both the LIDAR DSM and the UAS DSM are the same.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> rast=corrected_lidar -p<br>
+                        <strong>r.patch</strong> pix_clipped,corrected_lidar out=lidar_uas_patch<br>
+                        <strong>r.local.relief</strong> lidar_uas_patch out=lidar_uas_patch_relief
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM Patched with the LIDAR DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_relief.png"/>
+                    <p class="text-center caption">
+                        <strong>Local Relief of the Patched Pix4D DSM</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
 
             </div>
         </div>
