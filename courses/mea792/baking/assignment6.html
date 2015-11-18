@@ -20,6 +20,7 @@
                     <li><a href="#diffs">LIDAR and UAS DEM Differences</a></li>
                     <li><a href="#correcting">Correcting LIDAR Shift</a> </li>
                     <li><a href="#patching">Patching UAS DSM with LIDAR DSM</a></li>
+                    <li><a href="#viewshed">Viewshed Analysis</a></li>
                 </ul>
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
@@ -33,6 +34,8 @@
                     models and digital surface models.
                 </p>
 
+
+                <!-- LIDAR UAS DIFFS -->
                 <a class="anchor" id="diffs"></a>
                 <h1 class="page-header">LIDAR and UAS DEM Differences</h1>
 
@@ -165,6 +168,7 @@
                 </p>
 
 
+                <!-- CORRECTING SHIFT -->
                 <a class="anchor" id="correcting"></a>
                 <h1 class="page-header">Correcting LIDAR Shift</h1>
 
@@ -263,6 +267,7 @@
                 <div class="clearfix"></div>
 
 
+                <!-- PATCHING -->
                 <a class="anchor" id="patching"></a>
                 <h1 class="page-header">Patching UAS DSM with LIDAR DSM</h1>
 
@@ -276,7 +281,7 @@
                 <div class="col-xs-12 col-md-12">
                     <div class="bs-callout bs-callout-success grass">
                         <strong>g.region</strong> n=219720.9 s=219257.1 w=636762.9 e=637190.4 res=0.3 -p<br>
-                        <strong>r.mapcalc</strong> "pix_clipped = 2015_06_20_DSM_agi_11GCP"
+                        <strong>r.mapcalc</strong> "pix_clipped = 2015_06_20_pix4d_11GCP_dsm"
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -309,6 +314,246 @@
                     </p>
                 </div>
                 <div class="clearfix"></div>
+
+                <p>
+                    The edges of the patch are clearly visible in both images. The first image, colored by elevation
+                    with histogram equalization enabled, reveals the edges most clearly in the orange regions, especially
+                    on the western side of the patch. The second image, which shows the local relief, highlights the
+                    edge for just about all of the patch. To try to minimize this edge, we'll first try to compute
+                    the raster using an overlap between the UAS and LIDAR DSMs. Inside the overlap we'll average the
+                    values from both the UAS and LIDAR DSMs. First, set the region to include a 6 meter overlap:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> rast=pix_clipped -p<br>
+                        <strong>g.region</strong> s=s-6 n=n+6 e=e+6 w=w-6 -p
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Now, within this region, compute a raster with the LIDAR and UAS averages in the overlap and UAS
+                    values everywhere else:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.mapcalc</strong> "lidar_uas_overlap_averages = if(isnull(pix_clipped),(2015_06_20_pix4d_11GCP_dsm+corrected_lidar)/2.,pix_clipped)"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Now merge the <span class="inline-code">lidar_uas_overlap_averages</span> raster, which contains
+                    UAS data on the interior and averaged data on the overlap, with the LIDAR DSM for the entire
+                    study area. Once again, we'll check for the edges using <span class="inline-code">r.local.relief</span>.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> rast=corrected_lidar<br>
+                        <strong>r.mapcalc</strong> "lidar_uas_patch_overlap = if(isnull(lidar_uas_overlap_averages), corrected_lidar, lidar_uas_overlap_averages)"<br>
+                        <strong>r.local.relief</strong> lidar_uas_patch_overlap out=lidar_uas_patch_overlap_relief
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_overlap.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM patched with the LIDAR DSM, using average values in a 6m overlap</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_overlap_relief.png"/>
+                    <p class="text-center caption">
+                        <strong>Local relief of the patched Pix4D DSM, using average values in a 6m overlap</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    We now have a smoother overlap, but the edges are still visible. We can see the edges especially
+                    well if we view the maps in 3D. The 3D view also reveals that the raster with the averages in
+                    the overlapped area appears to now have two edges, and interior and an exterior edge.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_3d.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM patched with the LIDAR DSM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_overlap_3d.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM patched with the LIDAR DSM, using average values in a 6m overlap</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    So how do we transition smoothly from the UAS data to the LIDAR data? We'll have to use a weighted
+                    average in the area of the overlap. What this means is that in the area of overlap, we want the average
+                    value that is calculated in any given cell to be weighted according to it's distance from either
+                    edge of the overlap. Cells that are very close to the inner edge (i.e. the UAS data) should give
+                    heavy weight to the value of the UAS data in that cell when calculating the average. On the flip side,
+                    cells that are very close to the outer edge (i.e. the LIDAR data) should give heavy weight to the
+                    value of the LIDAR data in that cell when calculating the average. In this example, we'll use a
+                    10 meter overlap. First, we'll need to set the region to 10m smaller on each side than our clipped
+                    UAS DSM:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> g.region rast=pix_clipped -p<br>
+                        <strong>g.region</strong> s=s+10 n=n-10 e=e-10 w=w+10 -p
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Next, we'll create a raster map that includes the distance from the UAS data (i.e. the interior
+                    data) of each cell in the overlap. First, create a dummy raster of all ones that fills our
+                    interior region. Then, create a new raster called <span class="inline-code">distance</span> using
+                    <span class="inline-code">r.grow.distance</span>. What this will do is fill any cells that are
+                    null (i.e. all of the ones in the overlap area) with a value that corresponds to the distance
+                    to the nearest non-null cell (i.e. the box of dummy ones we created). Finally, any distances
+                    that are greater than 10, which will be in the corners of our overlap (think Pythagorean
+                    Theorem) will need to be bumped down to 10 so that they can be used in the calculations in
+                    the next step.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.mapcalc</strong> "dummy = 1"<br>
+                        <strong>r.grow.distance</strong> -m input=dummy distance=distance<br>
+                        <strong>r.mapcalc</strong> "distance = if(distance>10,10,distance)" --overwrite
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/distance_gradient.png"/>
+                    <p class="text-center caption">
+                        <strong>The <span class="inline-code">distance</span> raster. Values range from 0 (blue)
+                        to 10 (dark orange).</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Finally, reset the region to that of the LIDAR DSM and calculate the weighted averages:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> rast=corrected_lidar -p<br>
+                        <strong>r.mapcalc</strong> "lidar_uas_patch_smooth = if(isnull(distance), corrected_lidar, (1-distance/10.)*pix_clipped + (distance/10.)*corrected_lidar)"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Now we have a much smoother transition between the UAS DSM and the LIDAR DSM, as can be seen
+                    in the following 2D and 3D images:
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_smooth.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM patched with the LIDAR DSM using a weighted average in a 10m overlap</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_patch_smooth_3d.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM patched with the LIDAR DSM using a weighted average in a 10m overlap</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+
+                <!-- VIEWSHED ANALYSIS-->
+                <a class="anchor" id="viewshed"></a>
+                <h1 class="page-header">Viewshed Analysis</h1>
+
+                <p>
+                    Next, we'd like to determine what a camera would be able to see throughout the growing season if
+                    it were permanently installed. Because we have DSMs with both grown crops and without any crops,
+                    we can compare the visibility in both scenarios. Additionally, we can expand the area of the dataset
+                    that includes crops (the UAS data) with the LIDAR DSM to get a better idea for the viewshed. We'll
+                    use the provided polygon (in <span class="inline-code">fields.pack</span>) to extract the fields
+                    from the UAS DSM and apply patching.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.unpack</strong> -o fields.pack<br>
+                        <strong>r.mapcalc</strong> "uas_fields = 2015_06_20_pix4d_11GCP_dsm * fields"<br>
+                        <strong>r.patch</strong> uas_fields,corrected_lidar out=lidar_uas_patch_fields
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Next, create the viewshed rasters using <span class="inline-code">r.viewshed</span>. Note that I
+                    have it set to use up to 10GB of RAM. Make sure you set this value to something appropriate for
+                    your machine.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.viewshed</strong> input=corrected_lidar output=viewshed_lidar coordinates=637100,219360 memory=10000<br>
+                        <strong>r.viewshed</strong> input=2015_06_20_pix4d_11GCP_dsm output=viewshed_uas coordinates=637100,219360 memory=10000<br>
+                        <strong>r.viewshed</strong> input=lidar_uas_patch_fields output=viewshed_lidar_uas coordinates=637100,219360 memory=10000
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_viewshed.png"/>
+                    <p class="text-center caption">
+                        <strong>The corrected LIDAR DSM viewshed</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/uas_viewshed.png"/>
+                    <p class="text-center caption">
+                        <strong>The Pix4D DSM viewshed</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_viewshed.png"/>
+                    <p class="text-center caption">
+                        <strong>The combined viewshed</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Note that there is much more visibility in the LIDAR DSM compared to the UAS DSM. This is because
+                    there was taller vegetation in the area when the UAS was flown, vegetation that blocks the view
+                    of anything behind it. Additionally, if we take a look at the combined viewshed (in blue) with
+                    the LIDAR viewshed (in red) on top of the outline of the fields polyon, we can see that the edge
+                    where the patching occurred is visible in the combined viewshed.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_compare_viewshed.png"/>
+                    <p class="text-center caption">
+                        <strong>The combined viewshed (red) and LIDAR viewshed (blue) with the patch area (white)</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment6/lidar_uas_compare_viewshed_zoom.png"/>
+                    <p class="text-center caption">
+                        <strong>Zoomed in view to show edge of patch is visible in the combined viewshed (red)</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
 
             </div>
         </div>
