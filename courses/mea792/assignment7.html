@@ -13,6 +13,10 @@
     <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet" type="text/css">
 
+    <!-- Code highlighting -->
+    <script src="lib/highlightjs/highlight.pack.js"></script>
+    <link href="lib/highlightjs/styles/zenburn.css" rel="stylesheet" type="text/css">
+
 </head>
 <body>
 
@@ -54,6 +58,506 @@
             </div>
         </div>
     </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
+                    <li class="active"><a href="#overview"><strong>Overview</strong> <span class="sr-only">(current)</span></a></li>
+                    <li>
+                        <a href="#merge"><strong>Download and Merge LAS Data</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#importmerge">import_merge.py</a></li>
+                            <li class=""><a class="grass" href="#downloaddata">download_data.py</a></li>
+                            <li class=""><a class="grass" href="#transformcoordinates">transform_coordinates.py</a></li>
+                            <li class=""><a class="grass" href="#lastovector">las_to_vector.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#interpolate"><strong>DSM Interpolation in Parallel</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#interpolatedsm">interpolate_dsm.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#differences"><strong>Calculating Map Differences</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#computedifferences">compute_differences.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#report"><strong>Generating Reports</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#generatereport">generate_report.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#profiles"><strong>Creating Terrain Profiles</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#terrainprofiles">terrain_profiles.py</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- OVERVIEW -->
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header">Overview
+                    <a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/python.html">
+                        <i class="fa fa-university fa-xs"></i>
+                    </a>
+                    <small class="pull-right">Tristan Dyer</small>
+                </h1>
+
+                <pre><code>from import_merge import *
+from interpolate_dsm import *
+from compute_differences import *
+from generate_report import *
+from terrain_profiles import *
+
+# Variables
+workingDir = "/home/tristan/Desktop/assignment7/"
+lidar_dsm = 'mid_pines_lidar_dsm'
+
+# Part 1 - Import and merge
+merged_las_vector = import_merge( workingDir )
+
+# Part 2 - DSM interpolation with parallelization
+interpolate_dsm( merged_las_vector, lidar_dsm )
+
+# Part 3 - Working with large amount of maps
+rasters = ['2015_06_20_pix4d_11GCP_dsm', '2015_06_20_DSM_Trimble_11GCP',
+           '2015_06_20_DSM_agi_11GCP']
+compute_differences( rasters )
+
+# Part 4 - Generate report
+generate_report( workingDir )
+
+# Part 5 - Terrain profiles
+rasters = ['2015_06_20_pix4d_11GCP_dsm', '2015_06_20_DSM_Trimble_11GCP',
+           '2015_06_20_DSM_agi_11GCP', lidar_dsm]
+coordinates = [[637160.446919, 219373.236976,
+                637105.693795, 219392.416036,
+                637072.439779, 219400.613538],
+               [636723.722784, 219347.123879,
+                637136.495982, 219383.20853],
+               [637065.206795, 219731.733448,
+                637220.106758, 219475.62044,
+                637253.551068, 219309.279002],
+               [636955.192616, 219495.863049,
+                637001.838628, 219397.290345]]
+csv = ['default.csv', 'south_field.csv', 'road.csv', 'tree.csv']
+terrain_profiles( rasters, coordinates, csv )
+</code></pre>
+
+
+                <!-- DOWNLOAD AND MERGE -->
+                <a class="anchor" id="merge"></a>
+                <h1 class="page-header">Download and Merge LAS Data</h1>
+
+                <a class="anchor" id="importmerge"></a>
+                <h2 class="grass">import_merge.py</h2>
+                <pre><code># Python imports
+import glob
+import os
+
+# GRASS imports
+import grass.script as gscript
+from grass.pygrass.modules.grid import GridModule
+
+# Script imports
+from download_data import *
+from transform_coordinates import *
+from las_to_vector import *
+
+def import_merge( workingDir, merged_las_vector = 'merged_points' ):
+
+    # Make sure the working directory exists
+    if not os.path.exists( workingDir ):
+
+        os.mkdir( workingDir )
+
+    # Move to the working directory
+    os.chdir( workingDir )
+
+    # Check for required las files
+    if len( glob.glob( '*.las' ) ) == 0:
+        download_data( './' )
+        for f in glob.glob( '*.las' ):
+            transform_coordinates( f )
+
+    # Set the region
+    gscript.run_command( 'g.region',
+        n=219637,
+        s=219254,
+        w=636730,
+        e=637193,
+        res=1,
+        flags='p')
+
+    # Import transformed las files into single vector
+    lasfiles = glob.glob( '*_spm.las' )
+    las_to_vector( lasfiles, merged_las_vector)
+
+    # Return the name of the merged DEM
+    return merged_las_vector
+</code></pre>
+
+                <a class="anchor" id="downloaddata"></a>
+                <h2 class="grass">download_data.py</h2>
+                <pre><code>import sys
+import os
+import urllib
+
+# Downloads required .las files to the given directory
+def download_data( directory ):
+
+    if os.path.exists( directory ):
+
+        base_url = 'http://fatra.cnr.ncsu.edu/lidar/'
+        files = [ '0791_005.las',
+                  '0791_011.las',
+                  '0792_017.las',
+                  '0782_020.las',
+                  '0781_008.las' ]
+
+        for f in files:
+
+            print "Retrieving " + f
+            urllib.urlretrieve( base_url + f, directory + os.path.sep + f )
+
+    else:
+
+        print "Invalid path."
+
+# If running this script from the command-line, pass in a directory
+# as an argument to download the required .las files to that directory
+if __name__ == "__main__":
+
+    if len( sys.argv ) == 2:
+
+        download_data( sys.argv[1] )
+
+    else:
+
+        print "Usage: python download_data.py [path to save directory]"
+</code></pre>
+
+                <a class="anchor" id="transformcoordinates"></a>
+                <h2 class="grass">transform_coordinates.py</h2>
+                <pre><code>import os
+from subprocess import call
+
+# Transforms .las file coordinates from EPSG:2264 to EPSG:3358
+# using las2las and saves new file with _spm suffix
+def transform_coordinates( lasfile ):
+
+    # Check that file exists and is a .las file
+    if os.path.isfile( lasfile ) and lasfile.endswith( '.las' ):
+
+        # Split filename and extension
+        name, ext = os.path.splitext( lasfile )
+
+        print "Transforming coordinates: " + lasfile
+
+        # Call las2las
+        call( ['las2las',
+               '--a_srs=EPSG:2264', '--t_srs=EPSG:3358',
+               '-i', lasfile,
+               '-o', name + '_spm' + ext ] )
+
+# If running this script from the command-line, pass in a list of
+# files to transform to NCSP
+if __name__ == "__main__":
+
+    if len( sys.argv ) > 1:
+
+        for f in sys.argv:
+
+            transform_coordinates( f )
+
+    else:
+
+        print "Usage: python download_data.py [path to save directory]"
+</code></pre>
+
+                <a class="anchor" id="lastovector"></a>
+                <h2 class="grass">las_to_vector.py</h2>
+                <pre><code>import grass.script as gscript
+
+# Imports multiple las files to GRASS and combines
+# them into a single vector named vectorName
+#  - lasFiles: list of las files
+#  - vectorName: name for combined vector in GRASS
+def las_to_vector( lasFiles, vectorName ):
+
+    # Get the current region
+    region = gscript.region()
+
+    # List of vectors
+    vectors = []
+
+    # Loop through files
+    for f in lasFiles:
+
+        # Get the bounding box of the point cloud
+        bbox = gscript.read_command( 'r.in.lidar',
+            input=f,
+            output='foo',
+            flags='go'
+        ).strip()
+
+        # Parse the bounding box
+        bbox = gscript.parse_key_val( bbox,
+            vsep=' ',
+            val_type=float
+        )
+
+        # Ensure that the bounding box of the file overlaps the region
+        if ( bbox['n'] < region['s'] or bbox['s'] > region['n'] or
+             bbox['e'] < region['w'] or bbox['w'] > region['e']):
+
+            gscript.info( 'Skipping tile %s' % f );
+            continue
+
+        # Import the las file as a vector
+        name = 'tile_' + f.rsplit( '.', 1 )[0]
+        vectors.append( name )
+
+        gscript.run_command( 'v.in.lidar',
+            input=f,
+            output=name,
+            flags='rto',
+            class_filter=2
+        )
+
+    # Combine all vectors into single vector
+    gscript.run_command( 'v.patch',
+        input=vectors,
+        output=vectorName,
+        flags='b',
+        overwrite=True
+    )
+
+    gscript.run_command( 'g.remove',
+        type='vector',
+        name=vectors,
+        flags='f'
+    )
+</code></pre>
+
+                <!-- INTERPOLATION -->
+                <a class="anchor" id="interpolate"></a>
+                <h1 class="page-header">DSM Interpolation in Parallel</h1>
+
+                <a class="anchor" id="interpolatedsm"></a>
+                <h2 class="grass">interpolate_dsm.py</h2>
+                <pre><code># GRASS imports
+import grass.script as gscript
+from grass.pygrass.modules.grid import GridModule
+
+def interpolate_dsm( vector_name, lidar_dem = 'elevation_dem', parallel = False ):
+
+    # DSM interpolation
+    region = gscript.region()
+    width = region['cols'] / 2 + 1
+    height = region['rows'] / 2 + 1
+
+    grid = GridModule( 'v.surf.rst',
+        debug=parallel==False, width=width, height=height,
+        overlap=10, processes=4, npmin=100,
+        input=vector_name, elevation=lidar_dem,
+        tension=30, smooth=1, overwrite=True
+    )
+
+    grid.run()
+</code></pre>
+
+                <!-- CALCULATING DIFFERENCES -->
+                <a class="anchor" id="differences"></a>
+                <h1 class="page-header">Calculating Map Differences</h1>
+
+                <a class="anchor" id="computedifferences"></a>
+                <h2 class="grass">compute_differences.py</h2>
+                <pre><code>import grass.script as gscript
+
+# Computes the differences between every combination of rasters
+# in the list
+def compute_differences( raster_list ):
+
+    # Set the region to the first raster in the list
+    gscript.run_command( 'g.region', rast=raster_list[0] )
+
+    # Outer loop
+    for a in raster_list:
+
+        # Inner loop
+        for b in raster_list:
+
+            # No need to calculate difference between a raster and itself
+            if a == b:
+
+                continue
+
+            # Create the name for the difference raster
+            difference = 'diff_{ra}_{rb}'.format( ra = a.replace( '@', '_' ),
+                                                  rb = b.replace( '@', '_' ))
+
+            # Compute differences using r.mapcalc
+            gscript.mapcalc( '{diff} = {ra} - {rb}'.format( ra = a,
+                                                            rb = b,
+                                                            diff = difference))
+
+            # Set the color table
+            gscript.run_command( 'r.colors',
+                map = difference,
+                color = 'differences',
+                flags = 'e'
+            )
+</code></pre>
+
+                <!-- GENERATING REPORTS -->
+                <a class="anchor" id="report"></a>
+                <h1 class="page-header">Generating Reports</h1>
+
+                <a class="anchor" id="generatereport"></a>
+                <h2 class="grass">generate_report.py</h2>
+                <pre><code>import os
+import grass.script as gscript
+
+def generate_report( workingDir = '.' ):
+
+    # Move to the working directory
+    os.chdir( workingDir )
+
+    # get list of rasters we are interested in using a search pattern
+    rasters = gscript.list_strings('raster', pattern='2015_06_*')
+
+    # initialize a dictionary to hold statistics for each raster
+    stats = {}
+
+    # iterate through the list of rasters
+    for raster in rasters:
+
+        # save univariate statistics for raster to dictionary
+        stats[raster] = gscript.parse_command('r.univar', map=raster, flags='g')
+
+        # compute shaded relief, use name of the original raster including mapset
+        shaded_relief = raster.replace('@', '_') + '_shade'
+        gscript.run_command('r.relief', input=raster, output=shaded_relief,
+                            overwrite=True)
+
+        gscript.run_command('r.colors', map=raster, color='elevation')
+
+        # render the raster (geographical extent follows current region)
+        gscript.run_command('d.mon', start='cairo', output=raster + '.png',
+                            width=400, height=400, overwrite=True)
+        gscript.run_command('d.shade', shade=shaded_relief, color=raster)
+        gscript.run_command('d.mon', stop='cairo')
+
+    template = """&lt;h2&gt;Raster map {name}&lt;/h2&gt;
+    &lt;h3&gt;Statistics&lt;/h3&gt;
+    &lt;table&gt;
+    &lt;tr&gt;&lt;td&gt;Mean&lt;/td&gt;&lt;td&gt;{mean}&lt;/td&gt;
+    &lt;tr&gt;&lt;td&gt;Variance&lt;/td&gt;&lt;td&gt;{var}&lt;/td&gt;
+    &lt;/table&gt;
+    &lt;h3&gt;Image&lt;/h3&gt;
+    &lt;img src="{name}.png"&gt;
+    """
+
+    # write to a file using a template
+    with open('report.html', 'w') as output:
+            for raster in sorted(rasters):
+                stat = stats[raster]
+                output.write(template.format(
+                    name=raster, mean=stat['mean'], var=stat['variance']))
+</code></pre>
+
+                <!-- PROFILES -->
+                <a class="anchor" id="profiles"></a>
+                <h1 class="page-header">Creating Terrain Profiles</h1>
+
+                <a class="anchor" id="terrainprofiles"></a>
+                <h2 class="grass">terrain_profiles.py</h2>
+                <pre><code>import os
+import grass.script as gscript
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Plots terrain profiles in each raster and optionally generates
+# statistics reports for each profile.
+# - rasters: list of rasters to use for each profile
+# - coordinates_lists: list of lists of coordinates along which profiles are drawn
+# - stat_files: list of file names for stat files (one for each coordinate list)
+def terrain_profiles( rasters, coordinates_lists, stat_files = [] ):
+
+    # Loop through each list of coordinates
+    for c in range( len( coordinates_lists ) ):
+
+        coordinates = coordinates_lists[c]
+
+        profiles = {}
+
+        for raster in rasters:
+
+            # Get the profile
+            profile = gscript.read_command('r.profile', input=raster,
+                                            coordinates=coordinates,
+                                            quiet=True).strip()
+
+            distance = []
+            elevation = []
+
+            # Parse profile data
+            for line in profile.splitlines():
+                dat = line.split()
+                if dat[-1] != '*':
+                    distance.append( float( dat[0] ) )
+                    elevation.append( float( dat[-1] ) )
+
+            # Save the profile in the dictionary
+            profiles[raster] = (distance, elevation)
+
+        # Optionally calculate statistics
+        if c < len( stat_files ):
+
+            with open( stat_files[c], 'w' ) as f:
+
+                f.write(','.join(['name', 'minim', 'maxim', 'mean',
+                                  'stddev', 'median', 'roughness']))
+                f.write('\n')
+
+                stats = {}
+
+                for raster in profiles:
+
+                    profile = np.array( profiles[raster][1] )
+                    maxim = np.max( profile )
+                    minim = np.min( profile )
+                    mean = np.mean( profile )
+                    stddev = np.std( profile )
+                    median = np.median( profile )
+                    roughness = np.std( np.diff( profile ) )
+                    stats[raster] = ( minim, maxim, mean, stddev, median, roughness )
+
+                    f.write(raster + ',')
+                    f.write(','.join([str(i) for i in stats[raster]]))
+                    f.write('\n')
+
+        # Plot
+        for raster in profiles:
+
+            plt.plot( profiles[raster][0], profiles[raster][1], label=raster )
+            plt.legend( loc=0 )
+
+        plt.show()
+</code></pre>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Include scripts -->
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
     <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
@@ -62,6 +566,18 @@
     <script src="lib/jquery/jquery.scrollTo.min.js"></script>
     <script src="lib/jquery/jquery.lazyload.min.js"></script>
     <script src="lib/bootstrap/bootstrap.min.js"></script>
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
+
+        hljs.initHighlightingOnLoad();
+    </script>
 
 </body>
 </html>

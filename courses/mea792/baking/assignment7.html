@@ -7,11 +7,138 @@
 
     <!--(bake css.html)-->
 
+    <!-- Code highlighting -->
+    <script src="lib/highlightjs/highlight.pack.js"></script>
+    <link href="lib/highlightjs/styles/zenburn.css" rel="stylesheet" type="text/css">
+
 </head>
 <body>
 
     <!--(bake navbar.html _section="assignment7")-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
+                    <li class="active"><a href="#overview"><strong>Overview</strong> <span class="sr-only">(current)</span></a></li>
+                    <li>
+                        <a href="#merge"><strong>Download and Merge LAS Data</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#importmerge">import_merge.py</a></li>
+                            <li class=""><a class="grass" href="#downloaddata">download_data.py</a></li>
+                            <li class=""><a class="grass" href="#transformcoordinates">transform_coordinates.py</a></li>
+                            <li class=""><a class="grass" href="#lastovector">las_to_vector.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#interpolate"><strong>DSM Interpolation in Parallel</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#interpolatedsm">interpolate_dsm.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#differences"><strong>Calculating Map Differences</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#computedifferences">compute_differences.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#report"><strong>Generating Reports</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#generatereport">generate_report.py</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#profiles"><strong>Creating Terrain Profiles</strong></a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li class=""><a class="grass" href="#terrainprofiles">terrain_profiles.py</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- OVERVIEW -->
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header">Overview
+                    <a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/python.html">
+                        <i class="fa fa-university fa-xs"></i>
+                    </a>
+                    <small class="pull-right">Tristan Dyer</small>
+                </h1>
+
+                <pre><code><!--(bake scripts/assignment7.py)--></code></pre>
+
+
+                <!-- DOWNLOAD AND MERGE -->
+                <a class="anchor" id="merge"></a>
+                <h1 class="page-header">Download and Merge LAS Data</h1>
+
+                <a class="anchor" id="importmerge"></a>
+                <h2 class="grass">import_merge.py</h2>
+                <pre><code><!--(bake scripts/import_merge.py)--></code></pre>
+
+                <a class="anchor" id="downloaddata"></a>
+                <h2 class="grass">download_data.py</h2>
+                <pre><code><!--(bake scripts/download_data.py)--></code></pre>
+
+                <a class="anchor" id="transformcoordinates"></a>
+                <h2 class="grass">transform_coordinates.py</h2>
+                <pre><code><!--(bake scripts/transform_coordinates.py)--></code></pre>
+
+                <a class="anchor" id="lastovector"></a>
+                <h2 class="grass">las_to_vector.py</h2>
+                <pre><code><!--(bake scripts/las_to_vector.py)--></code></pre>
+
+                <!-- INTERPOLATION -->
+                <a class="anchor" id="interpolate"></a>
+                <h1 class="page-header">DSM Interpolation in Parallel</h1>
+
+                <a class="anchor" id="interpolatedsm"></a>
+                <h2 class="grass">interpolate_dsm.py</h2>
+                <pre><code><!--(bake scripts/interpolate_dsm.py)--></code></pre>
+
+                <!-- CALCULATING DIFFERENCES -->
+                <a class="anchor" id="differences"></a>
+                <h1 class="page-header">Calculating Map Differences</h1>
+
+                <a class="anchor" id="computedifferences"></a>
+                <h2 class="grass">compute_differences.py</h2>
+                <pre><code><!--(bake scripts/compute_differences.py)--></code></pre>
+
+                <!-- GENERATING REPORTS -->
+                <a class="anchor" id="report"></a>
+                <h1 class="page-header">Generating Reports</h1>
+
+                <a class="anchor" id="generatereport"></a>
+                <h2 class="grass">generate_report.py</h2>
+                <pre><code><!--(bake scripts/generate_report.py)--></code></pre>
+
+                <!-- PROFILES -->
+                <a class="anchor" id="profiles"></a>
+                <h1 class="page-header">Creating Terrain Profiles</h1>
+
+                <a class="anchor" id="terrainprofiles"></a>
+                <h2 class="grass">terrain_profiles.py</h2>
+                <pre><code><!--(bake scripts/terrain_profiles.py)--></code></pre>
+
+            </div>
+        </div>
+    </div>
+
     <!--(bake scripts.html)-->
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
+
+        hljs.initHighlightingOnLoad();
+    </script>
 
 </body>
 </html>
