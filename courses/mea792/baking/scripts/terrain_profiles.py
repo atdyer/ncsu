@@ -13,10 +13,13 @@ def terrain_profiles( rasters, coordinates_lists, stat_files = [] ):
     # Loop through each list of coordinates
     for c in range( len( coordinates_lists ) ):
 
+        # The current list of coordinates
         coordinates = coordinates_lists[c]
 
+        # Create a dictionary that will store this profile of each raster
         profiles = {}
 
+        # Loop through the rasters
         for raster in rasters:
 
             # Get the profile
@@ -37,17 +40,21 @@ def terrain_profiles( rasters, coordinates_lists, stat_files = [] ):
             # Save the profile in the dictionary
             profiles[raster] = (distance, elevation)
 
-        # Optionally calculate statistics
+        # Is there a filename provided for the current coordinate list?
         if c < len( stat_files ):
 
+            # Open the file for writing
             with open( stat_files[c], 'w' ) as f:
 
+                # Write the header line
                 f.write(','.join(['name', 'minim', 'maxim', 'mean',
                                   'stddev', 'median', 'roughness']))
                 f.write('\n')
 
+                # Create a dictionary to hold the stats
                 stats = {}
 
+                # Calculate statistics for each raster profile
                 for raster in profiles:
 
                     profile = np.array( profiles[raster][1] )
@@ -59,14 +66,16 @@ def terrain_profiles( rasters, coordinates_lists, stat_files = [] ):
                     roughness = np.std( np.diff( profile ) )
                     stats[raster] = ( minim, maxim, mean, stddev, median, roughness )
 
+                    # Write the statistics to the file
                     f.write(raster + ',')
                     f.write(','.join([str(i) for i in stats[raster]]))
                     f.write('\n')
 
-        # Plot
+        # Add each profile to the plot
         for raster in profiles:
 
             plt.plot( profiles[raster][0], profiles[raster][1], label=raster )
             plt.legend( loc=0 )
 
+        # Show the plot
         plt.show()

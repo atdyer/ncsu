@@ -31,4 +31,4 @@ if __name__ == "__main__":
 
     else:
 
-        print "Usage: python download_data.py [path to save directory]"
+        print "Usage: python transform_coordinates.py [file1.las] [file2.las] ... [filen.las]"

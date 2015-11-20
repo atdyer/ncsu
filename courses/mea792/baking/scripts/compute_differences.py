@@ -1,7 +1,7 @@
 import grass.script as gscript
 
-# Computes the differences between every combination of rasters
-# in the list
+# Computes the differences between every
+# combination of rasters in the given list
 def compute_differences( raster_list ):
 
     # Set the region to the first raster in the list

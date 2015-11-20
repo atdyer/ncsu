@@ -11,6 +11,9 @@ from download_data import *
 from transform_coordinates import *
 from las_to_vector import *
 
+# Downloads, imports, and merges las files into a GRASS vector
+# - workingDir: directory in which to download download
+# - merged_las_vector (optional): name to give merged vector
 def import_merge( workingDir, merged_las_vector = 'merged_points' ):
 
     # Make sure the working directory exists
@@ -23,7 +26,11 @@ def import_merge( workingDir, merged_las_vector = 'merged_points' ):
 
     # Check for required las files
     if len( glob.glob( '*.las' ) ) == 0:
+
+        # There aren't any las files, so download them
         download_data( './' )
+
+        # For each las file, transform to state plane meters
         for f in glob.glob( '*.las' ):
             transform_coordinates( f )
 

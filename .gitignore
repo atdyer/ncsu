@@ -1,2 +1,3 @@
 /courses/mea792/node_modules
 .idea/
+*.pyc

@@ -21,13 +21,13 @@
             <div id="side" class="col-sm-3 col-md-2 sidebar">
                 <ul id="sidebar" class="nav nav-sidebar">
                     <li class="active">
-                        <a href="#overview"><strong>Overview</strong> <span class="sr-only">(current)</span></a>
+                        <a href="#overview">Overview <span class="sr-only">(current)</span></a>
                         <ul class="nav nav-sidebar-sub">
                             <li class=""><a class="grass" href="#assignment7">assignment7.py</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a href="#merge"><strong>Download and Merge LAS Data</strong></a>
+                        <a href="#dlmerge">Download and Merge LAS Data</a>
                         <ul class="nav nav-sidebar-sub">
                             <li class=""><a class="grass" href="#importmerge">import_merge.py</a></li>
                             <li class=""><a class="grass" href="#downloaddata">download_data.py</a></li>
@@ -36,25 +36,25 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="#interpolate"><strong>DSM Interpolation in Parallel</strong></a>
+                        <a href="#interpolate">DSM Interpolation in Parallel</a>
                         <ul class="nav nav-sidebar-sub">
                             <li class=""><a class="grass" href="#interpolatedsm">interpolate_dsm.py</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a href="#differences"><strong>Calculating Map Differences</strong></a>
+                        <a href="#differences">Calculating Map Differences</a>
                         <ul class="nav nav-sidebar-sub">
                             <li class=""><a class="grass" href="#computedifferences">compute_differences.py</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a href="#report"><strong>Generating Reports</strong></a>
+                        <a href="#report">Generating Reports</a>
                         <ul class="nav nav-sidebar-sub">
                             <li class=""><a class="grass" href="#generatereport">generate_report.py</a></li>
                         </ul>
                     </li>
                     <li>
-                        <a href="#profiles"><strong>Creating Terrain Profiles</strong></a>
+                        <a href="#profiles">Creating Terrain Profiles</a>
                         <ul class="nav nav-sidebar-sub">
                             <li class=""><a class="grass" href="#terrainprofiles">terrain_profiles.py</a></li>
                         </ul>
@@ -72,62 +72,299 @@
                     <small class="pull-right">Tristan Dyer</small>
                 </h1>
 
+                <p>
+                    In this assignment, we'll cover the basics of using Python in GRASS GIS. We'll write Python
+                    scripts that will import and merge lidar point clouds, interpolate lidar points clouds in order
+                    to create a DSM, calculate map differences in an automated way, generate publishable HTML reports,
+                    and plot terrain profiles.
+                </p>
+
+                <p>
+                    In each section of this assignment, one or more python script files are provided, as shown in the
+                    navigation sidebar. Scripts that rely on other scripts for code (such as
+                    <span class="inline-code">import_merge.py</span>) will need to be located in the same directory
+                    as the scripts on which they rely. The following <span class="inline-code">assignment7.py</span> script can be
+                    used to run through the entire assignment at once (note that if you'd like to rerun the script, certain
+                    maps will need to be removed first, as noted in subsequent sections).
+                </p>
+
+                <p>
+                    All of the scripts used in this assignment can also be downloaded here:
+                </p>
+
+                <p><a class="btn btn-success btn-md" href="baking/scripts/assignment7.zip">Assignment 7 Scripts</a></p>
+
+                <p>
+                    The easiest way to run these scripts is to use the command line window that was opened when GRASS
+                    GIS was started. This will give python access to the grass.script module by default. After downloading
+                    and unzipping the scripts, type the following into the command window to run the assignment:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>cd</strong> /path/to/scripts/directory<br>
+                        <strong>python</strong> assignment7.py
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    In the <span class="inline-code">assignment7.py</span> script, we can see that the first 5 lines are simply importing the functions
+                    we've declared in the files that you will see in the following section. In order for Python to
+                    find these scripts, the files all need to be located in the same directory. You'll also notice
+                    that after you run the script, a number of .pyc files will appear. These are the compiled versions
+                    of our code and can be safely deleted (they will be regenerated every time they are imported).
+                </p>
+
+                <p>
+                    After the imports, we have two variables which can be set to whatever you like. The
+                    <span class="inline-code">workingDir</span> variable is the directory in which all data
+                    will be saved. The <span class="inline-code">lidar_dsm</span> variable is the name that
+                    will be given to the LIDAR derived DSM we'll be creating in this assignment.
+                </p>
+
+                <p>
+                    Finally, as the comments show, each of the next sections runs the code described by the following
+                    sections.
+                </p>
+
                 <a class="anchor" id="assignment7"></a>
                 <h2 class="grass">assignment7.py</h2>
-                <pre><code><!--(bake scripts/assignment7.py)--></code></pre>
+                <pre><code><!--(bake scripts/assignment7.py)--></code></pre><br>
 
 
                 <!-- DOWNLOAD AND MERGE -->
-                <a class="anchor" id="merge"></a>
+                <a class="anchor" id="dlmerge"></a>
                 <h1 class="page-header">Download and Merge LAS Data</h1>
+
+                <p>
+                    The first task is to use python to download LAS data from the internet and merge it into a
+                    single vector in GRASS GIS. The function <span class="inline-code">import_merge()</span> will
+                    perform all of these steps and return the name of the vector in GRASS (default is
+                    <span class="inline-code">merged_points</span>). Note that the functions
+                    <span class="inline-cdoe">download_data()</span>, <span class="inline-code">transform_coordinates()</span>,
+                    and <span class="inline-code">las_to_vector()</span> are each defined in a separate file, and
+                    can be seen in the following scripts. Also note that a few of these scripts have the option
+                    to be run directly from the command line using command line arguments as inputs.
+                </p>
 
                 <a class="anchor" id="importmerge"></a>
                 <h2 class="grass">import_merge.py</h2>
-                <pre><code><!--(bake scripts/import_merge.py)--></code></pre>
+                <pre><code><!--(bake scripts/import_merge.py)--></code></pre><br>
 
                 <a class="anchor" id="downloaddata"></a>
                 <h2 class="grass">download_data.py</h2>
-                <pre><code><!--(bake scripts/download_data.py)--></code></pre>
+                <pre><code><!--(bake scripts/download_data.py)--></code></pre><br>
 
                 <a class="anchor" id="transformcoordinates"></a>
                 <h2 class="grass">transform_coordinates.py</h2>
-                <pre><code><!--(bake scripts/transform_coordinates.py)--></code></pre>
+                <pre><code><!--(bake scripts/transform_coordinates.py)--></code></pre><br>
 
                 <a class="anchor" id="lastovector"></a>
                 <h2 class="grass">las_to_vector.py</h2>
-                <pre><code><!--(bake scripts/las_to_vector.py)--></code></pre>
+                <pre><code><!--(bake scripts/las_to_vector.py)--></code></pre><br>
+
+                <p>
+                    Upon successfully running the <span class="inline-code">interpolate_dsm()</span> function, we'll
+                    now have a vector in our current mapset that looks like this:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/lidar_in.png"/>
+                    <p class="text-center caption">
+                        <strong>Merged point cloud vector</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
 
                 <!-- INTERPOLATION -->
                 <a class="anchor" id="interpolate"></a>
                 <h1 class="page-header">DSM Interpolation in Parallel</h1>
 
+                <p>
+                    In this section, we'll interpolate a raster surface using the vector we just created by merging
+                    las tiles. Because <span class="inline-code">v.surf.rst</span> can take some time to run, it is
+                    desirable to run it in parallel, a process that can be accomplished using
+                    <span class="inline-code">GridModule</span>.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-danger">
+                        <strong>Note:</strong> I was only able to get parallelization to work using OSGeo Live on
+                        the VCL. According to the assignment page, it does not work on Windows, and on my
+                        Ubuntu 14.04 machine, it completely uses up all 4 cores (8 threads) and never finishes.
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
                 <a class="anchor" id="interpolatedsm"></a>
                 <h2 class="grass">interpolate_dsm.py</h2>
-                <pre><code><!--(bake scripts/interpolate_dsm.py)--></code></pre>
+                <pre><code><!--(bake scripts/interpolate_dsm.py)--></code></pre><br>
+
+                <p>
+                    After running this python function on the merged vector we created in the previous section, we
+                    get the following DSM of the Mid-Pines area.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/mid_pines_elevation.png"/>
+                    <p class="text-center caption">
+                        <strong>Merged LIDAR Derived DSM</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
 
                 <!-- CALCULATING DIFFERENCES -->
                 <a class="anchor" id="differences"></a>
                 <h1 class="page-header">Calculating Map Differences</h1>
 
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-warning">
+                        Before re-running this code from <span class="inline-code">assignment7.py</span>,
+                        execute the following to remove the rasters that are created in this section:<br><br>
+
+                        <span class="grass"><strong>g.remove</strong> type=raster pattern="diff_*" -f</span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    In this section, we wish to calculate the differences between all possible combinations of a list
+                    of rasters. The function <span class="inline-code">compute_differences()</span> uses a nested
+                    for loop to consider every possible combination (ignoring combinations of maps with themselves).
+                </p>
+
                 <a class="anchor" id="computedifferences"></a>
                 <h2 class="grass">compute_differences.py</h2>
-                <pre><code><!--(bake scripts/compute_differences.py)--></code></pre>
+                <pre><code><!--(bake scripts/compute_differences.py)--></code></pre><br>
+
+                <p>
+                    After running this function, we'll have 6 new rasters:
+                </p>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/agi-pix.png"/>
+                    <p class="text-center caption">
+                        <strong>Agisoft - Pix4D</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/agi-trimble.png"/>
+                    <p class="text-center caption">
+                        <strong>Agisoft - Trimble</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/pix-agi.png"/>
+                    <p class="text-center caption">
+                        <strong>Pix4D - Agisoft</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/pix-trimble.png"/>
+                    <p class="text-center caption">
+                        <strong>Pix4D - Trimble</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/trimble-agi.png"/>
+                    <p class="text-center caption">
+                        <strong>Trimble - Agisoft</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/trimble-pix.png"/>
+                    <p class="text-center caption">
+                        <strong>Trimble - Pix4D</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
 
                 <!-- GENERATING REPORTS -->
                 <a class="anchor" id="report"></a>
                 <h1 class="page-header">Generating Reports</h1>
 
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-warning">
+                        Before re-running this code from <span class="inline-code">assignment7.py</span>,
+                        execute the following to remove the rasters that are created in this section:<br><br>
+
+                        <span class="grass"><strong>g.remove</strong> type=raster pattern="*_shade" -f</span>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    In this section, we'll use python to create images, calculate statistics, and generate a report
+                    in HTML format. <a href="baking/report/report.html">View the resulting report here.</a>
+                </p>
+
                 <a class="anchor" id="generatereport"></a>
                 <h2 class="grass">generate_report.py</h2>
-                <pre><code><!--(bake scripts/generate_report.py)--></code></pre>
+                <pre><code><!--(bake scripts/generate_report_display.py)--></code></pre><br>
+
 
                 <!-- PROFILES -->
                 <a class="anchor" id="profiles"></a>
                 <h1 class="page-header">Creating Terrain Profiles</h1>
 
+                <p>
+                    In the final section, we'll use python to automatically sample any number of rasters for any number
+                    of terrain profiles, optionally saving statistical data to csv files and displaying plots. The
+                    <span class="inline-code">terrain_profiles()</span> function takes three arguments. The first
+                    is the list of rasters that will be sampled. The second is a list of lists of coordinates along
+                    which profiles are sampled (see the values used in <span class="inline-code">assignment7.py</span>
+                    for an example). The third is an optional list of filenames (each corresponding to a single profile)
+                    to which simple statistical data will be saved.
+                </p>
+
                 <a class="anchor" id="terrainprofiles"></a>
                 <h2 class="grass">terrain_profiles.py</h2>
-                <pre><code><!--(bake scripts/terrain_profiles.py)--></code></pre>
+                <pre><code><!--(bake scripts/terrain_profiles.py)--></code></pre><br>
+
+                <p>
+                    Note that when we parse the profile data from each raster, we cannot assume that every profile
+                    will have the same number of values. If the profile line crosses an empty cell, that cell will
+                    return a null value in <span class="inline-code">r.profile</span>. Therefore, we need to keep track
+                    of both the distance and elevation data for each profile line of each raster, rather than using
+                    the same distance data for a profile line over all of the rasters (as is done on the assignment
+                    page).
+                </p>
+
+                <p>
+                    Running this function with the example values used in <span class="inline-code">assignment7.py</span>
+                    results in the following profiles.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/default.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile line from assignment page</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/south_field.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile in southern field</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/road.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile along road</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment7/corn_tree.png"/>
+                    <p class="text-center caption">
+                        <strong>Profile through corn and over tree</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
 
             </div>
         </div>
@@ -140,6 +377,7 @@
         $(function() {
             $('#side').bind('click', 'ul li a', function(event) {
                 event.preventDefault();
+                console.log(event.target, event.target.hash);
                 $.scrollTo(event.target.hash, 400);
             });
         });

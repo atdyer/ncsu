@@ -54,6 +54,7 @@ def las_to_vector( lasFiles, vectorName ):
         overwrite=True
     )
 
+    # Remove the individual vectors
     gscript.run_command( 'g.remove',
         type='vector',
         name=vectors,
