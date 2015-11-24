@@ -3,8 +3,6 @@ from CloudFilters import *
 from CloudTransform import *
 from CloudUtilities import *
 
-import matplotlib.pyplot as plt
-
 # Path to data files
 tiffilepath = '/home/tristan/box/courses/gis-512/project/duck-vegetation-ncspm.tif'
 cloudfiles = ['/home/tristan/Desktop/data/north.bin',
