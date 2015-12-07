@@ -16,7 +16,7 @@
         <div class="row">
             <div id="side" class="col-sm-3 col-md-2 sidebar">
                 <ul id="sidebar" class="nav nav-sidebar">
-                    <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+                    <li class="active"><a href="#overview">Overview <span class="sr-only">(current)</span></a></li>
                     <li><a href="#fusion">Smooth Fusion</a></li>
                     <li><a href="#simulation">Water Flow Simulation</a> </li>
                     <li><a href="#animation">Animation and Visualization</a></li>
@@ -33,6 +33,14 @@
                     </a>
                     <small class="pull-right">Tristan Dyer</small>
                 </h1>
+
+                <p>
+                    In this assignment, we will be updating the 2013 LIDAR DEM with data from a 2015 UAV derived point
+                    cloud. We'll then perform a water flow simulation and animate and discuss the results. The idea
+                    here is to understand the process of preparing data and performing the water flow simulation so that
+                    multiple simulations can be performed in order to show how differences in terrain can effect the
+                    flow and resulting accumulation of water.
+                </p>
 
 
                 <!-- SMOOTH FUSION -->
@@ -347,11 +355,60 @@
                 <a class="anchor" id="validating"></a>
                 <h1 class="page-header">Validating Using Orthophotos</h1>
 
+                <p>
+                    We can validate these results using the orthophotos themselves. The March, June, and both of the
+                    October flights were executed after intense rainfalls, so some of the remaining water is still
+                    visible. For each of the following two sites, we can first see the puddles in the orthophoto,
+                    followed by the depth results overlaying the orthophoto to show where the simulation predicts
+                    accumulation will occur.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/puddle1a.png"/>
+                    <p class="text-center caption">
+                        <strong>Orthophoto</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/puddle1b.png"/>
+                    <p class="text-center caption">
+                        <strong>Depth Overlaying Orthophoto</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/puddle2a.png"/>
+                    <p class="text-center caption">
+                        <strong>Orthophoto</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/puddle2b.png"/>
+                    <p class="text-center caption">
+                        <strong>Depth Overlaying Orthophoto</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
             </div>
         </div>
     </div>
 
     <!--(bake scripts.html)-->
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                console.log(event.target, event.target.hash);
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
+
+        hljs.initHighlightingOnLoad();
+    </script>
 
 </body>
 </html>
