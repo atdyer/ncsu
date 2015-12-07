@@ -11,6 +11,346 @@
 <body>
 
     <!--(bake navbar.html _section="assignment8")-->
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
+                    <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#fusion">Smooth Fusion</a></li>
+                    <li><a href="#simulation">Water Flow Simulation</a> </li>
+                    <li><a href="#animation">Animation and Visualization</a></li>
+                    <li><a href="#validating">Validating Using Orthophotos</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- OVERVIEW -->
+                <a class="anchor" id="overview"></a>
+                <h1 class="page-header">Overview
+                    <a class="btn btn-primary btn-xs" href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/assignments/water_flow.html">
+                        <i class="fa fa-university fa-xs"></i>
+                    </a>
+                    <small class="pull-right">Tristan Dyer</small>
+                </h1>
+
+
+                <!-- SMOOTH FUSION -->
+                <a class="anchor" id="fusion"></a>
+                <h1 class="page-header">Smooth Fusion</h1>
+
+                <p>
+                    First, we'll do a smooth fusion of LIDAR and UAS data in order to update the 2013 DEM to the
+                    2015 state of the terrain. Set the region and import the UAS derived point cloud data:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> n=219657 s=219320 e=637082 w=636731 res=0.3 -p<br>
+                        <strong>v.in.lidar</strong> -trbo input=2015_06_20_Points_11GCP_Ncspm.las output=uav_06_all
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Note the <strong>t, b, </strong>and <strong>r</strong> flags with the
+                    <span class="inline-code">v.in.lidar</span> command. Importing point cloud data can be time consuming, but
+                    these flags should help speed things up by telling GRASS not to create an attribute table, not to
+                    build topology, and to only import points that are inside of the current region. Next, we'll
+                    interpolate the LIDAR data to create a raster surface:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>v.surf.rst</strong> npmin=100 input=uav_06_all elevation=uav_06_interp tension=30 smooth=1
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    The <span class="inline-code">v.surf.rst</span> command generates a raster surface from vector data
+                    using a regularized spline with tension. The <strong>npmin</strong> option defines the minimum
+                    number of points needed to approximate a segment. The <strong>tension</strong> and
+                    <strong>smooth</strong> parameters are the tension and smoothing values used in the spline. This
+                    generates the following DSM:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/lidar-surface.png"/>
+                    <p class="text-center caption">
+                        <strong>Interpolated UAS Surface</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Next, we want to mask out any vegetation in the interpolated DSM so that it won't be included
+                    when we perform the fusion with the 2013 DEM. In order to create the mask, we'll assume that
+                    anything in the dataset that is more than 30cm higher than the 2013 dataset is vegetation. This
+                    is a fairly good assumption, as we'd mostly like to mask out crops (corn, which grows to larger
+                    than 30cm tall), trees, and buildings, and we're fairly certain that no natural processes have
+                    caused over 30cm of soil accretion in our study area. Perform the subtraction and create the mask:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.mapcalc</strong> "diff_uav_06_lidar = uav_06_interp - mid_pines_lidar2013_dem"<br>
+                        <strong>r.mapcalc</strong> "diff_uav_06_lidar_mask = if (uav_06_interp - mid_pines_lidar2013_dem > 0.3, 1, null())"
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/lidar-uav-difference.png"/>
+                    <p class="text-center caption">
+                        <strong>Interpolated UAS surface minus the 2013 LIDAR DEM</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/lidar-uav-difference-mask.png"/>
+                    <p class="text-center caption">
+                        <strong>Masked Vegetation</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    We can see that the mask does a fairly good job of covering the crops, trees, and buildings. In
+                    order to fill some of the holes in the mask, we'll dilate it using <span class="inline-code">r.grow</span>
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.grow</strong> input=diff_uav_06_lidar_mask output=diff_uav_06_lidar_mask_grow radius=3.01 new=1
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/lidar-uav-difference-mask-grow.png"/>
+                    <p class="text-center caption">
+                        <strong>The dilated vegetation mask</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This mask represents the area which will be replaced with data from the 2013 LIDAR DEM. To perform
+                    the data fusion, we'll use a weighted average method, similar to what we did in Assignment 6. For
+                    each cell, we calculate the shortest distance from the mask. If the distance is greater than 10 cells, we
+                    keep the value from the UAS interpolated surface. If the distance is within 10 cells, we take the
+                    weighted average of the UAS and LIDAR data, using distance from the masked cells as the weights.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.grow.distance</strong> -m input=diff_uav_06_lidar_mask_grow distance=distance_mask<br>
+                        <strong>r.mapcalc</strong> merged_lidar_uav = "if(distance_mask > 10, uav_06_interp, (1 - distance_mask/10) * mid_pines_lidar2013_dem + (distance_mask/10) * uav_06_interp)"<br>
+                        <strong>r.relief</strong> input=merged_lidar_uav output=merged_lidar_uav_relief zscale=100
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/distance-mask.png"/>
+                    <p class="text-center caption">
+                        <strong>The distance mask</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/merged.png"/>
+                    <p class="text-center caption">
+                        <strong>The merged dataset</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/merged-relief.png"/>
+                    <p class="text-center caption">
+                        <strong>Relief of the merged dataset</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    In the first image above, we see the distance mask, which contains the distance from each cell
+                    to the vegetation mask. The second image shows the merged dataset, and the third shows a relief
+                    of the merged dataset. From the relief we can see the smooth transition that has been created
+                    between areas of the new UAS derived dataset and areas that were filled using the older 2013
+                    LIDAR dataset. We can also see that the 2013 dataset has quite a bit more smoothing applied, which
+                    is important to note as we move into performing water flow simulations. Finally, we'll merge
+                    the combined dataset into the larger area covered by the LIDAR dataset using the same technique:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> n=n-10 s=s+10 e=e-10 w=w+10<br>
+                        <strong>r.mapcalc</strong> "rectangle = 1"<br>
+                        <strong>g.region</strong> raster=mid_pines_lidar2013_dem<br>
+                        <strong>r.grow.distance</strong> -m input=rectangle distance=distance_rectangle<br>
+                        <strong>r.mapcalc</strong> "merged_lidar_uav_full = if(distance_rectangle > 10, mid_pines_lidar2013_dem, (1 - distance_rectangle/10) * merged_lidar_uav + (distance_rectangle/10) * mid_pines_lidar2013_dem)"<br>
+                        <strong>r.relief</strong> input=merged_lidar_uav_full output=merged_lidar_uav_full_relief zscale=100
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/distance-mask-2.png"/>
+                    <p class="text-center caption">
+                        <strong>The distance mask</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/merged-2.png"/>
+                    <p class="text-center caption">
+                        <strong>The merged dataset</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/merged-relief-2.png"/>
+                    <p class="text-center caption">
+                        <strong>Relief of the merged dataset</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    Again, the first image shows the distance from each cell to the mask (which is a large rectangle
+                    covering the entire merged dataset). The second image shows the final merged dataset, and the
+                    third shows a relief of the final merged dataset.
+                    Inspecting the relief image (open image in new tab for larger view) will show the smooth
+                    transition between the inner UAV data with the outer LIDAR data.
+                </p>
+
+
+
+                <!-- WATER FLOW SIMULATION -->
+                <a class="anchor" id="simulation"></a>
+                <h1 class="page-header">Water Flow Simulation</h1>
+
+                <p>
+                    In this section, we'll perform a water flow simulation in order to inspect the flow patterns that
+                    are created using different DSMs. This workflow shows how to perform the simulation for the
+                    merged 2013 LIDAR/2015 UAS dataset we just created, but the same process should be executed on the
+                    timeseries of UAS datasets (March, July, September, and October) to show how the flow patterns
+                    evolve. First, examine the watershed boundaries to see which areas to include:
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.watershed</strong> elevation=merged_lidar_uav_full threshold=50000 accumulation=merged_flowacc basin=merged_basin
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/merged-basin.png"/>
+                    <p class="text-center caption">
+                        <strong>Merged dataset watershed basins</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/merged-flowacc.png"/>
+                    <p class="text-center caption">
+                        <strong>Merged dataset flow accumulation</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    We'll use a subset of this large region to perform the water flow simulation. We'll use a region
+                    that include the entire merged dataset so that we can look for artifacts introduced by the
+                    merging process. Additionally, we'll need first order spatial derivatives to perform the water
+                    flow simulation. These can be generated using <span class="inline-code">r.slope.aspect</span>.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>g.region</strong> n=219727 s=219319 e=637191 w=636701 res=0.3 -p<br>
+                        <strong>r.slope.aspect</strong> elevation=merged_lidar_uav_full dx=merged_dx dy=merged_dy
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                Finally, perform the water flow simulation:
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout bs-callout-success grass">
+                        <strong>r.sim.water</strong> -t elevation=merged_lidar_uav_full dx=merged_dx dy=merged_dy rain_value=30 man_value=0.15 depth=merged_depth discharge=merged_disch nwalkers=100000 niterations=20 output_step=1 hmax=0.2 halpha=8.0 hbeta=1.0
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                This simulation is fairly time consuming, and can be sped up by using a smaller region. A percentage
+                completion should help you estimate how long the process will take. My simulation resulted in the
+                following output:
+
+                <div class="col-xs-12 col-md-12">
+                    <div class="bs-callout grass">
+                        Min elevation = 105.85 m<br>
+                        Max elevation = 120.42 m<br>
+                        Mean Source Rate (rainf. excess or sediment) = 0.000006 m/s or kg/m2s<br>
+                        Mean flow velocity = 1.474124 m/s<br>
+                        Mean Mannings = 0.150110<br>
+                        Number of iterations = 5895 cells<br>
+                        Time step = 0.05 s<br>
+                        100%
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    The following two images show the final timestep of the simulation:
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/final-depth.png"/>
+                    <p class="text-center caption">
+                        <strong>Depth - Final Timestep</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/final-discharge.png"/>
+                    <p class="text-center caption">
+                        <strong>Discharge - Final Timestep</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+
+
+                <!-- ANIMATION AND VISUALIZATION -->
+                <a class="anchor" id="animation"></a>
+                <h1 class="page-header">Animation and Visualization</h1>
+
+                <p>
+                    Using the Animation Tool in GRASS GIS, we can visualize how the water flow evolves over time, as
+                    seen in the following two animated gifs:
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/animation-depth-pause.gif"/>
+                    <p class="text-center caption">
+                        <strong>Depth</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="big-image img-thumbnail center-block" src="img/assignment8/animation-discharge-pause.gif"/>
+                    <p class="text-center caption">
+                        <strong>Discharge</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+
+
+                <!-- VALIDATING USING ORTHOPHOTOS -->
+                <a class="anchor" id="validating"></a>
+                <h1 class="page-header">Validating Using Orthophotos</h1>
+
+            </div>
+        </div>
+    </div>
+
     <!--(bake scripts.html)-->
 
 </body>
