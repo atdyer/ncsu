@@ -13,6 +13,10 @@
     <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet" type="text/css">
 
+    <!-- Code highlighting -->
+    <script src="lib/highlightjs/highlight.pack.js"></script>
+    <link href="lib/highlightjs/styles/zenburn.css" rel="stylesheet" type="text/css">
+
 </head>
 <body>
 
@@ -60,10 +64,18 @@
             <div id="side" class="col-sm-3 col-md-2 sidebar">
                 <ul id="sidebar" class="nav nav-sidebar">
                     <li class="active"><a href="#introduction">Introduction <span class="sr-only">(current)</span></a></li>
-                    <li><a href="methods">Methods</a> </li>
-                    <li><a href="data">Data</a> </li>
-                    <li><a href="results">Results</a> </li>
-                    <li><a href="conclusions">Conclusions</a> </li>
+                    <li>
+                        <a href="#methods">Methods</a>
+                        <ul class="nav nav-sidebar-sub">
+                            <li><a href="#algorithm">The Classification Algorithm</a> </li>
+                            <li><a href="#gvalue">The Value of \(G\)</a> </li>
+                            <li><a href="#workflow">Workflow</a> </li>
+                            <li><a href="#python">Python Code</a> </li>
+                        </ul>
+                    </li>
+                    <li><a href="#data">Data</a> </li>
+                    <li><a href="#results">Results</a> </li>
+                    <li><a href="#conclusions">Conclusions</a> </li>
                 </ul>
             </div>
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
@@ -121,7 +133,8 @@
                     between ground and non-ground points).
                 </p>
 
-                <h2>The Classification Algorithm</h2>
+                <a class="anchor" id="algorithm"></a>
+                <h3>The Classification Algorithm</h3>
 
                 <p>
                     LIDAR sensors operate by emitting a pulse of light and measuring the amount of time it takes for
@@ -166,18 +179,432 @@
                                 <h4><strong>Calculate noise factor</strong></h4>
                                 <p>
                                     The noise factor is a value between 0 and 1 which indicates the amount of
-                                    variability in elevation amongst the points inside of the stencil.
+                                    variability in elevation amongst the points inside of the stencil. It is calculated
+                                    as follows:
 
-                                    $$ range = c \frac {t} {2} $$
+                                    $$N = \frac{|z_n - z_1|}{\sum_{i=1}^{n-1}|z_{i+1} - z_i|}$$
+
+                                    where \(N\) is the noise factor and \(n\) is the number of points in the stencil.
+                                    In words, the noise factor is the absolute value of the difference in elevation
+                                    between the first and last points in the stencil divided by the sum of the absolute
+                                    values of the differences between consecutive points in the stencil. If all of
+                                    the points in the stencil fall on a perfectly flat plane, the noise factor will
+                                    be equal to 1. On the other hand, if there is a lot of variability in elevation
+                                    in between the first and last point in the stencil, this value will be closer to
+                                    zero.
+                                </p>
+                            </li>
+                            <li class="list-group-item">
+                                <h4><strong>Determine number of points to 'pre-classify' as ground</strong></h4>
+                                <p>
+                                    Next, we determine some number of points to 'pre-classify' as ground points based
+                                    on the noise factor we have just calculated. When there is a lot of noise in the
+                                    stencil (i.e. the noise factor is close to zero), we are not very confident that
+                                    the points in the stencil are ground points. Therefore, we want to 'pre-classify'
+                                    relatively few points as ground. On the other hand, if there is very little noise
+                                    (i.e. the noise factor is close to one), we can be fairly certain that a majority
+                                    of the points in the stencil are ground points.
+                                </p>
+
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Note:</strong> This is a fairly strong assumption to make. Because the
+                                    noise factor is really only able to distinguish between flat planes and noisy data,
+                                    it is not necessarily true that a noise factor of 1.0 will be indicative of ground
+                                    points. In fact, this method does a fairly poor job of removing buildings from
+                                    data because they are composed of very flat surfaces. The assumption is valid here
+                                    because the environment in front of the LIDAR scanner at the FRF is composed mainly
+                                    of beach sand (which is relatively planar) and dunes covered with tall vegetation
+                                    (which is very noisy).
+                                </div>
+
+                                <p>
+                                    Because the noise factor is a value between 0 and 1, we can use this simple equation
+                                    to calculate the number of points to 'pre-classify' as ground:
+
+                                    $$ g = \lceil N \times n\rceil $$
+
+                                    where \(g\) is the number of points to 'pre-classify' as ground, \(N\) is the noise
+                                    factor, and \(n\) is the number of points in the stencil. Note that either the
+                                    ceiling or floor can be used in this equation, depending on how liberal or
+                                    conservative we wish to be with our ground classifications. The value of \(g\),
+                                    however, must be an integer.
+                                </p>
+
+                            </li>
+                            <li class="list-group-item">
+                                <h4><strong>Update the running count</strong></h4>
+                                <p>
+                                    Finally, we want to 'pre-classify' \(g\) points as ground. To do this, we simply
+                                    choose the \(g\) points with the lowest elevations and add 1 to their running
+                                    count that was initialized at the start of the algorithm.
+                                </p>
+                            </li>
+                            <li class="list-group-item">
+                                <h4><strong>Advance the stencil</strong></h4>
+                                <p>
+                                    Once the running count for the points currently in the stencil has been updated,
+                                    we simply advance the stencil by a single point and repeat the noise factor
+                                    calculation to 'pre-classification' steps.
                                 </p>
                             </li>
                         </ul>
                     </li>
+                    <li class="list-group-item">
+                        <h4><strong>Determine final classification for each point in the line scan</strong></h4>
+                        <p>
+                            After completing the previous step, the running count for each point will be some value
+                            between zero and \(n\), where \(n\) is the number of points in the stencil. This running
+                            count value is essentially a confidence level. We have a high confidence that points
+                            that have been 'pre-classified' as ground points a large number of times are actually
+                            ground points. On the other hand, points that are rarely 'pre-classified' as ground points
+                            are most likely not ground points.
+                        </p>
+                        <p>
+                            Therefore, we must choose a cutoff value for ground classification. We will call this value
+                            \(G\). Points that have been 'pre-classified' as ground points <i>at least</i> \(G\) times
+                            will receive a final classification as <strong>ground</strong>. Points that have been
+                            'pre-classified' as ground <i>less than</i> \(G\) times will receive a final classification
+                            of <strong>not ground</strong>.
+                        </p>
+                    </li>
                 </ul>
+
+                <a class="anchor" id="gvalue"></a>
+                <h3>The Value of \(G\)</h3>
+
+                <p>
+                    So how exactly do we choose the value of \(G\) used in the final step of the classification
+                    algorithm? In the past, we have simply tested a number of values and compared the resulting
+                    classification. Typically, a value around 60% of the size of the stencil being used has performed
+                    sufficiently. However, results definitely are not perfect and this value simply does not work
+                    in all environments. While it performs well on clean beaches, areas of vegetation can problematic,
+                    as are portions of the beach that contain tire tracks, footprints, or people. Classification of
+                    ground points in these problematic environments may respond better to a different value of \(G\).
+                </p>
+
+                <p>
+                    This is where we will be using the raster classification to train the algorithm. We will choose
+                    the value of \(G\) for each point based on the classification of the raster cell that the point
+                    falls into. This means that a point that falls into a raster cell that is classified as vegetation
+                    will use a value of \(G\) different from a point that falls into a raster cell classified as ground.
+                    The following table shows the values of \(G\) used in this project:
+                </p>
+
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                <table class="table table-condensed table-hover">
+                    <caption>Values of \(G\) based on a stencil size of 10</caption>
+                    <thead>
+                        <tr>
+                            <th>Raster Classification</th>
+                            <th>\(G\)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ground</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Vegetation</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td>Default</td>
+                            <td>5</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+                <div class="col-md-4"></div>
+                <div class="clearfix"></div>
+
+                <p>
+                    For the data tested in this project, we use a stencil size of 10 points. If a point in the dataset
+                    falls into a raster cell that is classified as ground, that point's 'pre-classification' only needs
+                    to be ground twice for its final classification to also be ground. If however, that point falls into
+                    a raster cell that is classified as vegetation, it needs to be 'pre-classified' as ground at least
+                    8 times before its final classification to also be ground. Finally, if a point falls into an
+                    unclassified raster cell, a default value of 5 is used for \(G\).
+                </p>
+
+                <a class="anchor" id="workflow"></a>
+                <h3>Workflow</h3>
+
+                <p>
+                    The workflow developed for this project involved the creation of a classified raster for the
+                    study area, as well as Python code to perform the actual processing. The following flowchart
+                    shows an overview of the entire process.
+                </p>
+
+                <div class="col-md-2"></div>
+                <div class="col-xs-12 col-md-8">
+                    <img class="big-image img-thumbnail center-block" src="img/project/workflow.png"/>
+                    <p class="text-center caption">
+                        <strong>Trained Classification Workflow</strong>
+                    </p>
+                </div>
+                <div class="col-md-2"></div>
+                <div class="clearfix"></div>
+
+                <p>
+                    The LIDAR point cloud is simply saved as a binary file containing a list of points. Each point
+                    has an x, y, and z value, as well as a value indicating which face of the scanner's rotating mirror
+                    was used to acquire the point. This value is used to separate the points into linescans.
+                    The classified raster dataset required a little more work to generate. It was generated using
+                    ERDAS Image and saved as a GeoTIFF. This file, which is essentially a georeferenced image, has
+                    a single color in each pixel indicating that pixel's classification. These two datasets will be
+                    described in more depth in the next section.
+                </p>
+
+                <p>
+                    It is important to note that the raster dataset does not necessarily have to be generated using
+                    ERDAS Imagine. As long as the data is in a readable format that can be used to perform raster
+                    cell lookups, it does not matter how the data is generated. Moving forward, I will be writing custom
+                    code that will continuously update a classified raster dataset using the hourly scans. This code
+                    will then be integrated into the real-time workflow and used as the classification training
+                    dataset.
+                </p>
+
+                <a class="anchor" id="python"></a>
+                <h3>Python Code</h3>
+
+                <p>
+                    All of the code that does the actual processing is written in Python. It relies on
+                    <a href="http://www.numpy.org/">NumPy</a> for much of the heavy lifting and on
+                    <a href="http://www.gdal.org/">GDAL</a> for GeoTIFF file I/O.
+                    The python processing code is currently available from my Github account, located
+                    <a href="https://github.com/atdyer/ncsu/tree/gh-pages/courses/gis512/python">here</a>. The following
+                    code snippet shows the portion of the <span class="inline-code">LinescanFilter</span> class
+                    which actually performs the point classification.
+                </p>
+
+                <pre><code>import numpy as np
+
+class LinescanFilter:
+
+    def __init__( self, cloud ):
+
+        self.cloud = cloud
+        self.z = cloud[:,2]
+        self.stencil_size = 10
+
+        # Number of times a raster-ground point needs to be classified as ground
+        # to be considered a ground point
+        self.ground_pass = 2
+
+        # Number of times a raster-veg point needs to be classified as ground
+        # to be considered a ground point
+        self.veg_pass = 8
+
+        # Number of times a raster-unclass point needs to be classified as ground
+        # to be considered a ground point
+        self.default_pass = 5
+
+    def confidence( self, noise ):
+
+        return int( abs( noise ) * self.stencil_size )
+
+    def trained_classification( self, scandices, training, use_training=True ):
+
+        # Variables
+        numpoints = len( training )
+        numscans = len( scandices )
+
+        # Print status message
+        print 'Starting trained classification'
+        print '\t', numpoints, 'points in', numscans, 'line scans'
+
+        # Start progress bar
+        self.set_progress_parameters( numscans )
+
+        # Create classification arrays
+        nground = np.zeros_like( training )
+        classification = np.ones_like( training )
+
+        # Loop through scans
+        for s, scan in enumerate( scandices ):
+
+            # print 'Classifying scan', s+1
+            self.set_current_progress( s )
+
+            # The index at which the line scan starts
+            start = scan
+
+            # The index at which the next line scan starts
+            end = scandices[s+1] if s&lt;len(scandices)-1 else len(training)
+
+            # If the scan has fewer than stencil_size points, they're probably
+            # all bad points, so let's ignore them
+            if end-start &lt; self.stencil_size:
+                continue
+
+            # Create the stencil
+            stencil = np.array( self.z[start:start+self.stencil_size] )
+
+            # Loop through current scan
+            for i in range( start, end-self.stencil_size):
+
+                # Refill the stencil
+                stencil[:] = self.z[i:i+self.stencil_size]
+
+                # Calculate sum of absolute differences
+                diffsums = np.sum( np.abs( np.diff( stencil ) ) )
+
+                # Calculate difference between two ends of the stencil
+                diffends = stencil[self.stencil_size-1] - stencil[0]
+
+                # Calculate noise level
+                noise = diffends / diffsums
+
+                # Get number to set as ground points based on confidence
+                nkeep = self.confidence( noise )
+
+                # Classify the lowest nkeep values as ground
+                keep_indices = stencil.argsort()[:nkeep] + i
+
+                nground[ keep_indices ] += 1
+
+            if use_training:
+
+                # Loop through classification results and determine
+                # final classification based on raster data
+                for i in range( start, end ):
+
+                    raster_class = training[i]
+                    ground_count = nground[i]
+
+                    if raster_class == 0 and ground_count &lt; self.default_pass:
+                        classification[i] = 0
+                    elif raster_class == 1 and ground_count &lt; self.ground_pass:
+                        classification[i] = 0
+                    elif raster_class == 2 and ground_count &lt; self.veg_pass:
+                        classification[i] = 0
+
+            else:
+
+                for i in range( start, end ):
+
+                    if nground[i] &lt; self.default_pass:
+                        classification[i] = 0
+
+        # Finish the load bar
+        self.set_progress_finished()
+
+        # Return classifications
+        return classification</code></pre><br>
 
                 <!-- DATA -->
                 <a class="anchor" id="data"></a>
                 <h1 class="page-header">Data</h1>
+
+                <p>
+                    There are two datasets used to test the new workflow developed in this project. The first is the
+                    LIDAR dataset. The scan used was collected on August 17, 2015 at 2:00pm from the LIDAR tower
+                    located on the north property of the FRF. It is a combination of three framescans and contains
+                    approximately 16.5 million points. It is an extremely dense dataset with an sub-centimeter
+                    accuracy.
+                </p>
+
+                <div class="col-xs-12 col-md-8">
+                    <table class="table table-condensed table-hover">
+                        <caption>LIDAR Dataset Properties</caption>
+                        <tbody>
+                        <tr>
+                            <td>Sensor</td>
+                            <td>Riegl VZ-1000</td>
+                        </tr>
+                        <tr>
+                            <td>Date Acquired</td>
+                            <td>8/17/2015 2:00pm</td>
+                        </tr>
+                        <tr>
+                            <td>Number of Points</td>
+                            <td>16,500,000</td>
+                        </tr>
+                        <tr>
+                            <td>Number of GCPs</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td>Accuracy</td>
+                            <td>Approximately 1mm</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-12 col-md-4 pull-right">
+                    <img class="img-thumbnail center-block" src="img/project/tower.png"/>
+                    <p class="text-center caption">
+                        <strong>The North Property LIDAR Tower</strong>
+                    </p>
+                </div>
+
+                <p>
+                    The second dataset is the classified raster. For this project I created a classified raster from
+                    an orthophoto using ERDAS Imagine. The orthophoto was generated from images that were captured
+                    from a simple point-and-shoot camera mounted to a helicopter that was flown over the study area.
+                    These photos were loaded into Agisoft Photoscan, a software package which generates the orthophoto
+                    and uses the GCPs located in the images to perform a georectification. The orthophoto was then
+                    passed into ERDAS Imagine and an unsupervised classification using 40 classes was performed. I
+                    then combined classes manually to generate a raster dataset which included a
+                    ground or non-ground classification for each cell.
+                </p>
+
+                <div class="col-xs-12 col-md-8">
+                    <table class="table table-condensed table-hover">
+                        <caption>Orthophoto Properties</caption>
+                        <tbody>
+                        <tr>
+                            <td>Generating Software</td>
+                            <td>Agisoft Photoscan</td>
+                        </tr>
+                        <tr>
+                            <td>Acquisition Date</td>
+                            <td>Early Summer 2015</td>
+                        </tr>
+                        <tr>
+                            <td>Photo Resolution</td>
+                            <td>26,659 x 55,490</td>
+                        </tr>
+                        <tr>
+                            <td>GCPs</td>
+                            <td>15</td>
+                        </tr>
+                        <tr>
+                            <td>Error</td>
+                            <td>0.51 pixels</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p>
+                    As you can see, we have to very dense datasets. Based on the sheer volume of data available, it is
+                    easy to see why the classification algorithms need to be extremely fast, especially considering the
+                    strict time requirement placed on the processing step of the workflow.
+                </p>
+                <p>
+                    It should be noted that there is significant time gap between the date the images for the orthophoto
+                    were acquired and the date that the LIDAR dataset was acquired. Ideally, these two datasets would
+                    bet acquired simultaneously, but because this workflow is still under development and testing,
+                    the data used in this test were the closest available. As a proof of concept, however, this time
+                    gap is acceptable.
+                </p>
+
+                <div class="col-xs-12 col-md-12">
+                    <img class="img-thumbnail center-block" src="img/project/unclassified-scale.png"/>
+                    <p class="text-center caption">
+                        <strong>The Orthophoto</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <img class="img-thumbnail center-block" src="img/project/classified-scale.png"/>
+                    <p class="text-center caption">
+                        <strong>The Classified Raster Dataset</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
 
                 <!-- RESULTS -->
                 <a class="anchor" id="results"></a>
