@@ -606,13 +606,113 @@ class LinescanFilter:
                 </div>
                 <div class="clearfix"></div>
 
+
                 <!-- RESULTS -->
                 <a class="anchor" id="results"></a>
                 <h1 class="page-header">Results</h1>
 
+                <p>
+                    The results of the using the training dataset in the algorithm are best shown through images. The
+                    following three image sets show three different views of the classified dataset. The first image
+                    shows the results of performing a classification without the training datset and the second image
+                    shows the results of performing a classification with the training dataset. In each image, white
+                    represents a ground classification and green represents a non-ground classification.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="img-thumbnail center-block" src="img/project/00-no-training.png"/>
+                    <p class="text-center caption">
+                        <strong>Without Training</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="img-thumbnail center-block" src="img/project/00-training.png"/>
+                    <p class="text-center caption">
+                        <strong>With Training</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This first set of images shows the classification in an area on the beach with some sparse
+                    vegetation. In the image that shows the classification without training, we can see that there
+                    is significant mis-classification of ground points immediately surrounding the shadows of vegetation.
+                    However, with the training dataset, it is known that this area has vegetation and a more strict
+                    value of \(G\) is used, which results in fewer mis-classification errors.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="img-thumbnail center-block" src="img/project/01-no-training.png"/>
+                    <p class="text-center caption">
+                        <strong>Without Training</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="img-thumbnail center-block" src="img/project/01-training.png"/>
+                    <p class="text-center caption">
+                        <strong>With Training</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This second set of images shows an area of beach that is covered in vehicle tracks. We can see
+                    that the algorithm has a harder time in this area, especially in spots of particularly high density.
+                    The vehicle tracks introduce a lot of bumpiness to the sand surface at a very small scale (think
+                    tread marks) which the algorithm sees as a high level of noise. Because this area is classified
+                    as ground in the training dataset, we can use a much lower value for \(G\), resulting in a better
+                    classification.
+                </p>
+
+                <div class="col-xs-12 col-md-6">
+                    <img class="img-thumbnail center-block" src="img/project/02-no-training.png"/>
+                    <p class="text-center caption">
+                        <strong>Without Training</strong>
+                    </p>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <img class="img-thumbnail center-block" src="img/project/02-training.png"/>
+                    <p class="text-center caption">
+                        <strong>With Training</strong>
+                    </p>
+                </div>
+                <div class="clearfix"></div>
+
+                <p>
+                    This final set of images shows an area with both beach sand and dense vegetation. Without the
+                    training data, the algorithm performs fairly well in the area of dense vegetation, but, as in the
+                    previous set of images, has trouble on areas of the beach that are covered in vehicle tracks. With
+                    the training dataset available, however, the classification on the beach is improved without
+                    degrading the classification in the area of dense vegetation. This clearly demonstrates the value
+                    of having information about the immediately surrounding environment when performing a classification.
+                </p>
+
                 <!-- CONCLUSIONS -->
                 <a class="anchor" id="conclusions"></a>
                 <h1 class="page-header">Conclusions</h1>
+
+                <p>
+                    In this project, we have demonstrated that classified raster data can be used to aid in the
+                    classification of dense LIDAR data. We have successfully modified one of the existing algorithms
+                    used in the processing workflow such that an existing classification of the area surrounding a
+                    point can be used to guide the classification of that point.
+                </p>
+                <p>
+                    Currently, the process has only been tested on a single dataset, so ongoing work will be using
+                    additional, hourly datasets to validate the new process. Additionally, testing has only been
+                    performed using the Python code written for this project, which is substantially slower than the
+                    C++ code currently used to perform classification. As I continue to work on this project, I will
+                    be translating the code to work with the existing C++ code, which should provide adequate speed.
+                </p>
+                <p>
+                    Finally, the algorithm which I have modified to use the training dataset is one of many algorithms
+                    I have under development which rely on individual linescans. I plan to introduce the concept of
+                    training datasets to each of these algorithms in order to test its effectiveness. As we develop
+                    the automated workflow for the realtime LIDAR data at the FRF, it is unlikely that there will be
+                    a single solution to the classification problem. Rather, a robust arsenal of algorithms which can be
+                    used to their strengths will most likely be the solution, and I am confident that these trained
+                    algorithms will find significant use.
+                </p>
 
             </div>
         </div>
