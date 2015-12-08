@@ -47,13 +47,150 @@
                     <li><a href="project.html">Project</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Final Project</a></li>
+                    <li><a href="#">Using Classified Raster Data to Train LIDAR Classification Algorithms</a></li>
                     <li><a href="https://github.com/atdyer/ncsu"><i class="fa fa-github-square fa-lg"></i></a></li>
                     <li><a href="http://ncsu-osgeorel.github.io/uav-lidar-analytics-course/index.html"><i class="fa fa-university fa-lg"></i></a></li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="side" class="col-sm-3 col-md-2 sidebar">
+                <ul id="sidebar" class="nav nav-sidebar">
+                    <li class="active"><a href="#introduction">Introduction <span class="sr-only">(current)</span></a></li>
+                    <li><a href="methods">Methods</a> </li>
+                    <li><a href="data">Data</a> </li>
+                    <li><a href="results">Results</a> </li>
+                    <li><a href="conclusions">Conclusions</a> </li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main content">
+
+                <!-- INTRODUCTION -->
+                <a class="anchor" id="introduction"></a>
+                <h1 class="page-header">Introduction
+                    <small class="pull-right">Tristan Dyer</small>
+                </h1>
+
+                <p>
+                    In this project, we introduce a method for training the classification of LIDAR point clouds using
+                    classified raster datasets. Specifically, we will be exploring the effectiveness of these methods
+                    on high density LIDAR point clouds collected from the Field Research Facility in Duck, NC. These
+                    datasets are collected using a stationary LIDAR sensor mounted to the end of a crane-like tower,
+                    placing the sensor approximately 20 feet above the dune. The sensor is part of an automated
+                    workflow which collects data every hour in order to monitor both wave activity and the evolution
+                    beach geomorphology. As part of the processing workflow, a point classification must occur so that
+                    a bare earth DEM can be generated, and because of the frequency of collections, the algorithms
+                    that perform the classification must be highly peformant. Additionally, because the data are only
+                    being used to generate bare earth DEMs, the algorithms only need to be able to distinguish ground
+                    from non-ground points.
+                </p>
+
+                <p>
+                    In developing these algorithms, we have discovered that while they perform very well as far as
+                    speed is concerned, a portion of the data is frequently mis-classified. By improving the accuracy
+                    of the classification algorithms, not only will the resulting bare earth DEMs also be more accurate,
+                    but we will be able to increase their resolution (lower resolution helps reduce the effect of
+                    mis-classified points). Higher resolutions DEMs should provide a more robust dataset, allowing
+                    scientists to see a wider range of morphological processes. The method introduced in this project
+                    could be used in this workflow to improve the accuracy of the classification algorithms.
+                </p>
+
+                <p>
+                    The basic concept of this method is to use a previous classification to influence the parameters
+                    that will be used in the classification of the current dataset. The previous classification will
+                    be in a raster format, which can come from any number of data sources. As part of the workflow,
+                    the classification of each raster cell associated with the previous hour could be used to guide
+                    the classification of the point cloud of the current hour. The hope is that because the
+                    collection is happening on such a fine time scale compared to the time scale on which the observed
+                    processes are occuring, there will be fairly little change between consecutive classifications.
+                </p>
+
+                <!-- METHODS -->
+                <a class="anchor" id="methods"></a>
+                <h1 class="page-header">Methods</h1>
+
+                <p>
+                    In order to test the effectiveness of using classified raster datasets to train the classification
+                    algorithm, I translated the classification algorithm into Python in order to simplify the
+                    merging of the two datasets. Using Python allows for much faster prototyping, and the significant
+                    leg work that is already performed by libraries such as GDAL and NumPy allow for decent performance.
+                    First we'll discuss how the algorithm performs a classification (or rather, distinguishes
+                    between ground and non-ground points).
+                </p>
+
+                <h2>The Classification Algorithm</h2>
+
+                <p>
+                    LIDAR sensors operate by emitting a pulse of light and measuring the amount of time it takes for
+                    any reflected light to return to the sensor. Because the speed of light is known, the distance
+                    between the reflecting object and the scanner can be calculated with a high level of accuracy.
+                    Inside of the scanner, the initial pulse of light is bounced off of mirror that is attached to a
+                    high precision motor. By rotating the mirror slightly inbetween measurements, a two-dimensional
+                    dataset called a line scan can be acquired. Additionally, rotating the entire scanner enclosure
+                    about the perpendicular axis inbetween line scans, a three-dimensional dataset called a frame scan
+                    can be acquired.
+                </p>
+
+                <p>
+                    The classification algorithms used in the data workflow at the FRF rely on high density line scans.
+                    An assumption is made that within a single line scan, the higher the point density, the less
+                    variability there should be in the vertical difference between consecutive ground points. This is
+                    a valid assumption, especially at the scale at which the data is collected at the FRF (mm to cm
+                    scale). The algorithm performs the following steps in order to distinguish ground points from
+                    non-ground points (this process is performed on each individual line scan):
+                </p>
+
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <h4><strong>Keep a running count for each point in the linescan</strong></h4>
+                        <p>
+                            As we step through each point in the linescan, we will be performing what is essentially
+                            a preliminary classification multiple times for each point. We need to count the number
+                            of times each point is 'pre-classified' as ground.
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <h4><strong>Use a moving stencil to step through points in the linescan</strong></h4>
+                        <p>
+                            We use a moving stencil to consider a subset of consecutive points in the linescan. The
+                            following steps are executed in order to perform the 'pre-classification', and the stencil
+                            is advanced by a single point (i.e. n-1 of the points currently in the stencil of size n
+                            will remain in the stencil).
+                        </p>
+
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <h4><strong>Calculate noise factor</strong></h4>
+                                <p>
+                                    The noise factor is a value between 0 and 1 which indicates the amount of
+                                    variability in elevation amongst the points inside of the stencil.
+
+                                    $$ range = c \frac {t} {2} $$
+                                </p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- DATA -->
+                <a class="anchor" id="data"></a>
+                <h1 class="page-header">Data</h1>
+
+                <!-- RESULTS -->
+                <a class="anchor" id="results"></a>
+                <h1 class="page-header">Results</h1>
+
+                <!-- CONCLUSIONS -->
+                <a class="anchor" id="conclusions"></a>
+                <h1 class="page-header">Conclusions</h1>
+
+            </div>
+        </div>
+    </div>
+
     <!-- Include scripts -->
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>-->
     <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
@@ -61,6 +198,23 @@
     <script src="lib/jquery/jquery-2.1.4.min.js"></script>
     <script src="lib/jquery/jquery.scrollTo.min.js"></script>
     <script src="lib/bootstrap/bootstrap.min.js"></script>
+
+    <script>
+        $( 'body' ).scrollspy( {target: '#side'} );
+        $(function() {
+            $('#side').bind('click', 'ul li a', function(event) {
+                event.preventDefault();
+                console.log(event.target, event.target.hash);
+                $.scrollTo(event.target.hash, 400);
+            });
+        });
+
+        hljs.initHighlightingOnLoad();
+    </script>
+
+    <script type="text/javascript"
+            src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
 
 </body>
 </html>

@@ -56,7 +56,7 @@
   "project": {
     "navbar-container": "container-fluid",
     "navbar-style": "navbar-fixed-top",
-    "navbar-text": "Final Project",
+    "navbar-text": "Using Classified Raster Data to Train LIDAR Classification Algorithms",
     "navbar-text-link": "#"
   }
 }
