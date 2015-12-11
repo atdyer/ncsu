@@ -1,0 +1,9 @@
+{
+  "name": "phd",
+  "version": "0.0.1",
+  "description": "Tristan's PhD Materials",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-bake": "^0.3.15"
+  }
+}
