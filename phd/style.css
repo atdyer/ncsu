@@ -1,3 +1,18 @@
 body {
     font-family: 'Raleway', sans-serif;
+    padding-top: 50px;
+}
+
+
+.linkbar {
+    /*border: 1px ridge #aaaaaa;*/
+    margin-top: 20px;
+}
+
+.footer {
+
+    margin-top: 50px;
+    margin-left: 10px;
+    margin-right: 10px;
+
 }

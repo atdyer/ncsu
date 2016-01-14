@@ -9,7 +9,230 @@
 </head>
 <body>
 
-    <!--(bake navbar.html _section="index"-->
+    <!--(bake navbar.html _section="index")-->
+
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-8">
+
+                <h1>Migrating to a Database for LIDAR Data Storage and Access</h1>
+
+                <p>
+                    It really seems like a good database could solve a lot of our problems. Here's the idea.
+                </p>
+
+                <h2>PostgreSQL Server</h2>
+
+                <p>
+                    What is it? PostgreSQL is an open source (free) object-relational database system. So what is that?
+                    Put simply, it's a program that stores your data in tables that are related to each other. It's able
+                    to store data very efficiently and knows how to pull data out of those tables in very powerful
+                    and sophisticated ways.
+                </p>
+
+                <h2>What to Store</h2>
+
+                <p>
+                    Putting it in terms of LIDAR data, we would, for example, put each framescan into a single table
+                    where each row is a single return and the columns contain the point data (X, Y, Z, intensity, etc.).
+                    Then, when you want to access the data, you just ask the database for it. You can query the
+                    database for the full dataset, or you can tell it to give you points based on specific criteria such
+                    as return number, return intensity, GPS status, etc.
+                </p>
+
+                <p>
+                    In addition to point cloud tables, we would also have a rectification table, so each time we do a
+                    baseline scan we save the new rotation matrix in this table, and each time a new scan is performed,
+                    the data is saved into the database with a reference to the appropriate rotation matrix in the
+                    rectification table. This is where the power of a <i>relational</i> database is really beneficial
+                    for us. This connection between tables (i.e. relation) means you can ask the database to give
+                    you a raw dataset along with the appropriate rotation matrix. <b>This would mean no more searching
+                    through folders for the first file before x date and would completely remove reliance on dates
+                    stored in filenames (!!!).</b>
+                </p>
+
+                <p>
+                    Processed data would also be stored in the database. For example, each wave gauge could have a table
+                    in the database where each row is a processed linescan and the columns are the data products. This
+                    would allow you to do things like ask the database for all datasets in which the significant wave
+                    height is higher than some value. This could be extremely useful for QA/QC...just off the top of my
+                    head, we could store runup lines along with some calculated metrics about each runup line that
+                    could give some insight into the line's quality (e.g. largest cross-shore jump between
+                    consecutive points on the runup line). Then when someone goes to do QA/QC, they simply ask the
+                    database for all datasets in which that metric indicates a bad runup line.
+                </p>
+
+                <h2>Reprocessing Workflow</h2>
+
+                <p>
+                    Speaking of QA/QC, this relational database would provide an easy means of reprocessing data once
+                    quality control has finished. Any tools used to help perform QA/QC (e.g. RunupTool) could update
+                    a table in the database that contains a list of datasets that have been worked on. The processing
+                    computer is then set to query the database for any datasets that need reprocessing. It gets the list
+                    from the database and then sets off reprocessing the data. This would also make updates to FDIF
+                    fairly straightforward, as we simply make a tool that monitors the database for reprocessed data,
+                    builds the monthly NetCDF files, and once a monthly file is complete, sends it off to FDIF.
+                </p>
+
+                <h2>Why PostgreSQL?</h2>
+
+                <p>
+                    There are quite a few good database systems out there (e.g. MySQL, Oracle, Microsoft SQL Server,
+                    SQLite, etc.), so why choose PostgreSQL? Here are a few bullet points:
+                </p>
+
+                <ul>
+                    <li>
+                        <b>It's already set up for us.</b> PostgreSQL allows for something called extensions. Extensions
+                        allow developers to define collections of new data types and the functions and operators that
+                        work with these data types. Turns out there is already an extension build for point clouds
+                        called <a href="https://github.com/pgpointcloud/pointcloud"><b>pgpointcloud</b></a>. It defines
+                        how point clouds should be stored in the database in order to provide fast lookups as well as
+                        efficient storage. The <a href="https://github.com/pgpointcloud/pointcloud#schemas">
+                        <b>Schemas</b></a> section of that page does a pretty good job of explaining how the data is
+                        stored in the database, and the
+                        <a href="https://github.com/pgpointcloud/pointcloud#compressions"><b>Compressions</b></a>
+                        section does a good job explaining how the data is (optionally) compressed.
+                    </li>
+                    <li>
+                        <b>PDAL Support.</b> <a href="http://www.pdal.io/">PDAL</a> itself has built in support for
+                        reading and writing to a database using pgpointcloud. I've been wanting to hop on the PDAL
+                        train for a while now, and this would be a great way to do that. Any tools we create that need
+                        access to the data can use PDAL to pull it from or write it to the server.
+                    </li>
+                    <li>
+                        <b>MATLAB Support.</b> You don't have to abandon MATLAB! Matlab has a toolbox that will let you
+                        pull data directly from a database
+                        (<a href="http://www.mathworks.com/help/database/ug/database-explorer.html">see here</a>). So,
+                        while my hope is to have the entire processing workflow running outside of MATLAB, it wouldn't
+                        mean you could no longer use it to play with your data.
+                    </li>
+                    <li>
+                        <b>Client Interfaces.</b> The PostgreSQL interface is standardized (uses SQL), which means we
+                        can write code in any language that knows how to use the interface (there are a lot of them,
+                        C++ and Python probably being the most useful to us).
+                    </li>
+                    <li>
+                        <b>Server Based.</b> PostgreSQL uses a server-client model for data access, which means it lends
+                        itself well to <i>actually</i> running on a server. This means we'd set up the database on a
+                        server (in the server room at the pier) and be able to access our data and use any of our tools
+                        from any computer that is on the same network.
+                    </li>
+                </ul>
+
+                <h2>Questions we need to answer</h2>
+
+                <h4><b>How do we want to access the data?</b></h4>
+
+                <p>
+                    Maybe the way we're actually going to be accessing the data doesn't line up with the strengths of
+                    a database. In this case, an alternative data management system could be better.
+                </p>
+
+                <h4><b>What kind of performance are we going to get?</b></h4>
+
+                <p>
+                    What if the access speeds are just too slow for our uses? They claim high performance, but you
+                    never really know until you're actually testing it out.
+                </p>
+
+                <h4><b>How efficiently is data stored?</b></h4>
+
+                <p>
+                    We've got a 1GB LIDAR dataset and throw it into the database. Are we now using 2GB of space? 4GB?
+                    1GB? We really won't know until we test it out. Storage is cheap, but there's a limit.
+                </p>
+
+                <h4><b>How messy is it going to get?</b></h4>
+
+                <p>
+                    Databases are cool and all, but the more stuff you put into them and the more relations you build,
+                    the harder it gets to maintain. Again, it's hard to tell without just building the thing.
+                </p>
+
+                <h2>Alternatives</h2>
+
+                <p>
+                    Okay, so I do some testing and it turns out that databases are awful. One alternative is this
+                    thing called <a href="http://irods.org/">iRODS</a>, which stands for Integrated Rule-Oriented
+                    Data System. From their website, here are the benefits of iRODS (focus on the first two):
+                </p>
+
+                <ul>
+                    <li>
+                        iRODS enables data discovery using a metadata catalog that describes every file, every
+                        directory, and every storage resource in the data grid.
+                    </li>
+                    <li>
+                        iRODS automates data workflows, with a rule engine that permits any action to be initiated by
+                        any trigger on any server or client in the grid.
+                    </li>
+                    <li>
+                        iRODS enables secure collaboration, so users only need to log in to their home grid to access
+                        data hosted on a remote grid.
+                    </li>
+                    <li>
+                        iRODS implements data virtualization, allowing access to distributed storage assets under a
+                        unified namespace, and freeing organizations from getting locked in to single-vendor storage
+                        solutions.
+                    </li>
+                </ul>
+
+                <p>
+                    I haven't done a ton of reading about iRODS yet, but it certainly seems viable and useful. The
+                    first bullet point, a metadata catalog, would be extremely useful (think removing reliance on
+                    filenames, knowing which baseline scans correspond to which datasets, etc). The second bullet
+                    point seems useful for automating workflows. From the iRODS "Getting Started" document:
+                </p>
+
+                <div class="well">
+                    <p>
+                        Without a tool like iRODS, processing large data sets must be done manually and can be
+                        tedious, complex, and time-consuming. With iRODS, you can save time and energy by creating
+                        powerful, customized workflows to process and perform computations on data objects. For
+                        example, when iRODS receives new data, the rule engine could be prompted to perform
+                        computations on the data, trigger actions within a High Performance Computing (HPC)
+                        system, or extract metadata from the data.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="col-md-4 linkbar">
+
+                <h3>Related Links</h3>
+
+                <div class="list-group">
+                    <a href="http://www.mathworks.com/help/database/ug/database-explorer.html" class="list-group-item">
+                        MATLAB Database Explorer
+                    </a>
+                    <a href="http://www.pdal.io/" class="list-group-item">PDAL</a>
+                    <a href="https://github.com/pgpointcloud/pointcloud" class="list-group-item">pgpointcloud</a>
+                    <a href="http://www.postgresql.org/" class="list-group-item">PostgreSQL</a>
+                    <a href="https://en.wikipedia.org/wiki/Object-relational_database" class="list-group-item">
+                        Wikipedia: Object-relational database
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="container-fluid">
+
+        <div class="row footer">
+
+            <p>Hey I made a footer!</p>
+
+        </div>
+
+    </div>
 
 
     <!--(bake scripts.html)-->
