@@ -21,8 +21,35 @@
                 <h1>Migrating to a Database for LIDAR Data Storage and Access</h1>
 
                 <p>
-                    It really seems like a good database could solve a lot of our problems. Here's the idea.
+                    It really seems like a good database could solve a lot of our problems. Per Richie's suggestion,
+                    here's a short list of what I consider to be problems with the current workflow:
                 </p>
+
+                <ul>
+                    <li>
+                        <b>MATLAB</b> - License issues, file format issues, debugging is awful, it isn't
+                        free... It's got a lot of things it does really well, but there are also a lot of things that
+                        make it less than ideal for our uses. It'd be nice not to be locked down to MATLAB.
+                    </li>
+                    <li>
+                        <b>File organization</b> - We've got things stored in rxp, mat, las, txt, and each time we do a collect
+                        we make a new folder that we populate with a bunch of files. It works, but does not lend itself
+                        well to change. It also makes it more difficult to working with different types of data because
+                        you've always got to go find the specific program that opens the specific format you're looking
+                        for. It'd be nice to have a single, unified way of getting to any data associated with a scan.
+                    </li>
+                    <li>
+                        <b>Data discovery</b> - We've got everything organized into folders based on folder and filenames that
+                        contain dates. It's easy to find data if you know when it was collected, but what if you want
+                        to find data based on any other metric?
+                    </li>
+                    <li>
+                        <b>Reprocessing workflow</b> - We haven't nailed this down yet, but as a temporary solution we're
+                        probably going to be writing a new file into a processed dataset's folder and then using
+                        MATLAB to look for these files to kick off reprocessing. It's going to add more complexity
+                        (and likely bugs) into the MATLAB workflow...there's got to be a better way.
+                    </li>
+                </ul>
 
                 <h2>PostgreSQL Server</h2>
 
