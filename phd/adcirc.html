@@ -401,7 +401,7 @@ this.tiltScene.add( this.rotateScene );</pre><br>
                 <img src="img/orthographic.jpg" class="img-responsive img-rounded center-block"><br>
 
                 <p>
-                    So the values we pass into the orthographic camera object in lines 32 through 35 are defining the
+                    The values we pass into the orthographic camera object in lines 32 through 35 are defining the
                     rectangle bounds. If the rendering cavas has dimensions of 800x600 pixels, any object in your
                     three dimensional scene that falls in the bounds of (-400, -300) to (400, 300) will show up on the
                     screen. The two values on lines 36 and 37 define how far into the screen to look for objects to
@@ -451,6 +451,164 @@ this.tiltScene.add( this.rotateScene );</pre><br>
                     Use the left mouse button to rotate/tilt, and the right mouse button to pan. The scroll wheel can
                     be used to zoom in and out. The red box represents the <code>tiltScene</code>, the green box
                     represents the <code>rotateScene</code>, and the blue box represents the <code>panScene</code>.
+                </p>
+                <p>
+                    Note that when you tilt by left-clicking and dragging up and down, all three boxes are
+                    tilted. This is because the tilt is being applied to the <code>tiltScene</code>, which contains the
+                    other two scenes, and so tilting it causes everything it contains to be tilted by the same amount.
+                    On the other hand, when you drag by right-clicking and dragging, only the blue box moves. This is
+                    because the panning operation is only applied to the <code>panScene</code>, which is contained
+                    inside of the other two scenes. The blue cube only ever pans in that scene's local x-y plane.
+                    As you can see, however, the orientation of that x-y plane is determined by the orientation of it's
+                    parents in the scene graph.
+                </p>
+                <p>
+                    In ADCIRC.io, once the mesh is created, it is added to the <code>panScene</code> so that it can
+                    be rendered. It will behave the same way the blue box behaves in the example above.
+                </p>
+
+                <h2>Making Selections</h2>
+
+                <p>
+                    Alright, now that we've got the mesh translated, scaled, and placed into the scene graph for
+                    rendering, how can we get the coordinates (in the fort.14 file's coordinate system) of a clicked
+                    point? Put simply, when the user clicks on the screen, we want to reverse all of the rotations and
+                    translations that have happened to get the mesh rendered on the screen.
+                </p>
+
+                <h3>Screen to Local Coordinates</h3>
+
+                <p>
+                    First, we're going to need to get the coordinates of the click in the local coordinate system of
+                    the <code>panScene</code>, since it is the scene that the mesh is added to. The following function
+                    can do just that:
+                </p>
+
+                <pre class="prettyprint linenums">function screen_to_local( orbit_scene, x, y ) {
+
+    // Get the screen coordinates normalized
+    var vector = new THREE.Vector3(
+        ( x / orbit_scene.width ) * 2 - 1,
+        -( y / orbit_scene.height ) * 2 + 1,
+        0.0
+    );
+
+    // Convert normalized screen coordinates to world coordinates
+    // and project onto the z=0 plane of the tiltScene
+    vector.unproject( orbit_scene.camera ).setZ( 0 );
+    vector.setY( vector.y / Math.sin( Math.PI/2 - orbit_scene.tiltScene.getWorldRotation().x ) );
+
+    // Get the point on the z=0 plane in global coordinates
+    orbit_scene.tiltScene.localToWorld( vector );
+
+    // Get the global coordinates in local mesh coordinates
+    orbit_scene.panScene.worldToLocal( vector );
+
+    return vector;
+
+}</pre><br>
+
+                <p>
+                    There is actually a lot going on here, so let's take it line by line.
+                </p>
+
+                <ul>
+                    <li>
+                        <strong>Line 1</strong> - This function takes three inputs:
+                        <ul>
+                            <li>The <code>ADCIRC.OrbitScene</code> object that contains the mesh</li>
+                            <li>The x-coordinate of the click on the 2D canvas</li>
+                            <li>The y-coordinate of the click on the 2D canvas</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Lines 4 through 8</strong> - Convert the screen coordinates into normalized coordinates.
+                        Normalized coordinates are needed for the next step, and they essentially indicate the distance
+                        from the origin as a percentage of the maximum displayed distance from the origin.
+                        So if the origin is at the center of the
+                        viewport, the bottom left of the viewport will be at the coordinates (-1, -1), corresponding
+                        to -100% to the left of the origin, and 100% below the origin. The same goes for the top right
+                        of the viewport -- it is located at (1, 1) corresponding to 100% to the right of the origin,
+                        and 100% above the origin. If you add the line <code>console.log( vector.x, vector.y )</code>
+                        immediately after line 8, you will see these values printed (call this function on the mouse
+                        move event to see these values in real-time).
+                    </li>
+                    <li>
+                        <strong>Line 12</strong> - Unproject the normalized vector. This is a helper function provided
+                        by the three.js library. Passing the camera object to the unproject function of a normalized
+                        vector will convert the coordinates to a location in the camera's viewport. Recall that earlier
+                        we said a viewport that is 800x600 pixels will set the camera bounds to be (-400,-300) to
+                        (400, 300). In that case, if we've got a normalized vector with values (-1, -1), which
+                        corresponds to the bottom left of the viewport, calling unproject with that camera will give
+                        us the coordinates (-400, -300), which corresponds to the bottom left of the camera's viewport.
+                        Again, call <code>console.log( vector.x, vector.y )</code> immediately after line 12 to see
+                        these values.
+                    </li>
+                    <li>
+                        <strong>Line 13</strong> - Get the coordinates on the z = 0 plane of the <code>tiltScene</code>.
+                        In the previous step, we got the x- and y- coordinates of the mouse click in what is essentially
+                        the global coordinate system. However, because we are able to tilt, rotate, and translate our
+                        scene, these coordinates will become invalid as soon as we perform one of those operations.
+                        The three.js library provides convenient functions called <code>scene.localToWorld</code> and
+                        <code>scene.worldToLocal</code> that make coordinate transformations very simple, but first we
+                        must project our global coordinates onto the <code>tiltScene</code> plane of z=0. Consider the
+                        following image, in which the scene has not been tilted. The point on the screen will correctly
+                        correspond to the point on the scene:
+                        <img src="img/no-rotate.png" class="img-responsive img-rounded center-block">
+                        However, in the next image, the scene has been tilted. If we don't do a projection, when the
+                        user clicks in one spot on the screen, the returned point will fall below where the click
+                        actually occurred, as shown:
+                        <img src="img/rotate.png" class="img-responsive img-rounded center-block">
+                        Therefore, we need to project the clicked point onto the tilted scene in order to get a point
+                        in the tilted scene's local coordinate system, as shown here:
+                        <img src="img/project.png" class="img-responsive img-rounded center-block">
+                        This is simple geometry, as shown:
+                        <img src="img/trig.png" class="img-responsive img-rounded center-block">
+                        This equation is what we use in line 13 to get the correct y-coordinate in the
+                        <code>tiltScene</code>. It is equal to the current y-coordinate divided by the sine of the
+                        rotation about the <code>tiltScene</code>'s x-axis.
+                    </li>
+                    <li>
+                        <strong>Line 16</strong> - Now that we have the coordinates in the coordinate system of one
+                        of the scenes in the scene graph, we can use the three.js helper functions to do coordinate
+                        transformations. This line takes us from the <code>tiltScene</code> local coordinate system
+                        to the global coordinate system.
+                    </li>
+                    <li>
+                        <strong>Line 19</strong> - This final line takes us from the global coordinate system down to
+                        the <code>panScene</code> local coordinate system. Note that we can't just use the
+                        <code>worldToLocal</code> function to go straight from <code>tiltScene</code> coordinates to
+                        <code>panScene</code> coordinates, we must first go to global coordinates since the
+                        <code>worldToLocal</code> function will step through each scene in the scene graph and perform
+                        a coordinate transformation at each level until it reaches the desired local coordinate system.
+                    </li>
+                </ul>
+
+                <h3>Local to Mesh Coordinates</h3>
+
+                <p>
+                    Finally, we're at the last step. We've got the local coordinates of the click, but recall that when the
+                    mesh was created, it was translated and then scaled. We need to reverse these operations to get the
+                    coordinates of the click in the mesh's original coordinate system (as defined in the fort.14 file). Here
+                    is a simple function that can perform this step:
+                </p>
+
+                <pre class="prettyprint linenums">function scale_and_translate ( mesh, vector ) {
+
+    vector.divideScalar( mesh.fort14.horizontal_scale );
+    vector.applyMatrix4( ( new THREE.Matrix4() ).getInverse( mesh.fort14.offset ) );
+
+}</pre><br>
+
+                <p>
+                    First, we divide by the scale (since we multiplied by the scale when we created the mesh) in line 3,
+                    and then we translate by the inverse of the offset matrix that was used to perform the initial
+                    translation.
+                </p>
+
+                <p>
+                    With that, you'll now have the coordinates of the mesh that fall directly underneath the mouse click
+                    regardless of the orientation of the mesh on the screen.
                 </p>
 
             </div>
