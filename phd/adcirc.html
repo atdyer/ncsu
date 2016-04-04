@@ -20,6 +20,11 @@
 
     <!-- Code highlighting -->
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=sons-of-obsidian"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.min.js"></script>
+    <script src="scripts/GLCanvas.js"></script>
+    <script src="scripts/OrbitControls.js"></script>
+    <script src="scripts/OrbitScene.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.2.min.js" integrity="sha256-36cp2Co+/62rEAAYHLmRCPIych47CvdM+uTBJwSzWjI=" crossorigin="anonymous"></script>
 
 </head>
 <body>
@@ -385,6 +390,69 @@ this.panScene = new THREE.Scene();
 this.rotateScene.add( this.panScene );
 this.tiltScene.add( this.rotateScene );</pre><br>
 
+                <p>
+                    There are a few things happening here. First, in lines 28 through 38, we're creating an orthographic
+                    camera. The camera is what is responsible for displaying a three dimensional scene on a two
+                    dimensional screen. Basically, you define a rectangle on the screen and that box is projected into
+                    your three dimensional scene. Any object that falls inside of the bounds of the projected rectangle
+                    is then drawn on the rectangle, as seen in this picture:
+                </p>
+
+                <img src="img/orthographic.jpg" class="img-responsive img-rounded center-block"><br>
+
+                <p>
+                    So the values we pass into the orthographic camera object in lines 32 through 35 are defining the
+                    rectangle bounds. If the rendering cavas has dimensions of 800x600 pixels, any object in your
+                    three dimensional scene that falls in the bounds of (-400, -300) to (400, 300) will show up on the
+                    screen. The two values on lines 36 and 37 define how far into the screen to look for objects to
+                    render, and passing in the very large values essentially tells it to look infinitely far.
+                </p>
+                <p>
+                    Note that the values passed into the camera do not necessarily need to correspond to the canvas
+                    dimensions. We could have told the camera to look in the bounds (-1, -1) to (1, 1). However, doing
+                    so would stretch the image horizontally since the camera would be mapping a square view of the
+                    three dimensional scene onto a rectangular canvas. Using the canvas dimensions to define the camera
+                    dimensions simplifies maintaining an aspect ratio that does not distort the image.
+                </p>
+
+                <p>
+                    Next, take a look at lines 46 through 51. This is where we create what is called a scene graph. In
+                    the case of ADCIRC.io, the scene graph is used to create the special type of interactivity we want
+                    in order to easily interact with ADCIRC meshes. Recall that each <code>THREE.Scene</code> object
+                    is essentially it's own coordinate system (defined by a rotation matrix), and that these scenes
+                    are instances of <code>THREE.Object3d</code>. Because of this, we can
+                    add scenes to other scenes, and when we manipulate a 'parent' scene, the effects will propagate
+                    down to it's 'children' scenes. Additionally, manipulating a 'child' scene will have no effect
+                    on the 'parent' scene.
+                </p>
+                <p>
+                    So in lines 46 through 48, we've created a <code>tiltScene</code>, which is a scene that we'll only
+                    ever tilt (by rotating all objects it contains about it's own local x-axis), a
+                    <code>rotateScene</code>, which is a scene we'll only ever rotate (by rotating all objects it
+                    contains about it's own local z-axis), and a <code>panScene</code>, which is a scene that we'll only
+                    ever pan (by moving all objects it contains on it's own x-y plane).
+                </p>
+                <p>
+                    Finally, in lines 50 and 51, we create the scene graph by adding the <code>panScene</code> to the
+                    <code>rotateScene</code>, and the <code>rotateScene</code> to the <code>tiltScene</code>. The
+                    following demo shows how these nested scenes interact:
+                </p>
+
+                <div class="row">
+                <div class="col-md-12">
+                <canvas id="glcanvas" class="col-md-12">
+                    Your browser doesn't appear to support the HTML <code>&lt;canvas&gt;</code> element.
+                </canvas>
+                </div>
+                </div>
+
+                <br>
+                <p>
+                    Use the left mouse button to rotate/tilt, and the right mouse button to pan. The scroll wheel can
+                    be used to zoom in and out. The red box represents the <code>tiltScene</code>, the green box
+                    represents the <code>rotateScene</code>, and the blue box represents the <code>panScene</code>.
+                </p>
+
             </div>
 
             <div class="col-md-3">
@@ -410,6 +478,23 @@ this.tiltScene.add( this.rotateScene );</pre><br>
         </div>
 
     </div>
+
+    <script>
+
+        $(document).ready( init );
+
+        function init() {
+
+            // Get the canvas
+            var canvas = $( '#glcanvas' );
+
+            // Set up scene
+            var gl = new ADCIRC.GLCanvas( canvas );
+            gl.scene.resize( canvas.width(), canvas.height() );
+
+        }
+
+    </script>
 
 </body>
 </html>
