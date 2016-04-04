@@ -16,3 +16,13 @@ body {
     margin-right: 10px;
 
 }
+
+.affix-top {
+    /* Initial items */
+}
+
+.affix {
+    top:50px;
+    position:fixed;
+    width:262.5px;
+}

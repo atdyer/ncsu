@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tristan Dyer - ADCIRC.io</title>
+
+    <script src="lib/jquery/jquery-2.1.4.min.js"></script>
+    <script src="lib/jquery/jquery.scrollTo.min.js"></script>
+    <script src="lib/bootstrap/bootstrap.min.js"></script>
+
+    <!-- Bootstrap related items-->
+    <link href="lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Raleway:400,700' rel='stylesheet' type='text/css'>
+    
+    <!-- Site specific styling -->
+    <link href="style.css" rel="stylesheet">
+
+    <!-- Code highlighting -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?skin=sons-of-obsidian"></script>
+
+</head>
+<body>
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="index.html"><strong>PhD Research Materials</strong></a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="index.html">LIDAR</a></li>
+                    <li><a href="adcirc.html">ADCIRC</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="http://atdyer.github.io/ncsu/">Tristan Dyer</a></li>
+                    <li><a href="https://github.com/atdyer"><i class="fa fa-github-square fa-lg"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div class="row">
+
+            <div class="col-md-9">
+
+                <h1>Coordinate Transformations in ADCIRC.io</h1>
+
+                <p>
+                    There seems to be a lot of confusion over how coordinate systems are used in ADCIRC.io, so I'm
+                    hoping to clear things up here.
+                    I think the easiest way to get a full understanding of how selections work in ADCIRC.io is going
+                    to be a step-by-step walkthrough, from reading the data to displaying the mesh to performing a
+                    selection. That way I can explain the bits and pieces of various code/libraries/3D concepts that are
+                    really necessary, as opposed to trying to learn Javascript/three.js/3D coordinate transformations
+                    all separately and then bringing them together.
+                    First I'll talk about how the data is read from the fort.14 file and transformed into a coordinate
+                    system that can be displayed. Then I'll show how the data is used in three.js to provide
+                    interactivity, and finally, I'll show how to get the coordinates (in the mesh's local coordinate
+                    system) of a click on screen.
+                </p>
+
+                <h2>Preparing an ADCIRC Mesh for Display</h2>
+
+                <p>
+                    First we'll look at how an ADCIRC mesh is displayed using three.js. As an example, we'll take a look
+                    at the following subdomain:
+                </p>
+
+                <img src="img/subdomain.png" class="img-responsive img-rounded"><br>
+
+                <p>
+                    First, let's look at the bounding box of the mesh straight out of the fort.14 file:
+                </p>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Minimum Coordinates</h3>
+                            </div>
+                            <div class="panel-body">
+                                <samp>
+                                    x: -78.14632415771484<br>
+                                    y: 33.7550048828125<br>
+                                    z: -19.37122344970703
+                                </samp>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Maximum Coordinates</h3>
+                            </div>
+                            <div class="panel-body">
+                                <samp>
+                                    x: -77.83570098876953<br>
+                                    y: 34.06644058227539<br>
+                                    z: 18.25322723388672
+                                </samp>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p>
+                    A few things to note:
+                </p>
+
+                <ul>
+                    <li>
+                        The x- and y- coordinates fall in a very small range, while the z-values fall into a wider
+                        range. This is because the x- and y- coordinates are in degrees longitude/latitude
+                        while the z-coordinates are in meters.
+                    </li>
+                    <li>
+                        The x- and y- coordinates are not centered on zero. Again, they are in degrees longitude/latitude,
+                        so they are centered somewhere around (-78, 34).
+                    </li>
+                </ul>
+
+                <p>
+                    So, in order to render the mesh on screen, we want to do two things. First, we want to center the
+                    mesh around the coordinates (0, 0) so that it is centered on the screen. Second, we want to
+                    scale the x- and y- coordinates so that they are on the same scale as the z-coordinates. Without
+                    doing this scaling, when viewing the mesh from the side, it appears to be covered in
+                    extremely tall, narrow mountains, as shown in the following image:
+                </p>
+
+                <img src="img/no-scale.png" class="img-responsive img-rounded"><br>
+
+                <p>
+                    The code that calculates the translation and scaling needed to properly display the mesh is found in
+                    the <code>/js/files/Fort14.js</code> file. The following code snippet from that file shows the
+                    <code>finish_loading()</code> function, which is called once the fort.14 file has been read
+                    and the mesh data has been stored in a three.js mesh object.
+                </p>
+
+                <pre class="prettyprint linenums:221">this.finishLoading = function () {
+
+    // Everything's been loaded, so we need to calculate the mesh offset
+    // and apply it to everything that came from the mesh
+
+    var geometry = self.adcirc_mesh.geometry;
+    var mesh = self.adcirc_mesh.mesh;
+
+    // Calculate bounding box
+    var bbox = new THREE.Box3().setFromObject(mesh);
+
+    if (!!geometry && !!mesh) {
+
+        //// Calculate offset
+        var offset = geometry.boundingBox.center().negate();
+        offset.z = 0;
+        var offsetmatrix = new THREE.Matrix4().setPosition(offset);
+
+
+        //// Calculate an appropriate scaling factor for the x- and y- coordinates.
+        //// With ADCIRC data, x and y scales are typically much larger than z scales.
+        var horizontal_scale = 10 *
+            ( geometry.boundingBox.max.z - geometry.boundingBox.min.z ) /
+            Math.min(geometry.boundingBox.max.x - geometry.boundingBox.min.x,
+                geometry.boundingBox.max.y - geometry.boundingBox.min.y);
+
+
+        //// Apply offset and scaling
+        self.setOffsetScale(offsetmatrix, horizontal_scale, 1);
+
+
+        //// Get the bounding box of the scaled geometry and emit event
+        boundingBoxEvent.bbox = new THREE.Box3().setFromObject(mesh);
+        console.log(boundingBoxEvent.bbox);
+        self.dispatchEvent(boundingBoxEvent);
+
+    }
+};</pre><br>
+
+                <p>
+                    The important bits:
+                </p>
+
+                <ul>
+                    <li>
+                        <strong>Line 230</strong> - Calculate the bounding box of the mesh. This gives us the
+                        min and max coordinates that we looked at above. A THREE.Box3 object is a
+                        simple object in the three.js library that provides functionality for things like calculating
+                        the bounding box of different types of three-dimensional objects.
+                    </li>
+                    <li>
+                        <strong>Line 235</strong> - Calculate the offset needed to center the mesh around the origin.
+                        The <code>boundingBox.center()</code> function returns the x-, y-, and z- coordinates of the
+                        center of the bounding box as a <code>THREE.Vector3</code> object, and the <code>.negate()</code>
+                        function simply negates each one of the values. In line 236, we set the z-offset to zero because
+                        we only want to move the mesh in the horizontal plane. The values of the offset vector for the
+                        example mesh are:<br><br>
+                        <div class="row">
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Offset Values</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <samp>
+                                            x: 77.99101257324219<br>
+                                            y: -33.910722732543945<br>
+                                            z: 0
+                                        </samp>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+                        Adding this offset to each node in the mesh will center the mesh on the origin.
+                    </li>
+                    <li>
+                        <strong>Line 237</strong> - Place the offset values into a 4x4 matrix. Nodal coordinates are
+                        stored in a <code>4xn</code> matrix, where <code>n</code> is the total number of nodes. A
+                        4x4 rotation matrix can be used to apply rotations and translations more easily than using
+                        for loops. So, we put our translation values into a 4x4 matrix using the <code>setPosition()</code>
+                        function that is part of a <code>THREE.Matrix4</code> object.
+                    </li>
+                    <li>
+                        <strong>Line 242</strong> - Calculate the scaling for the x- and y-coordinates. Ignore the
+                        comment in the code, it is a little misworded. Because the values in the horizontal direction
+                        are in degrees lat/lon, we want to uniformly scale them up so that they are comparable to the
+                        scale of the z- values. We calculate this value as ten times the z-range divided by
+                        the smaller of the x- and y- ranges. This calculation is fairly arbitrary, I've just found that
+                        it is pretty good at giving a mesh that is pleasing to look at. The horizonal scaling factor
+                        for the example mesh comes out to be <code>1211.2570614530628</code>
+                    </li>
+                    <li>
+                        <strong>Line 249</strong> - Apply the offset and scaling to the mesh by calling the
+                        <code>setOffsetScale()</code> function. This is a function of the fort14 object, and the code
+                        can also be found in the <code>/js/files/Fort14.js</code> file.
+                    </li>
+                </ul>
+                <br>
+
+                <pre class="prettyprint linenums:127">this.setOffsetScale = function ( offset, horizontal_scale, vertical_scale ) {
+
+    self.offset = offset;
+    self.horizontal_scale = horizontal_scale;
+    self.vertical_scale = vertical_scale;
+
+    self.adcirc_mesh.geometry.applyMatrix( offset );
+    self.adcirc_mesh.mesh.scale.set( horizontal_scale, horizontal_scale, vertical_scale );
+
+    for ( i=0, l=self.adcirc_mesh.open_segments.segments.length; i&ltl; ++i ) {
+
+        self.adcirc_mesh.open_segments.segments[i].geometry.applyMatrix( offset );
+        self.adcirc_mesh.open_segments.segments[i].line.scale.set( horizontal_scale, horizontal_scale, vertical_scale );
+
+    }
+
+    for ( var i=0, l=self.adcirc_mesh.land_segments.segments.length; i&ltl; ++i ) {
+
+        self.adcirc_mesh.land_segments.segments[i].geometry.applyMatrix( offset );
+        self.adcirc_mesh.land_segments.segments[i].line.scale.set( horizontal_scale, horizontal_scale, vertical_scale );
+
+    }
+
+};
+</pre><br><br>
+
+                <p>
+                    The inputs to this function are the offset matrix we created, the horizontal scaling factor we
+                    calculated, and a vertical scaling factor, which we'll just set to 1, since we don't want to change
+                    the vertical scale. The important lines here are:
+                </p>
+
+                <ul>
+                    <li>
+                        <strong>Line 133</strong> - Apply the offset to the mesh geometry. Note that we do this before
+                        we apply the scaling factor. This centers the mesh around the origin.
+                    </li>
+                    <li>
+                        <strong>Line 134</strong> - Apply the scaling factors. This essentially multiplies each of the
+                        x- and y- coordinate values by the horizontal scaling factor, and the z- coordinate values by
+                        the vertical scaling factor.
+                    </li>
+                </ul>
+
+                <h2>Displaying an ADCIRC Mesh</h2>
+
+                <p>
+                    Now that the mesh is scaled and translated, rendering of the mesh can be handled by three.js. Two
+                    tutorials that you really should read are
+                    <a href="http://threejs.org/docs/#Manual/Introduction/Creating_a_scene">Creating a Scene in three.js</a>
+                    and
+                    <a href="http://threejs.org/docs/#Manual/Introduction/Matrix_transformations">Matrix Transformations in three.js</a>.
+                    The most important things to get out of those are that you render things by adding them to a scene,
+                    and that every instance of an <code>Object3d</code> has a matrix which stores that object's position
+                    relative to it's parent. It is also very important to know that the scenes that you add objects
+                    to are also <code>Object3d</code> instances, and therefore have their own matrices.
+                </p>
+
+                <p>
+                    So, knowing this, take a look at the <code>/js/Managers/MeshManager.js</code> file. It is reponsible
+                    for creating Fort14 objects and adding them to the scene. Specifically, the following lines:
+                </p>
+
+                <pre class="prettyprint linenums:60">//// Create the mesh
+self.mesh = new ADCIRC.Mesh( self.fort14Input.files[0] );
+
+
+//// Add event listeners
+//   Handled
+self.mesh.addEventListener( 'bbox', onBoundingBoxChange );
+self.mesh.addEventListener( 'objectadded', onAddObject );
+self.mesh.addEventListener( 'requestpaint', onRequestRepaint );
+//   Propagated
+self.mesh.addEventListener( 'error', function( e ) { self.dispatchEvent( e ); } );
+self.mesh.addEventListener( 'loadcomplete', function( e ) { self.dispatchEvent( e ); } );
+self.mesh.addEventListener( 'loadprogress', function( e ) { self.dispatchEvent( e ); } );
+self.mesh.addEventListener( 'loadstart', function( e ) { self.dispatchEvent( e ); } );
+self.mesh.addEventListener( 'meshinfo', function( e ) { self.dispatchEvent( e ); } );
+self.mesh.addEventListener( 'timeseriesinfo', function( e ) { self.dispatchEvent( e ); } );
+
+
+//// Add the mesh to the scene
+self.scene.add( self.mesh );
+</pre><br>
+
+                <p>
+                    Two important lines:
+                </p>
+
+                <ul>
+                    <li>
+                        <strong>Line 61</strong> - Create the ACDIRC mesh. All of the translation and scaling that we've
+                        talked about up to this point happen in this line.
+                    </li>
+                    <li>
+                        <strong>Line 79</strong> - Add the mesh to the scene. The <code>self.scene</code> object here is
+                        a type of scene that I've created, called an <code>OrbitScene</code>.
+                    </li>
+                </ul>
+
+                <p>
+                    Let's take a closer look at <code>OrbitScene</code> and how it is set up to render a mesh.
+                </p>
+
+                <h3>OrbitScene</h3>
+
+                <p>
+                    The <code>OrbitScene</code> object is reponsible for rendering the ADCIRC mesh and providing
+                    interactivity. It allows the user to pan, rotate, and zoom around the mesh. Take a look at the
+                    following code in <code>/js/scenes/OrbitScene.js</code>:
+                </p>
+
+                <pre class="prettyprint linenums:28">//// Create the camera
+this.width = canvas.width();
+this.height = canvas.height();
+this.camera = new THREE.OrthographicCamera(
+    -canvas.width() / 2,
+    canvas.width() / 2,
+    canvas.height() / 2,
+    -canvas.height() / 2,
+    -1000000,
+    1000000
+);
+
+// Position the camera
+this.camera.position.z = 1;
+this.camera.up.set( 0, 0, 1 );
+
+
+//// Create the scene Graph
+this.tiltScene = new THREE.Scene();
+this.rotateScene = new THREE.Scene();
+this.panScene = new THREE.Scene();
+
+this.rotateScene.add( this.panScene );
+this.tiltScene.add( this.rotateScene );</pre><br>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div data-spy="affix" data-offset-top="0">
+
+                    <div class="linkbar">
+
+                    <h3>Related Links</h3>
+
+                    <div class="list-group">
+                        <a href="http://threejs.org/docs/#Manual/Introduction/Creating_a_scene" class="list-group-item">Creating a Scene in three.js</a>
+                        <a href="http://threejs.org/docs/#Manual/Introduction/Matrix_transformations" class="list-group-item">Matrix Transformations in three.js</a>
+                        <a href="http://threejs.org/" class="list-group-item">three.js</a>
+                    </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
