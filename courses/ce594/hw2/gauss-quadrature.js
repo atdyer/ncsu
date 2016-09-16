@@ -40,12 +40,3 @@ function gauss_quadrature ( f, a, b, n ) {
     return summation;
 
 }
-
-var polynomial = function ( x ) {
-
-    return x*x*x*x + 2*x*x;
-
-};
-
-
-console.log( gauss_quadrature( polynomial, -1, 1, 4 ) );
