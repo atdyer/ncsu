@@ -5,8 +5,13 @@ function Mesh_1d ( a, b, num_elements ) {
 
     this.f = null;
 
+    // Values
+    this.num_elements = num_elements;
+    this.num_nodes = num_elements+1;
+    
     // Nodal arrays
     this.nodes = [];
+    this.nodal_values = [];
 
     // Elemental arrays
     this.shape_functions = [];
@@ -16,6 +21,13 @@ function Mesh_1d ( a, b, num_elements ) {
 
         self.f = f;
         self.polynomial_degree = degree;
+        
+        // Calculate known values at each node
+        for ( var i=0; i<self.num_nodes; ++i ) {
+            
+            self.nodal_values.push( self.f( self.nodes[i] ) );
+            
+        }
 
     };
 
@@ -28,7 +40,7 @@ function Mesh_1d ( a, b, num_elements ) {
 
             var interval = ( b - a ) / num_elements;
 
-            for ( var i=0; i<num_elements+1; ++i ) {
+            for ( var i=0; i<self.num_nodes; ++i ) {
 
                 self.nodes.push( a + i*interval );
 
@@ -66,6 +78,30 @@ function Mesh_1d ( a, b, num_elements ) {
         } else {
 
             console.log( 'ERROR: Not enough elements' );
+
+        }
+
+    };
+
+    this.get_fe_field = function () {
+
+        return function ( x ) {
+
+            // Determine which element the value falls into
+            for ( var i=0; i<self.num_elements; ++i ) {
+
+                if ( x >= self.nodes[i] && x <= self.nodes[i+1] ) {
+
+                    var shape_functions = self.shape_functions[i];
+                    var d1 = self.nodal_values[i];
+                    var d2 = self.nodal_values[i+1];
+                    return shape_functions[0]( x ) * d1 + shape_functions[1]( x ) * d2;
+
+                }
+
+            }
+
+            return 0;
 
         }
 

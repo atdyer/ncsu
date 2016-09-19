@@ -1,6 +1,13 @@
 
+// Some variables
+var domain = [ 0, 1 ];
+var range = [ 0, 1 ];
+var num_elements = 8;
+
+
+
 // Create the mesh
-var mesh = new Mesh_1d( 0, 1, 2 );
+var mesh = new Mesh_1d( domain[0], domain[1], num_elements );
 
 
 // Create the function we'd like to solve with finite elements
@@ -11,29 +18,12 @@ var f = function ( x ) {
 // Tell the mesh what function it will be solving
 mesh.set_function( f, 3 );
 
+// Get the finite element field
+var fe = mesh.get_fe_field();
 
 
+var plot = new Plot( 'body', 960, 500, domain, range );
+plot.plot_function( f, 250, 'steelblue' );
+plot.plot_function( fe, 250, 'red' );
 
-
-// Lets do some plotting
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-var x = d3.scaleLinear().range([0, width]);
-var y = d3.scaleLinear().range([height, 0]);
-
-var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-svg.append("g")
-   .attr("class", "x axis")
-   .attr("transform", "translate(0," + height + ")")
-   .call( d3.axisBottom( x ) );
-
-svg.append("g")
-   .attr("class", "y axis")
-   .call( d3.axisLeft( y ));
+plot.plot_points( mesh.nodes, mesh.nodal_values, 3 );
