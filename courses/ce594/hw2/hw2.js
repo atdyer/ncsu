@@ -3,7 +3,7 @@ function load_mathjax () {
 
     // Set the font size
     MathJax.Hub.Config({
-        "HTML-CSS": { scale: 75 }
+        "HTML-CSS": { scale: 85 }
     });
     
     // Once mathjax has rendered everything, show the resulting equations
