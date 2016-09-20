@@ -29,11 +29,13 @@
 <div class="column">
     <h1>Problem 1</h1>
     <div class="gist-readme">
-        <h3>
+        <h2>
             Construct the element shape functions for a four-node cubic element in one dimension.
             Plot the functions.
-        </h3>
+        </h2>
+
         <p>
+            <div class="step">1</div>
             The shape functions for a four node cubic element are:
         </p>
         <div class="math">
@@ -52,7 +54,10 @@
             N_i(x) = a_{i1} + a_{i2}x + a_{i3}x^2 + a_{i4}x^3
             \]
         </div>
+
+
         <p>
+            <div class="step">2</div>
             We know that every \(N_i(x_j) = 1\) whenever \(i = j\), and zero otherwise, giving us
             the following system of 16 equations which can be written in matrix form:
         </p>
@@ -238,6 +243,7 @@
         </aside>
 
         <p>
+            <div class="step">3</div>
             We can solve this system of 16 equations and 16 unknowns (the values of \(a_{ij}\)),
             but the solution is fairly complex. However, we can instead use the properties
             of a <a href="https://en.wikipedia.org/wiki/Lagrange_polynomial">Lagrange polynomial</a>
@@ -273,8 +279,106 @@
             all four shape functions at each node.
         </p>
 
-        <div id="problem_1_plot"></div>
+        <div class="plot" id="problem_1_plot"></div>
 
+    </div>
+
+    <h1>Problem 2</h1>
+    <div class="gist-readme">
+        <h2>
+            Use Gauss quadrature to obtain the exact values for the following integrals. Verify
+            by analytical integration.
+        </h2>
+        <h3>
+            <div class="step">1</div>
+            \(\boldsymbol{\int_0^4 (x^2 + 1)dx}\)
+        </h3>
+        <p>
+            First we'll solve using Gaussian quadrature. If \(f(x) = x^2 + 1\) and the Gaussian
+            quadrature rule states that
+        </p>
+        <div class="math">
+            \[
+            \int_a^b f(x) dx = \frac{b-a}{2}\sum_{i=1}^{n} w_i f\left(\frac{b-a}{2}x_i + \frac{a+b}{2}\right)
+            \]
+        </div>
+        <aside>
+            Gaussian quadrature will yield an exact result for polynomials of degree \(2n-1\) or less
+            where \(n\) is the number of quadrature points.
+        </aside>
+        <p>
+            then we can solve using two point quadrature because \(f(x)\) is second order.
+            The weights for both points in two point quadrature are 1, and the values of the
+            points are \(\pm \sqrt{\frac{1}{3}}\), giving us
+        </p>
+        <div class="math">
+            \[
+            \begin{aligned}
+            \boldsymbol{\int_0^4 (x^2 + 1)dx} & = \frac{4-0}{2}\left[\left(1\right)f\left(\frac{4-0}{2}\left(-\sqrt{\frac{1}{3}}\right)+\frac{4+0}{2}\right) + \right. \\
+            & \qquad\qquad\ \left.\left(1\right)f\left(\frac{4-0}{2}\left(\sqrt{\frac{1}{3}}\right)+\frac{4+0}{2}\right)\right]\\[1ex]
+            & = 2\left[f\left(0.8453\right) + f\left(3.1547\right)\right]\\[1ex]
+            & = 2\left[1.7145 + 10.9521\right]\\[1ex]
+            & = 25.33
+            \end{aligned}
+            \]
+        </div>
+        <p>
+            Next, we'll solve analytically:
+        </p>
+        <div class="math">
+            \[
+            \begin{aligned}
+            \boldsymbol{\int_0^4 (x^2 + 1)dx} & = \left.\frac{x^3}{3}+x\ \right|_0^4 \\[0.5ex]
+            & = \frac{4^3}{3} + 4 \\[0.5ex]
+            & = \frac{64}{3} + 4 \\[0.5ex]
+            & = \frac{76}{3} \\[0.5ex]
+            & = 25.33
+            \end{aligned}
+            \]
+        </div>
+        <p>
+            Thus we can see that the solution to the two point Gaussian quadrature is exact.
+        </p>
+
+        <h3>
+            <div class="step">2</div>
+            \(\boldsymbol{\int_{-1}^1 (x^4 + 2x^2)dx}\)
+        </h3>
+        <p>
+            First we'll solve using Gaussian quadrature. If \(f(x) = x^4 + 2x^2\) and the Gaussian quadrature
+            rule is stated as above, we can solve using three point quadrature because \(f(x)\) is fourth
+            order. Quadrature points are located at zero and \(\pm\sqrt{\frac{3}{5}}\). The weight at point
+            zero is \(\frac{8}{9}\) and the weights for the other two points are \(\frac{5}{9}\). This gives us
+        </p>
+        <div class="math">
+            \[
+            \begin{aligned}
+            \boldsymbol{\int_{-1}^1 (x^4 + 2x^2)dx} & =  \frac{1+1}{2}\left[\left(\frac{5}{9}\right)f\left(\frac{1+1}{2}\left(-\sqrt{\frac{3}{5}}\right) + \frac{-1+1}{2}\right) + \right. \\
+                                                    & \qquad\qquad\ \ \left.\left(\frac{5}{9}\right)f\left(\frac{1+1}{2}\left(0\right)                   + \frac{-1+1}{2}\right) + \right. \\
+                                                    & \qquad\qquad\ \ \left.\left(\frac{5}{9}\right)f\left(\frac{1+1}{2}\left(\sqrt{\frac{3}{5}}\right)  + \frac{-1+1}{2}\right)\right] \\[0.5ex]
+            & = \left(\frac{5}{9}\right)\left(\frac{39}{25}\right) + 0 + \left(\frac{5}{9}\right)\left(\frac{39}{25}\right)\\[0.5ex]
+            & = \frac{26}{15}\\[0.5ex]
+            & = 1.733
+            \end{aligned}
+            \]
+        </div>
+        <p>
+            Next, solving analytically gives us
+        </p>
+        <div class="math">
+            \[
+            \begin{aligned}
+            \boldsymbol{\int_{-1}^1 (x^4 + 2x^2)dx} & = \left.\frac{x^5}{5} + \frac{2x^3}{3}\ \right|_{-1}^1 \\[0.5ex]
+            & = \left(\frac{1}{5}+\frac{2}{3}\right)-\left(\frac{-1}{5}-\frac{2}{3}\right) \\[0.5ex]
+            & = \frac{13}{15} - \frac{-13}{15} \\[0.5ex]
+            & = \frac{26}{15} \\[0.5ex]
+            & = 1.733
+            \end{aligned}
+            \]
+        </div>
+        <p>
+            Thus we can see that the solution to the three point Gaussian quadrature is exact.
+        </p>
     </div>
 
 </div>
