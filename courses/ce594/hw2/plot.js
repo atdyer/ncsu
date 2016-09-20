@@ -36,6 +36,31 @@ function Plot ( container, w, h, domain, range ) {
 
 
 
+    this.add_legend = function ( values, colors ) {
+
+        self.legend = self.svg
+                          .selectAll( '.legend' )
+                          .data( values ).enter()
+                          .append( 'g' )
+                          .attr( 'class', 'legend' )
+                          .attr( 'transform', function(d, i) { return "translate(0," + i * 20 + ")"; })
+                          .style( 'font', '10px sans-serif' );
+
+        self.legend.append( 'rect' )
+            .attr( 'x', width - 18 )
+            .attr( 'width', 18 )
+            .attr( 'height', 18 )
+            .attr( 'fill', function(d, i) { return colors[i]; } );
+
+        self.legend.append( 'text' )
+            .attr( 'x', width - 24 )
+            .attr( 'y', 9 )
+            .attr( 'dy', '.35em' )
+            .attr( 'text-anchor', 'end' )
+            .text( function( d ) { return d; });
+
+    };
+
     this.plot_function = function ( f, num_points, color ) {
 
         var interval = ( self.domain[1] - self.domain[0] ) / num_points;
@@ -60,7 +85,7 @@ function Plot ( container, w, h, domain, range ) {
 
         var data = _.zip( x_values, y_values );
 
-        self.svg.selectAll( '.dot' )
+        self.svg.selectAll( '.' + guid() )
             .data( data )
             .enter().append( 'circle' )
             .attr( 'class', 'dot' )

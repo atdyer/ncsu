@@ -4,11 +4,19 @@
     <meta charset="UTF-8">
     <title>CE 594 - Assignment 2</title>
 
-    <script src="../jquery-3.1.0.min.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_SVG">
-    </script>
+    <!-- Libraries -->
+    <script src="lib/jquery-3.1.0.min.js"></script>
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/lodash.min.js"></script>
+    <script src="lib/guid.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_SVG"></script>
 
-    <style>@import url('../style.css');</style>
+    <!-- My code -->
+    <script src="plot.js"></script>
+
+    <!-- Stylesheets -->
+    <link href="css/style.css" rel="stylesheet">
+
 </head>
 <body>
 <header>
@@ -33,7 +41,7 @@
             N_1(x) = a_{11} + a_{12}x + a_{13}x^2 + a_{14}x^3 \\
             N_2(x) = a_{21} + a_{22}x + a_{23}x^2 + a_{24}x^3 \\
             N_3(x) = a_{31} + a_{32}x + a_{33}x^2 + a_{34}x^3 \\
-            N_4(x) = a_{41} + a_{42}x + a_{43}x^2 + a_{44}x^3 \\
+            N_4(x) = a_{41} + a_{42}x + a_{43}x^2 + a_{44}x^3
             \]
         </div>
         <p>
@@ -218,9 +226,20 @@
             \]
         </div>
 
+        <aside>
+            It should be noted that while the Lagrange polynomial form is slightly easier to
+            understand, is not necessarily the best to use in code.
+            As an example, the
+            <a href="https://en.wikipedia.org/wiki/Lagrange_polynomial#Barycentric_form">
+                barycentric form
+            </a>
+            of the Lagrange polynomial may be more computationally efficient, depending on the
+            application.
+        </aside>
+
         <p>
-            We can solve this system of 16 equations and 16 unknowns (the values of \(a_{ij}\))
-            to give us a pretty large and messy solution, so let's instead use the properties
+            We can solve this system of 16 equations and 16 unknowns (the values of \(a_{ij}\)),
+            but the solution is fairly complex. However, we can instead use the properties
             of a <a href="https://en.wikipedia.org/wiki/Lagrange_polynomial">Lagrange polynomial</a>
             to construct a more succinct solution directly.
         </p>
@@ -248,17 +267,19 @@
             \]
         </div>
 
+        <p>
+            The following plot shows each of the four shape functions. The values of
+            zero and one are plotted at each node to more clearly show the value of
+            all four shape functions at each node.
+        </p>
+
+        <div id="problem_1_plot"></div>
+
     </div>
 
 </div>
 
-<script>
-    MathJax.Hub.Queue(
-            function () {
-                $(".math").css('visibility', 'visible');
-            }
-    );
-</script>
+    <script src="hw2.js"></script>
 
 </body>
 </html>
