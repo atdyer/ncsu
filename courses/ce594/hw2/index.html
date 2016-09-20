@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CE 594 - Assignment 2</title>
+
+    <script src="../jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_SVG">
+    </script>
+
+    <style>@import url('../style.css');</style>
+</head>
+<body>
+<header>
+    <div class="column">
+        <div class="navigation">Tristan Dyer</div>
+        CE 594 - Assignment 2
+        <div class="date">September 19, 2016</div>
+    </div>
+</header>
+<div class="column">
+    <h1>Problem 1</h1>
+    <div class="gist-readme">
+        <h3>
+            Construct the element shape functions for a four-node cubic element in one dimension.
+            Plot the functions.
+        </h3>
+        <p>
+            The shape functions for a four node cubic element are:
+        </p>
+        <div class="math">
+            \[
+            N_1(x) = a_{11} + a_{12}x + a_{13}x^2 + a_{14}x^3 \\
+            N_2(x) = a_{21} + a_{22}x + a_{23}x^2 + a_{24}x^3 \\
+            N_3(x) = a_{31} + a_{32}x + a_{33}x^2 + a_{34}x^3 \\
+            N_4(x) = a_{41} + a_{42}x + a_{43}x^2 + a_{44}x^3 \\
+            \]
+        </div>
+        <p>
+            or, in a more general form,
+        </p>
+        <div class="math">
+            \[
+            N_i(x) = a_{i1} + a_{i2}x + a_{i3}x^2 + a_{i4}x^3
+            \]
+        </div>
+        <p>
+            We know that every \(N_i(x_j) = 1\) whenever \(i = j\), and zero otherwise, giving us
+            the following system of 16 equations which can be written in matrix form:
+        </p>
+
+        <div class="math">
+            <!-- N1 -->
+            \[
+            \left.
+            \left.
+            \begin{aligned}
+                N_1(x_1) & = 1 \\
+                N_1(x_2) & = 0 \\
+                N_1(x_3) & = 0 \\
+                N_1(x_4) & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                a_{11} + a_{12} x_1 + a_{13} x_1^2 + a_{14} x_1^3 & = 1 \\
+                a_{11} + a_{12} x_2 + a_{13} x_2^2 + a_{14} x_2^3 & = 0 \\
+                a_{11} + a_{12} x_3 + a_{13} x_3^3 + a_{14} x_3^3 & = 0 \\
+                a_{11} + a_{12} x_4 + a_{13} x_4^3 + a_{14} x_4^3 & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                \begin{bmatrix}
+                1  &  x_1 & x_1^2 & x_1^3 \\
+                1  &  x_2 & x_2^2 & x_2^3 \\
+                1  &  x_3 & x_3^2 & x_3^3 \\
+                1  &  x_4 & x_4^2 & x_4^3
+                \end{bmatrix}
+
+                \begin{bmatrix}
+                a_{11} \\
+                a_{12} \\
+                a_{13} \\
+                a_{14}
+                \end{bmatrix}
+                & =
+                \begin{bmatrix}
+                1 \\
+                0 \\
+                0 \\
+                0
+                \end{bmatrix}
+            \end{aligned}
+            \]
+
+            <!-- N2 -->
+
+            \[
+            \left.
+            \left.
+            \begin{aligned}
+                N_2(x_1) & = 1 \\
+                N_2(x_2) & = 0 \\
+                N_2(x_3) & = 0 \\
+                N_2(x_4) & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                a_{21} + a_{22} x_1 + a_{23} x_1^2 + a_{24} x_1^3 & = 1 \\
+                a_{21} + a_{22} x_2 + a_{23} x_2^2 + a_{24} x_2^3 & = 0 \\
+                a_{21} + a_{22} x_3 + a_{23} x_3^3 + a_{24} x_3^3 & = 0 \\
+                a_{21} + a_{22} x_4 + a_{23} x_4^3 + a_{24} x_4^3 & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                \begin{bmatrix}
+                1  &  x_1 & x_1^2 & x_1^3 \\
+                1  &  x_2 & x_2^2 & x_2^3 \\
+                1  &  x_3 & x_3^2 & x_3^3 \\
+                1  &  x_4 & x_4^2 & x_4^3
+                \end{bmatrix}
+
+                \begin{bmatrix}
+                a_{21} \\
+                a_{22} \\
+                a_{23} \\
+                a_{24}
+                \end{bmatrix}
+                & =
+                \begin{bmatrix}
+                0 \\
+                1 \\
+                0 \\
+                0
+                \end{bmatrix}
+            \end{aligned}
+            \]
+
+            \[
+            \left.
+            \left.
+            \begin{aligned}
+                N_3(x_1) & = 1 \\
+                N_3(x_2) & = 0 \\
+                N_3(x_3) & = 0 \\
+                N_3(x_4) & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                a_{31} + a_{32} x_1 + a_{33} x_1^2 + a_{34} x_1^3 & = 1 \\
+                a_{31} + a_{32} x_2 + a_{33} x_2^2 + a_{34} x_2^3 & = 0 \\
+                a_{31} + a_{32} x_3 + a_{33} x_3^3 + a_{34} x_3^3 & = 0 \\
+                a_{31} + a_{32} x_4 + a_{33} x_4^3 + a_{34} x_4^3 & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                \begin{bmatrix}
+                1  &  x_1 & x_1^2 & x_1^3 \\
+                1  &  x_2 & x_2^2 & x_2^3 \\
+                1  &  x_3 & x_3^2 & x_3^3 \\
+                1  &  x_4 & x_4^2 & x_4^3
+                \end{bmatrix}
+
+                \begin{bmatrix}
+                a_{31} \\
+                a_{32} \\
+                a_{33} \\
+                a_{34}
+                \end{bmatrix}
+                & =
+                \begin{bmatrix}
+                0 \\
+                0 \\
+                1 \\
+                0
+                \end{bmatrix}
+            \end{aligned}
+            \]
+
+            \[
+            \left.
+            \left.
+            \begin{aligned}
+                N_4(x_1) & = 1 \\
+                N_4(x_2) & = 0 \\
+                N_4(x_3) & = 0 \\
+                N_4(x_4) & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                a_{41} + a_{42} x_1 + a_{43} x_1^2 + a_{44} x_1^3 & = 1 \\
+                a_{41} + a_{42} x_2 + a_{43} x_2^2 + a_{44} x_2^3 & = 0 \\
+                a_{41} + a_{42} x_3 + a_{43} x_3^3 + a_{44} x_3^3 & = 0 \\
+                a_{41} + a_{42} x_4 + a_{43} x_4^3 + a_{44} x_4^3 & = 0 \\
+            \end{aligned}
+            \right\} \Rightarrow
+            \begin{aligned}
+                \begin{bmatrix}
+                1  &  x_1 & x_1^2 & x_1^3 \\
+                1  &  x_2 & x_2^2 & x_2^3 \\
+                1  &  x_3 & x_3^2 & x_3^3 \\
+                1  &  x_4 & x_4^2 & x_4^3
+                \end{bmatrix}
+
+                \begin{bmatrix}
+                a_{41} \\
+                a_{42} \\
+                a_{43} \\
+                a_{44}
+                \end{bmatrix}
+                & =
+                \begin{bmatrix}
+                0 \\
+                0 \\
+                0 \\
+                1
+                \end{bmatrix}
+            \end{aligned}
+            \]
+        </div>
+
+        <p>
+            We can solve this system of 16 equations and 16 unknowns (the values of \(a_{ij}\))
+            to give us a pretty large and messy solution, so let's instead use the properties
+            of a <a href="https://en.wikipedia.org/wiki/Lagrange_polynomial">Lagrange polynomial</a>
+            to construct a more succinct solution directly.
+        </p>
+
+        <div class="math">
+            \[
+                N_i(x) = \prod_{j=1(j \ne i)}^n \frac{x-x_j}{x_i - x_j} =
+                \frac{(x-x_1)(x-x_2)...(x-x_{i-1})(x-x_{i+1})...(x-x_n)}
+                     {(x_i-x_1)(x_i-x_2)...(x_i-x_{i-1})(x_i-x_{i+1})...(x_i-x_n)}
+            \]
+        </div>
+
+        <p>
+            which gives us the following solutions for the shape functions:
+        </p>
+
+        <div class="math">
+            \[
+            \begin{aligned}
+            N_1(x) & = \frac{(x-x_2)(x-x_3)(x-x_4)}{(x_1-x_2)(x_1-x_3)(x_1-x_4)} \\
+            N_2(x) & = \frac{(x-x_1)(x-x_3)(x-x_4)}{(x_2-x_1)(x_2-x_3)(x_2-x_4)} \\
+            N_3(x) & = \frac{(x-x_1)(x-x_2)(x-x_4)}{(x_3-x_1)(x_3-x_2)(x_3-x_4)} \\
+            N_4(x) & = \frac{(x-x_1)(x-x_2)(x-x_3)}{(x_4-x_1)(x_4-x_2)(x_4-x_3)} \\
+            \end{aligned}
+            \]
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    MathJax.Hub.Queue(
+            function () {
+                $(".math").css('visibility', 'visible');
+            }
+    );
+</script>
+
+</body>
+</html>
