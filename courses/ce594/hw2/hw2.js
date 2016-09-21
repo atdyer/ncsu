@@ -68,6 +68,49 @@ function plot1() {
 
 }
 
+function plot3() {
+
+    var domain = [ 0, 1 ];
+    var range = [ 0, 1 ];
+
+    var plot = new Plot( '#problem_3_plot', 960, 500, domain, range );
+    var element_picker = $( '#element_picker' );
+
+    var function_id = 'fe_function';
+    var field_id = 'fe_field';
+    var points_id = 'fe_points';
+
+    var solve_fe = function ( num_elements ) {
+
+        var mesh = new Mesh_1d( domain[0], domain[1], num_elements );
+
+        var f = function ( x ) {
+            return Math.pow( x, 3 );
+        };
+
+        mesh.set_function( f, 3 );
+
+        var fe_field = mesh.get_fe_field();
+
+        plot.plot_function( f, 250, 'steelblue', function_id );
+        plot.plot_function( fe_field, 250, 'red', field_id );
+        plot.plot_points( mesh.nodes, mesh.nodal_values, 3, points_id );
+        plot.add_legend( ['Function', 'FE Field'], ['steelblue', 'red'], 'tl');
+
+    };
+
+    // Initialize the plot
+    solve_fe( element_picker.val() );
+
+    // Listen for events
+    element_picker.change( function () {
+
+        solve_fe( element_picker.val() );
+
+    });
+
+}
+
 function highlight2() {
 
     $.ajax({
@@ -109,6 +152,7 @@ function load_homework () {
 
     // Load plots
     plot1();
+    plot3();
 
     // Highlight code
     highlight2();

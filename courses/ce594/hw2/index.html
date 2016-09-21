@@ -14,6 +14,7 @@
 
     <!-- My code -->
     <script src="plot.js"></script>
+    <script src="mesh.js"></script>
 
     <!-- Stylesheets -->
     <link href="css/style.css" rel="stylesheet">
@@ -423,6 +424,49 @@
             Again, we can see that the code yields the same value that we calculated
             by hand.
         </p>
+    </div>
+
+    <h1>Problem 3</h1>
+    <div class="gist-readme">
+        <h2>
+            Consider the function \(u(x) = x^3, 0\le x\le 1\). Write a program in the language of your choice
+            that performs the following tasks:
+        </h2>
+        <h4>
+            <ol type="a">
+                <li>
+                    Subdivide the interval \([0,1]\) into two-node linear elements. Compute the approximation of the
+                    function in each element by letting the nodal values be given by \(u_I = x_I^3\) so that the
+                    approximation of the function in each element is given by \(u^e(x) = N_1^e(x)d_1^e + N_2^e(x)d_2^e\)
+                    where \(N_I^e\) are the linear shape functions. Plot \(u(x)\) and the finite element field
+                    \(u^e(x)\) on the same plot in the interval \([0,1]\).
+                </li>
+                <li>
+                    Repeat part a. for meshes of four and eight elements.
+                </li>
+                <li>
+                    The error of an interpolation is generally measured by what is called an \(L_2\) norm. The error in
+                    the \(L_2\) norm, which we denote by \(e\), is given by
+                    \[
+                    e^2 = \int_\Omega\left(u^e-u\right)^2dx
+                    \]
+                    where \(u(x) = x^3\) in this case. Compute the error \(e\) for meshes of two, four, and eight
+                    linear elements. Use Gauss quadrature for integration. Then plot the error versus the element
+                    size on a log-log plot. This should be a straight line. What is the slope? This slope is
+                    indicative of the rate of convergence of the element.
+                </li>
+            </ol>
+        </h4>
+        <p>
+            We'll start the solution with an interactive plot for parts a and b. The following plot allows you to
+            choose the number of elements to use in the finite element approximation of the function \(u(x) = x^3\).
+            It then creates a mesh and computes the finite element field, \(u^h(x)\), using linear shape functions.
+            Both the exact solution and the finite element field are then plotted for comparison.
+        </p>
+        <p>Set the number of elements: <input id="element_picker" type="number" min="1" max="100" step="1" value="1"></p>
+        <div id="problem_3_plot" class="plot">
+        </div>
+
     </div>
 
 </div>

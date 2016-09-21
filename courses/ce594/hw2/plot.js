@@ -36,7 +36,12 @@ function Plot ( container, w, h, domain, range ) {
 
 
 
-    this.add_legend = function ( values, colors ) {
+    this.add_legend = function ( values, colors, location ) {
+
+        // x-location, default to top right
+        var x_text = location == 'tl' ? 40: width - 24;
+        var x_box = location == 'tl' ? 18: width - 18;
+        var text_anchor = location == 'tl' ? 'start' : 'end';
 
         self.legend = self.svg
                           .selectAll( '.legend' )
@@ -47,51 +52,62 @@ function Plot ( container, w, h, domain, range ) {
                           .style( 'font', '10px sans-serif' );
 
         self.legend.append( 'rect' )
-            .attr( 'x', width - 18 )
+            .attr( 'x', x_box )
             .attr( 'width', 18 )
             .attr( 'height', 18 )
             .attr( 'fill', function(d, i) { return colors[i]; } );
 
         self.legend.append( 'text' )
-            .attr( 'x', width - 24 )
+            .attr( 'x', x_text )
             .attr( 'y', 9 )
             .attr( 'dy', '.35em' )
-            .attr( 'text-anchor', 'end' )
+            .attr( 'text-anchor', text_anchor )
             .text( function( d ) { return d; });
 
     };
 
-    this.plot_function = function ( f, num_points, color ) {
+    this.plot_function = function ( f, num_points, color, id ) {
 
         var interval = ( self.domain[1] - self.domain[0] ) / num_points;
         var x_values = [];
         for ( var i=0; i<num_points+1; ++i ) {
             x_values.push( i*interval );
         }
-        
+
         var line = d3.line()
                      .x( function ( d ) { return self.x( d ); } )
                      .y( function ( d ) { return self.y( f( d ) ); } );
 
-        self.svg.append( 'path' )
-            .datum( x_values )
-            .attr( 'class', 'line' )
-            .attr( 'd', line )
-            .attr( 'stroke', color );
+        var selection = self.svg.selectAll( '#' + id )
+                            .data( [x_values] )
+                            .attr( 'd', line );
+
+        selection.enter()
+                 .append( 'path' )
+                 .attr( 'class', 'line' )
+                 .attr( 'id', id )
+                 .attr( 'd', line )
+                 .attr( 'stroke', color );
+
+        selection.exit().remove();
 
     };
 
-    this.plot_points = function ( x_values, y_values, radius ) {
+    this.plot_points = function ( x_values, y_values, radius, id ) {
 
         var data = _.zip( x_values, y_values );
 
-        self.svg.selectAll( '.' + guid() )
+        self.svg.selectAll( '#' + id )
             .data( data )
+            .attr( 'cx', function ( d ) { return self.x( d[0] ); } )
+            .attr( 'cy', function ( d ) { return self.y( d[1] ); } )
             .enter().append( 'circle' )
             .attr( 'class', 'dot' )
             .attr( 'r', radius )
             .attr( 'cx', function ( d ) { return self.x( d[0] ); } )
-            .attr( 'cy', function ( d ) { return self.y( d[1] ); } );
+            .attr( 'cy', function ( d ) { return self.y( d[1] ); } )
+            .attr( 'id', id )
+            .exit().remove();
 
     }
     
