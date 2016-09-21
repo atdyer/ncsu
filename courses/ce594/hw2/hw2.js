@@ -153,6 +153,20 @@ function highlight2() {
 
 }
 
+function highlight3() {
+
+    $.ajax({
+        url: 'mesh.js',
+        dataType: "script",
+        success: function ( data ) {
+            var p3a = $('#p3a');
+            p3a.text(data.trim());
+            hljs.highlightBlock(p3a[0]);
+        }
+    });
+
+}
+
 function load_homework () {
     
     // Load mathjax
@@ -164,6 +178,7 @@ function load_homework () {
 
     // Highlight code
     highlight2();
+    highlight3();
     
 }
 
