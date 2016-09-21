@@ -144,6 +144,7 @@ pre {
     border-left: solid 2px #ccc;
     padding-left: 18px;
     margin: 2em 0 2em -20px;
+    min-width: 960px;
     max-width: 960px;
     overflow-x: auto;
 }

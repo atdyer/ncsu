@@ -40,3 +40,6 @@ function gauss_quadrature ( f, a, b, n ) {
     return summation;
 
 }
+
+// Export so that gauss_quadrature can be require()'d in other scripts
+module.exports = gauss_quadrature;

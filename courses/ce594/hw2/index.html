@@ -386,10 +386,43 @@
             for one, two, and three point integration. Use this function to write a code that performs Gauss integration
             for the functions above. Check manual calculations against your code.
         </h3>
-        <pre>
-            <code id="p2c" class="javascript">
-            </code>
-        </pre>
+        <p>
+            The following script, written in javascript, will perform an integration using up to a 5-point Gaussian
+            quadrature. It takes 4 parameters:
+        </p>
+        <ul>
+            <li><code>f</code> - The function to be integrated</li>
+            <li><code>a</code> - The lower limit of integration</li>
+            <li><code>b</code> - The upper limit of integration</li>
+            <li><code>n</code> - The number of quadrature points to use for integration</li>
+        </ul>
+        <h3>
+            <div class="step">#</div>
+            gauss-quadrature.js
+        </h3>
+        <pre><code id="p2a" class="javascript"></code></pre>
+        <p>
+            Now we can test the code on the two integrals calculated above. The code
+            used for the first example is:
+        </p>
+        <h3>
+            <div class="step">#</div>
+            tests/gauss1.js
+        </h3>
+        <pre><code id="p2b" class="javascript"></code></pre>
+        <p>
+            Running this code yields the same result that we calculated by hand. The
+            code used to test the second example is:
+        </p>
+        <h3>
+            <div class="step">#</div>
+            tests/gauss2.js
+        </h3>
+        <pre><code id="p2c" class="javascript"></code></pre>
+        <p>
+            Again, we can see that the code yields the same value that we calculated
+            by hand.
+        </p>
     </div>
 
 </div>

@@ -74,8 +74,28 @@ function highlight2() {
         url: 'gauss-quadrature.js',
         dataType: "script",
         success: function ( data ) {
+            var p2a = $('#p2a');
+            p2a.text(data.trim());
+            hljs.highlightBlock(p2a[0]);
+        }
+    });
+
+    $.ajax({
+        url: 'tests/gauss1.js',
+        dataType: 'script',
+        success: function ( data ) {
+            var p2b = $('#p2b');
+            p2b.text(data.trim());
+            hljs.highlightBlock(p2b[0]);
+        }
+    });
+
+    $.ajax({
+        url: 'tests/gauss2.js',
+        dataType: 'script',
+        success: function ( data ) {
             var p2c = $('#p2c');
-            p2c.text(data);
+            p2c.text(data.trim());
             hljs.highlightBlock(p2c[0]);
         }
     });
