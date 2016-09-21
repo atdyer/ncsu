@@ -105,7 +105,15 @@ function plot3() {
     // Listen for events
     element_picker.change( function () {
 
-        solve_fe( element_picker.val() );
+        if ( element_picker.val() > 100 ) {
+
+            alert( "That's too many elements, Jack" );
+
+        } else {
+
+            solve_fe( element_picker.val() );
+
+        }
 
     });
 
