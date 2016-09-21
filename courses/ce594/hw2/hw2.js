@@ -68,6 +68,20 @@ function plot1() {
 
 }
 
+function highlight2() {
+
+    $.ajax({
+        url: 'gauss-quadrature.js',
+        dataType: "script",
+        success: function ( data ) {
+            var p2c = $('#p2c');
+            p2c.text(data);
+            hljs.highlightBlock(p2c[0]);
+        }
+    });
+
+}
+
 function load_homework () {
     
     // Load mathjax
@@ -75,6 +89,9 @@ function load_homework () {
 
     // Load plots
     plot1();
+
+    // Highlight code
+    highlight2();
     
 }
 
