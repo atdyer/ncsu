@@ -68,7 +68,7 @@ function plot1() {
 
 }
 
-function plot3() {
+function plot3ab() {
 
     var domain = [ 0, 1 ];
     var range = [ 0, 1 ];
@@ -96,6 +96,7 @@ function plot3() {
         plot.plot_function( fe_field, 250, 'red', field_id );
         plot.plot_points( mesh.nodes, mesh.nodal_values, 3, points_id );
         plot.add_legend( ['Function', 'FE Field'], ['steelblue', 'red'], 'tl');
+        plot.set_x_label( 'Error: ' + mesh.get_error().toFixed( 5 ) );
 
     };
 
@@ -119,11 +120,59 @@ function plot3() {
 
 }
 
+function plot3c() {
+
+    var domain = [ 0.9, 10 ];
+    var range = [ 0.001, 1 ];
+
+    // Create function to solve
+    var f = function ( x ) {
+        return Math.pow( x, 3 );
+    };
+
+    // Create meshes
+    var mesh1 = new Mesh_1d( 0, 1, 1 );
+    var mesh2 = new Mesh_1d( 0, 1, 2 );
+    var mesh4 = new Mesh_1d( 0, 1, 4 );
+    var mesh8 = new Mesh_1d( 0, 1, 8 );
+
+    // Set function for all meshes
+    mesh1.set_function( f, 3 );
+    mesh2.set_function( f, 3 );
+    mesh4.set_function( f, 3 );
+    mesh8.set_function( f, 3 );
+
+    // Get errors
+    var e1 = mesh1.get_error();
+    var e2 = mesh2.get_error();
+    var e4 = mesh4.get_error();
+    var e8 = mesh8.get_error();
+
+    var num_elements = [ 1, 2, 4, 8 ];
+    var errors = [ e1, e2, e4, e8 ];
+
+    // Plot errors
+    var plot = new Log_Plot( '#problem_3c_plot', 960, 500, domain, range );
+    plot.plot_points( num_elements, errors, 4, 'error_points');
+    plot.add_labels( '# elements', 'Error' );
+
+    var slope_sum = 0;
+    for ( var i=0; i<num_elements.length-1; ++i ) {
+        slope_sum +=
+            ( errors[i+1] - errors[i] ) /
+            ( num_elements[i+1] - num_elements[i] );
+    }
+
+    // console.log( e1, e2, e4, e8 );
+    console.log( slope_sum / (num_elements.length-1) );
+
+}
+
 function highlight2() {
 
     $.ajax({
         url: 'gauss-quadrature.js',
-        dataType: "script",
+        dataType: "text",
         success: function ( data ) {
             var p2a = $('#p2a');
             p2a.text(data.trim());
@@ -133,7 +182,7 @@ function highlight2() {
 
     $.ajax({
         url: 'tests/gauss1.js',
-        dataType: 'script',
+        dataType: 'text',
         success: function ( data ) {
             var p2b = $('#p2b');
             p2b.text(data.trim());
@@ -143,7 +192,7 @@ function highlight2() {
 
     $.ajax({
         url: 'tests/gauss2.js',
-        dataType: 'script',
+        dataType: 'text',
         success: function ( data ) {
             var p2c = $('#p2c');
             p2c.text(data.trim());
@@ -174,7 +223,8 @@ function load_homework () {
 
     // Load plots
     plot1();
-    plot3();
+    plot3ab();
+    plot3c();
 
     // Highlight code
     highlight2();

@@ -2,7 +2,7 @@
 // Some variables
 var domain = [ 0, 1 ];
 var range = [ 0, 1 ];
-var num_elements = 8;
+var num_elements = 2;
 
 
 
@@ -23,7 +23,9 @@ var fe = mesh.get_fe_field();
 
 
 var plot = new Plot( 'body', 960, 500, domain, range );
-plot.plot_function( f, 250, 'steelblue', '#fdsafdsa' );
-plot.plot_function( fe, 250, 'red', '#asddfdsa' );
+plot.plot_function( f, 250, 'steelblue', 'fdsafdsa' );
+plot.plot_function( fe, 250, 'red', 'asddfdsa' );
 
 plot.plot_points( mesh.nodes, mesh.nodal_values, 3 );
+
+console.log( mesh.get_error() );

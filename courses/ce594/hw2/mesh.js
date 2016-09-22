@@ -6,6 +6,7 @@ function Mesh_1d ( a, b, num_elements ) {
     this.f = null;
 
     // Values
+    this.bounds = [ a, b ];
     this.num_elements = num_elements;
     this.num_nodes = num_elements+1;
     
@@ -80,6 +81,24 @@ function Mesh_1d ( a, b, num_elements ) {
             console.log( 'ERROR: Not enough elements' );
 
         }
+
+    };
+
+    this.get_error = function () {
+
+        var f = self.f;
+        var fe = self.get_fe_field();
+
+        var error_function = function ( x ) {
+
+            return Math.pow( f( x ) - fe( x ), 2 );
+
+        };
+
+        var a = self.bounds[0];
+        var b = self.bounds[1];
+
+        return Math.sqrt( gauss_quadrature( error_function, a, b, 2 ) );
 
     };
 

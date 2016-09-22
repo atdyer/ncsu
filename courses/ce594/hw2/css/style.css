@@ -38,6 +38,11 @@ h4 {
     stroke-width: 2px;
 }
 
+.label {
+    fill: #777;
+    font: 10px sans-serif;
+}
+
 .navigation {
     float: right;
 }

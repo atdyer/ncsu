@@ -15,6 +15,7 @@
     <!-- My code -->
     <script src="plot.js"></script>
     <script src="mesh.js"></script>
+    <script src="gauss-quadrature.js"></script>
 
     <!-- Stylesheets -->
     <link href="css/style.css" rel="stylesheet">
@@ -458,6 +459,7 @@
             </ol>
         </h4>
         <p>
+            <div class="step">1</div>
             We'll start the solution with an interactive plot for parts a and b. The following plot allows you to
             choose the number of elements to use in the finite element approximation of the function \(u(x) = x^3\).
             It then creates a mesh and computes the finite element field, \(u^h(x)\), using linear shape functions.
@@ -467,6 +469,7 @@
         <div id="problem_3_plot" class="plot">
         </div>
         <p>
+            <div class="step">2</div>
             The code used to create the 1D finite element mesh and compute the approximation of the given
             function is included in the following script. Here, we take an object oriented approach where
             a <code>Mesh_1d</code> object is initialized with bounds <code>a</code> and <code>b</code> and
@@ -477,6 +480,27 @@
             mesh.js
         </h3>
         <pre><code id="p3a" class="javascript"></code></pre>
+
+        <div class="step">3</div>
+        <p>
+            In order to compute the error in the \(L_2\) norm for each mesh size, we simply
+            call the <code>get_error()</code> function of the <code>Mesh_1d</code> class.
+            This function calculates the error associated with the interpolation performed
+            by the mesh by using Gaussian quadrature to perform the following integration:
+        </p>
+        <div class="math">
+            \[
+            e^2 = \int_\Omega\left(u-u^e\right)^2dx
+            \]
+        </div>
+        <p>
+            As we can see in the following plot, the error decreases as the number of elements
+            increases, converging towards the exact solution. The approximate rate of convergence,
+            or the average slope of the plot, is -0.066.
+        </p>
+        <div id="problem_3c_plot">
+
+        </div>
     </div>
 
 </div>

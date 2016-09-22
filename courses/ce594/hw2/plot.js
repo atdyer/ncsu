@@ -1,4 +1,101 @@
 
+function Log_Plot ( container, w, h, domain, range ) {
+
+    // Scoping
+    var self = this;
+
+    this.domain = domain;
+    this.range = range;
+
+    // Size and margins
+    var margin = {top: 20, right: 20, bottom: 30, left: 50};
+    var width = w - margin.left - margin.right;
+    var height = h - margin.top - margin.bottom;
+
+    this.x = d3.scaleLog()
+              .domain( self.domain )
+              .range( [0, width] );
+
+    this.y = d3.scaleLog()
+              .domain( self.range )
+              .range( [height, 0] );
+
+    // Create the plot area
+    this.svg = d3.select( container )
+                 .append( 'svg' )
+                 .attr( 'width', width + margin.left + margin.right )
+                 .attr( 'height', height + margin.top + margin.bottom )
+                 .append( 'g' )
+                 .attr( 'transform', 'translate(' + margin.left + ',' + margin.top + ')' );
+
+    // Create the axes
+    this.svg.append( 'g' )
+        .attr( 'class', 'x axis' )
+        .attr( 'transform', 'translate(0,' + height + ')' )
+        .call( d3.axisBottom( self.x ) );
+
+    this.svg.append( 'g' )
+        .attr( 'class', 'y axis' )
+        .call( d3.axisLeft( self.y ) );
+
+
+    this.add_labels = function ( x_label, y_label ) {
+
+        self.svg.append( 'text' )
+            .attr( 'class', 'x label' )
+            .attr( 'text-anchor', 'end' )
+            .attr( 'x', width )
+            .attr( 'y', height - 6 )
+            .text( x_label );
+
+        self.svg.append( "text" )
+            .attr( "class", "y label" )
+            .attr( "text-anchor", "end" )
+            .attr( "y", 6 )
+            .attr( "dy", ".75em" )
+            .attr( "transform", "rotate(-90)" )
+            .text( y_label );
+
+    };
+
+    this.plot_points = function ( x_values, y_values, radius, id ) {
+
+        var data = _.zip( x_values, y_values );
+
+        var line = d3.line()
+                     .x( function ( d ) { return self.x( d[0] ); } )
+                     .y( function ( d ) { return self.y( d[1] ); } )
+                     .curve( d3.curveCatmullRom.alpha( 0.5 ) );
+
+        var selection = self.svg.selectAll( '#' + id )
+                            .data( [data] )
+                            .attr( 'd', line );
+
+        selection.enter()
+                 .append( 'path' )
+                 .attr( 'class', 'line' )
+                 .attr( 'id', id )
+                 .attr( 'd', line )
+                 .attr( 'stroke', 'steelblue' );
+
+        selection.exit().remove();
+
+        self.svg.selectAll( '#p' + id )
+            .data( data )
+            .attr( 'cx', function ( d ) { return self.x( d[0] ); } )
+            .attr( 'cy', function ( d ) { return self.y( d[1] ); } )
+            .enter().append( 'circle' )
+            .attr( 'class', 'dot' )
+            .attr( 'r', radius )
+            .attr( 'cx', function ( d ) { return self.x( d[0] ); } )
+            .attr( 'cy', function ( d ) { return self.y( d[1] ); } )
+            .attr( 'id', id )
+            .exit().remove();
+
+    }
+
+}
+
 function Plot ( container, w, h, domain, range ) {
     
     // Scoping
@@ -108,6 +205,25 @@ function Plot ( container, w, h, domain, range ) {
             .attr( 'cy', function ( d ) { return self.y( d[1] ); } )
             .attr( 'id', id )
             .exit().remove();
+
+    };
+
+    this.set_x_label = function ( x_label ) {
+
+        if ( !self.x_label ) {
+
+            self.x_label = self.svg.append( 'text' )
+                               .attr( 'class', 'x label' )
+                               .attr( 'text-anchor', 'end' )
+                               .attr( 'x', width )
+                               .attr( 'y', height - 6 )
+                               .text( x_label );
+
+        } else {
+
+            self.x_label.text( x_label );
+
+        }
 
     }
     
