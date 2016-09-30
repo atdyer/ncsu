@@ -6,7 +6,6 @@ function Mesh_1d ( a, b, num_elements ) {
     this.f = null;
 
     // Values
-    this.bounds = [ a, b ];
     this.num_elements = num_elements;
     this.num_nodes = num_elements+1;
     
@@ -47,7 +46,6 @@ function Mesh_1d ( a, b, num_elements ) {
 
             }
 
-
             // Create the linear shape functions as local to each element.
             // Each element will have two shape functions, one for each node.
 
@@ -86,19 +84,49 @@ function Mesh_1d ( a, b, num_elements ) {
 
     this.get_error = function () {
 
-        var f = self.f;
-        var fe = self.get_fe_field();
+        // Number of integration points
+        var num_integration_points = 1;
 
-        var error_function = function ( x ) {
+        // Cumulative error
+        var error = 0;
 
-            return Math.pow( f( x ) - fe( x ), 2 );
+        var gauss = gauss_parameters( num_integration_points );
 
-        };
+        for ( var e=0; e<self.num_elements; ++e ) {
 
-        var a = self.bounds[0];
-        var b = self.bounds[1];
+            var x1 = self.nodes[e];
+            var x2 = self.nodes[e+1];
 
-        return Math.sqrt( gauss_quadrature( error_function, a, b, 2 ) );
+            var d1 = self.nodal_values[e];
+            var d2 = self.nodal_values[e+1];
+
+            var jacobian = 0.5 * ( x2 - x1 );
+
+            var shape_functions = self.shape_functions[e];
+
+            for ( var i=0; i<gauss.points.length; ++i ) {
+
+                // Get quadrature weight and point
+                var point = gauss.points[i];
+                var weight = gauss.weights[i];
+
+                // Get the point in global coordinates
+                var x = 0.5 * ( x2 + x1 ) + 0.5 * point * ( x2 - x1 );
+
+                // Get the actual point value
+                var u = self.f( x );
+
+                // Get the FE estimate
+                var ue = d1*shape_functions[0](x) + d2*shape_functions[1](x);
+
+                // Add to the error
+                error += Math.pow( ue-u, 2 ) * weight * jacobian;
+
+            }
+
+        }
+
+        return Math.sqrt( error );
 
     };
 

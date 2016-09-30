@@ -122,8 +122,8 @@ function plot3ab() {
 
 function plot3c() {
 
-    var domain = [ 0.9, 10 ];
-    var range = [ 0.001, 1 ];
+    var domain = [ 0.9, 32 ];
+    var range = [ 0.0001, 1 ];
 
     // Create function to solve
     var f = function ( x ) {
@@ -135,21 +135,29 @@ function plot3c() {
     var mesh2 = new Mesh_1d( 0, 1, 2 );
     var mesh4 = new Mesh_1d( 0, 1, 4 );
     var mesh8 = new Mesh_1d( 0, 1, 8 );
+    var mesh16 = new Mesh_1d( 0, 1, 16 );
+    var mesh32 = new Mesh_1d( 0, 1, 32 );
 
     // Set function for all meshes
     mesh1.set_function( f, 3 );
     mesh2.set_function( f, 3 );
     mesh4.set_function( f, 3 );
     mesh8.set_function( f, 3 );
+    mesh16.set_function( f, 3 );
+    mesh32.set_function( f, 3 );
 
     // Get errors
     var e1 = mesh1.get_error();
     var e2 = mesh2.get_error();
     var e4 = mesh4.get_error();
     var e8 = mesh8.get_error();
+    var e16 = mesh16.get_error();
+    var e32 = mesh32.get_error();
 
-    var num_elements = [ 1, 2, 4, 8 ];
-    var errors = [ e1, e2, e4, e8 ];
+    var num_elements = [ 1, 2, 4, 8, 16, 32 ];
+    var errors = [ e1, e2, e4, e8, e16, e32 ];
+
+    console.log( errors );
 
     // Plot errors
     var plot = new Log_Plot( '#problem_3c_plot', 960, 500, domain, range );
@@ -158,9 +166,12 @@ function plot3c() {
 
     var slope_sum = 0;
     for ( var i=0; i<num_elements.length-1; ++i ) {
-        slope_sum +=
-            ( errors[i+1] - errors[i] ) /
-            ( num_elements[i+1] - num_elements[i] );
+        var slope =
+            Math.log( errors[i+1] / errors[i] ) /
+            Math.log( num_elements[i+1] / num_elements[i] );
+
+        console.log( 'Slope ' + i + ' -> ' + (i+1) + ': ' + slope );
+        slope_sum += slope;
     }
 
     // console.log( e1, e2, e4, e8 );
