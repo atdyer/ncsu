@@ -1,4 +1,4 @@
 /courses/mea792/node_modules
-/phd/node_modules
+node_modules/
 .idea/
 *.pyc
