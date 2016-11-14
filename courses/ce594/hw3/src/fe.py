@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Mesh
-num_elements = 100
+num_elements = 8
 num_element_nodes = 2
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 x_coord = [ float(i)/num_elements for i in range(num_nodes) ]
@@ -22,7 +22,7 @@ def u ( el, el_node ):
 area = 0.1
 k = 0.5
 def s ( _x ):
-    return 5*_x
+    return 5 #*_x
 
 # Integration
 num_int_points = 1
@@ -81,6 +81,9 @@ for element in range( num_elements ):
                 ke[ row, col ] = dNdx[ row ] * area * k * dNdx[ col ] * J * w_int
                 fe[ row, 0 ] -= ke[ row, col ] * u( element, row )
 
+    print fe
+    print ke
+
     # Update globals with contributions from local
     for row in range( num_element_nodes ):
 
@@ -101,12 +104,12 @@ for element in range( num_elements ):
                     K[ ROW, COL ] += ke[ row, col ]
 
 d = np.linalg.solve( K, F )
-
+print d
 x = x_coord
 y = d[:,0]
 
 y = np.insert( y, 0, 0 )
 # y = np.append( y, 0 )
 
-plt.plot( x, y )
-plt.show()
+#plt.plot( x, y )
+#plt.show()
