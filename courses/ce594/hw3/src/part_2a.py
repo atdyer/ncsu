@@ -5,31 +5,26 @@ from scipy.integrate import quadrature as integrate
 # Constants
 A = 0.1
 k = 0.5
-l = 1.0
 
 # Mesh
-num_elements = 10
+num_elements = 2
 num_element_nodes = 2
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
-x_coord = [ float(i) * ( l / ( num_nodes - 1 ) ) for i in range( num_nodes ) ]
+x_coord = [ float(i)/num_elements for i in range(num_nodes) ]
 
 
 
-## Boundary conditions
-
-# Essential
+# Boundary conditions
 bc_essential = dict()
-bc_essential[ 0 ] = 0
-bc_essential[ num_nodes-1 ] = 0
+bc_essential[ 0 ] = 10
 
-# Natural
 bc_natural = dict()
-
+bc_natural[ num_nodes - 1 ] = 25
 
 
 # Source terms
 def s ( x ):
-    return 5
+    return 5*x
 
 
 # Shape functions (in -1 to 1 coordinate system)
