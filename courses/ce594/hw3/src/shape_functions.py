@@ -12,15 +12,16 @@ def shape_functions ( num_element_nodes ):
     for i in range( num_element_nodes ):
 
         # Create shape function
-        xvals = []
+        f = []
 
         for j in range( num_element_nodes ):
 
             if i != j:
 
-                xvals.append( [ xi[ i ], xi[ j ] ] )
+                f.append( lambda _xi, _i=xi[i], _j=xi[j]: ( _xi - _j ) / ( _i - _j ) )
 
-        N.append( lambda _xi, _xvals=xvals: reduce( lambda a, b: a*b, [ ( _xi - xval[ 1 ] ) / ( xval[ 0 ] - xval[ 1 ] ) for xval in _xvals ]) )
+        N.append( lambda _xi, _f=f: reduce( lambda a,b: a*b, map( lambda c: c(_xi), _f ) ) )
+
 
         # Create derivative of shape function
         mf = []
@@ -42,9 +43,9 @@ def shape_functions ( num_element_nodes ):
 
                         f.append( lambda _xi: 1.0 )
 
-                mf.append( [ m, f ] )
+                mf.append( ( m, f ) )
 
-        dN.append( lambda _xi, _mf=mf: reduce( lambda a,b: a+b, [ __mf[0] * reduce( lambda c,d: c*d, map( lambda e: e(_xi), __mf[1] ) ) for __mf in _mf ] ) )
+        dN.append( lambda _xi, _mf=mf: reduce( lambda a,b: a+b, [ _m * reduce( lambda c,d: c*d, map( lambda __f: __f(_xi), _f ) ) for (_m,_f) in _mf ] ) )
 
     return N, dN, xi
 
@@ -68,7 +69,7 @@ def plot_f_df ( f, df ):
     plt.show()
 
 
-# N, dN, xi = shape_functions( 3 )
-# plot_shape_functions( N )
+# N, dN, xi = shape_functions( 4 )
+# plot_shape_functions( dN )
 # plot_f_df( N[1], dN[1] )
 

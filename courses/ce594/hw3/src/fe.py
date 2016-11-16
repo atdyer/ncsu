@@ -1,115 +1,127 @@
 import numpy as np
-import matplotlib.pyplot as plt
+from scipy.integrate import quadrature as integrate
+from shape_functions import shape_functions
+from jacobian import jacobian
 
-# Mesh
-num_elements = 8
-num_element_nodes = 2
-num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
-x_coord = [ float(i)/num_elements for i in range(num_nodes) ]
+#
+# A: area
+# k: conductivity
+# l: length
+# num_elements: number of elements
+# num_element_nodes: number of nodes per element
+# S: ( function ) source term
+# bc_essential: ( dict ) essential boundary conditions
+# bc_natural: ( dict ) natural boundary conditions
+#
+def solve_fe ( A, k, l, num_elements, num_element_nodes, S, bc_essential, bc_natural ):
 
-# Use functions for b.c.'s to make things a little quicker
-def h ( el, el_node ):
-    if el == num_elements-1 and el_node == 1:
-        return 25
-    return 0
+    # Calculate number of nodes
+    num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
-def u ( el, el_node ):
-    if el == 0 and el_node == 0:
-        return 10
-    return 0
+    # Get x-coordinate for each node
+    x_coord = [ float(i) * ( l / ( num_nodes - 1 ) ) for i in range( num_nodes ) ]
 
-# Inputs
-area = 0.1
-k = 0.5
-def s ( _x ):
-    return 5 #*_x
+    # Get the shape functions
+    N, dN, xi = shape_functions( num_element_nodes )
 
-# Integration
-num_int_points = 1
-x_int = 1
-w_int = 2
+    # Create IEN and ID functions
+    def IEN ( element_number, local_node_number ):
+        return ( num_element_nodes - 1 ) * element_number + local_node_number
 
-Ntilde = [ 0.5, 0.5 ]
-dNtilde = [ -0.5, 0.5 ]
+    # Create global arrays
+    K = np.zeros( ( num_nodes, num_nodes ) )
+    F = np.zeros( ( num_nodes, 1 ) )
 
-# Global arrays
-K = np.zeros( ( num_nodes-1, num_nodes-1 ) )
-F = np.zeros( ( num_nodes-1, 1 ) )
+    # Element loop
+    for element in range( num_elements ):
 
-# Global node number given an element index (i.e. starting at element zero)
-# and an element node index (i.e. also starting at zero)
-#   e.g. IEN(0,0) - element 0 and node 0 within that element
-def IEN ( _element, _element_node ):
+        # Create local matrices
+        ke = np.zeros( ( num_element_nodes, num_element_nodes ) )
+        fe = np.zeros( ( num_element_nodes, 1 ) )
 
-    return _element+_element_node
+        # Get globals
+        nodes = [ IEN( element, i ) for i in range( num_element_nodes ) ]
+        x = [ x_coord[ node ] for node in nodes ]
 
-# Get index into K and F arrays given a node number
-# Returns -1 if the node is not in K and F
-def ID ( A ):
-
-    # return A
-    return -1 if A == 0 else A-1
-
-
-# Element loop
-for element in range( num_elements ):
-
-    ke = np.zeros( ( num_element_nodes, num_element_nodes ) )
-    fe = np.zeros( ( num_element_nodes, 1 ) )
-
-    i_left = IEN( element, 0 )
-    i_right = IEN( element, 1 )
-
-    x_element = [ x_coord[ i_left ], x_coord[ i_right ] ]
-
-    J = 0.5 * ( x_element[1] - x_element[0] )
-
-    # Integration loop
-    for i in range( num_int_points ):
-
-        N = [ Nt for Nt in Ntilde ]
-        dNdx = [ dNt/J for dNt in dNtilde ]
+        # Calculate the jacobian for this element
+        J = jacobian( x[ 0 ], x[ len( x ) - 1 ] )
 
         # Node loop
         for row in range( num_element_nodes ):
 
-            fe[ row, 0 ] = ( N[ row ] * s( x_element[ row ] ) * J * w_int ) + \
-                           ( area * N[ row ] * h( element, row ) )
+            # Calculate the source term value at this node
+            s = S( x[ row ] )
+
+            # Integrate to calculate fe term
+            _f = integrate( lambda _xi: N[ row ]( _xi ) * s,
+                           xi[ 0 ],
+                           xi[ len( xi ) - 1 ] )[ 0 ]
+
+            # Add the term to fe, converting to local coordinates
+            fe[ row, 0 ] = _f * J
+
+            # Check for natural boundary condition contribution
+            if nodes[ row ] in bc_natural:
+
+                fe[ row, 0 ] += N[ row ]( xi[ row ] ) * bc_natural[ nodes[ row ] ]
+
+            # Other node noop
+            for col in range( num_element_nodes ):
+
+                # Integrate to calculate ke term
+                _k = integrate( lambda _xi: ( dN[row](_xi) / J )*( dN[col](_xi) / J),
+                               xi[0],
+                               xi[len(xi)-1] )[ 0 ]
+
+                # Add the term to ke, converting to local coordinates
+                ke[ row, col ] = _k * A * k * J
+
+        # Update global arrays with contributions from local
+        for row in range( num_element_nodes ):
+
+            # Get the global row
+            r = IEN( element, row )
+
+            # Add local f to global F
+            F[ r, 0 ] += fe[ row, 0 ]
 
             for col in range( num_element_nodes ):
 
-                ke[ row, col ] = dNdx[ row ] * area * k * dNdx[ col ] * J * w_int
-                fe[ row, 0 ] -= ke[ row, col ] * u( element, row )
+                # Get the global column
+                c = IEN( element, col )
 
-    print fe
-    print ke
+                # Add the local k to global K
+                K[ r, c ] += ke[ row, col ]
 
-    # Update globals with contributions from local
-    for row in range( num_element_nodes ):
+    # Apply essential boundary conditions using elimination method
+    K_mask = np.ones( K.shape, dtype=bool )
+    F_mask = np.ones( F.shape, dtype=bool )
+    dof = num_nodes - len( bc_essential )
+    for node, value in bc_essential.iteritems():
 
-        row_node = IEN( element, row )
-        ROW = ID( row_node )
+        # Mask row and column in the K matrix
+        K_mask[ node, : ] = False
+        K_mask[ :, node ] = False
 
-        if ROW != -1:
+        # Mask row in the F array
+        F_mask[ node, : ] = False
 
-            F[ ROW, 0 ] += fe[ row, 0 ]
+        # Subtract from the F array
+        for row in range( num_nodes ):
 
-            for col in range( num_element_nodes ):
+            _k = K[ row, node ]
+            F[ row, 0 ] -= _k * value
 
-                col_node = IEN( element, col )
-                COL = ID( col_node )
+    # Apply the mask and reshape
+    K = np.reshape( K[ K_mask ], ( dof, dof ) )
+    F = np.reshape( F[ F_mask ], ( dof, 1 ) )
 
-                if COL != -1:
+    # Solve for unknowns
+    d = np.linalg.solve( K, F )
 
-                    K[ ROW, COL ] += ke[ row, col ]
+    # Place essential boundary condition values into solution
+    for node, value in bc_essential.iteritems():
 
-d = np.linalg.solve( K, F )
-print d
-x = x_coord
-y = d[:,0]
+        d = np.insert( d, node, value )
 
-y = np.insert( y, 0, 0 )
-# y = np.append( y, 0 )
-
-#plt.plot( x, y )
-#plt.show()
+    return d, x_coord
