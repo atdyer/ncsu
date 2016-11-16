@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import quadrature as integrate
+from shape_functions import shape_functions
+from jacobian import jacobian
 
 # Constants
 A = 0.1
@@ -31,25 +33,7 @@ bc_natural = dict()
 def s ( x ):
     return 5
 
-
-# Shape functions (in -1 to 1 coordinate system)
-def N1 ( xi ):
-    return 0.5 * ( 1 - xi )
-
-def N2 ( xi ):
-    return 0.5 * ( xi + 1 )
-
-def dN1 ( xi ):
-    return -0.5
-
-def dN2 ( xi ):
-    return 0.5
-
-def jacobian ( xl, xr ):
-    return 0.5 * ( xr - xl )
-
-N = [ N1, N2 ]
-dN = [ dN1, dN2 ]
+N, dN, xi = shape_functions( num_element_nodes )
 
 
 # IEN
@@ -76,41 +60,32 @@ for element in range( num_elements ):
     ke = np.zeros( ( num_element_nodes, num_element_nodes ) )
     fe = np.zeros( ( num_element_nodes, 1 ) )
 
-    print "\tInitialized Local Matrices:"
-
     # Get local coordinates
-    global_node_left = IEN( element, 0 )
-    global_node_right = IEN( element, 1 )
-    x_left = x_coord[ global_node_left ]
-    x_right = x_coord[ global_node_right ]
-    nodes = [ global_node_left, global_node_right ]
-    x = [ x_left, x_right ]
-    xi = [ -1, 1 ]
+    global_nodes = [ IEN( element, i ) for i in range( num_element_nodes ) ]
+    x_values = [ x_coord[ node ] for node in global_nodes ]
 
-    print "\tElement coordinates:", x_left, x_right
-
-    J = jacobian( x_left, x_right )
+    J = jacobian( x_values[0], x_values[ len( x_values ) - 1 ] )
 
     # Node loop
     for row in range( num_element_nodes ):
 
         # Get the source term at the node's x-location
-        s_node = s( x[ row ] )
+        s_node = s( x_values[ row ] )
 
         # Create the function we'll be integrating
         def f ( xi ):
             return N[row]( xi ) * s_node
 
         # Perform integration over element domain
-        val, err = integrate( f, xi[0], xi[1] )
+        val, err = integrate( f, xi[0], xi[len(xi)-1] )
 
         # Add contribution, converting to local coordinates
         fe[ row, 0 ] = val * J
 
         # Check for natural boundary condition contribution
-        if nodes[ row ] in bc_natural:
+        if global_nodes[ row ] in bc_natural:
 
-            fe[ row, 0 ] += N[ row ]( xi[ row ] ) * bc_natural[ nodes[ row ] ]
+            fe[ row, 0 ] += N[ row ]( xi[ row ] ) * bc_natural[ global_nodes[ row ] ]
 
         for col in range( num_element_nodes ):
 
@@ -119,7 +94,7 @@ for element in range( num_elements ):
                 return ( dN[row]( xi ) / J ) * ( dN[col]( xi ) / J )
 
             # Integrate over element domain
-            val, err = integrate( f, xi[0], xi[1] )
+            val, err = integrate( f, xi[0], xi[len(xi)-1] )
 
             # Add contribution, converting to local coordinates
             ke[ row, col ] = val * A * k * J
