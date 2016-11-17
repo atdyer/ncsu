@@ -63,7 +63,7 @@ def solve_fe ( A, k, l, num_elements, num_element_nodes, S, bc_essential, bc_nat
             # Check for natural boundary condition contribution
             if nodes[ row ] in bc_natural:
 
-                fe[ row, 0 ] += N[ row ]( x[ row ] ) * bc_natural[ nodes[ row ] ]
+                fe[ row, 0 ] += N[ row ]( x[ row ] ) * bc_natural[ nodes[ row ] ] * A * k
 
             # Other node noop
             for col in range( num_element_nodes ):
