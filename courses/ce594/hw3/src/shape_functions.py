@@ -51,7 +51,7 @@ def shape_functions ( num_element_nodes ):
 
 def plot_shape_functions ( shape_fns ):
 
-    npoints = 50
+    npoints = 250
     x = [ -1 + i * 2. / ( npoints- 1 )  for i in range( npoints ) ]
 
     for f in shape_fns:
@@ -61,7 +61,7 @@ def plot_shape_functions ( shape_fns ):
 
 def plot_f_df ( f, df ):
 
-    npoints = 50
+    npoints = 250
     x = [ -1 + i * 2. / ( npoints- 1 )  for i in range( npoints ) ]
 
     plt.plot( x, [ f( i ) for i in x ] )
@@ -69,7 +69,7 @@ def plot_f_df ( f, df ):
     plt.show()
 
 
-# N, dN, xi = shape_functions( 4 )
-# plot_shape_functions( dN )
+# N, dN, xi = shape_functions( 10 )
+# plot_shape_functions( N )
 # plot_f_df( N[1], dN[1] )
 
