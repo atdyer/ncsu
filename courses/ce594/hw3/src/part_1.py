@@ -27,8 +27,8 @@ s = lambda _x: 5
 d, x = solve_fe( A, k, l, num_elements, num_element_nodes, s, bc_essential, bc_natural )
 
 ### Exact solution as a function
-def exact ( x ):
-    return 50*x - 50*x*x
+def exact ( _xe ):
+    return 50*_xe - 50*_xe*_xe
 
 xe = [ float(i) * ( l / ( 250 - 1 ) ) for i in range( 250 ) ]
 ye = [ exact( _x ) for _x in xe ]
