@@ -8,7 +8,7 @@ l = 1.0
 
 ### Mesh
 num_elements = 2
-num_element_nodes = 3
+num_element_nodes = 2
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
 ### Boundary conditions
@@ -27,8 +27,8 @@ s = lambda _x: 5 * _x
 d, x = solve_fe( A, k, l, num_elements, num_element_nodes, s, bc_essential, bc_natural )
 
 ### Exact solution as a function
-def exact ( _x ):
-    return 10 + 100*_x - 100*pow( _x, 3)/6.0
+def exact ( _xe ):
+    return 10 + 100*_xe - 100*pow( _xe, 3)/6.0
 
 xe = [ float(i) * ( l / ( 250 - 1 ) ) for i in range( 250 ) ]
 ye = [ exact( _x ) for _x in xe ]

@@ -7,8 +7,8 @@ k = 0.5
 l = 1.0
 
 ### Mesh
-num_elements = 5
-num_element_nodes = 4
+num_elements = 8
+num_element_nodes = 2
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
 ### Boundary conditions
