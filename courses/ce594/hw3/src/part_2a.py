@@ -30,8 +30,12 @@ d, x = solve_fe( A, k, l, num_elements, num_element_nodes, s, bc_essential, bc_n
 def exact ( _xe ):
     return 10 + 100*_xe - 100*pow( _xe, 3)/6.0
 
+def dexact ( _xe ):
+    return
+
 xe = [ float(i) * ( l / ( 250 - 1 ) ) for i in range( 250 ) ]
 ye = [ exact( _x ) for _x in xe ]
+
 
 ### Plot
 plt.plot( x, d, label='FE Solution' )
