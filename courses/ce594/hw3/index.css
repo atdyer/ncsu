@@ -8,3 +8,7 @@
     stroke: steelblue;
     stroke-width: 1.0px;
 }
+
+.dot {
+    stroke-width: 0;
+}

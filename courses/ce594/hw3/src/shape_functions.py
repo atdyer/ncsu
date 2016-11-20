@@ -69,7 +69,7 @@ def plot_f_df ( f, df ):
     plt.show()
 
 
-N, dN, xi = shape_functions( 10 )
-plot_shape_functions( N )
+# N, dN, xi = shape_functions( 10 )
+# plot_shape_functions( N )
 # plot_f_df( N[1], dN[1] )
 
