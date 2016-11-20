@@ -1,14 +1,13 @@
-
-function part_2a ( selection, data ) {
+function part_2b ( selection, data ) {
 
     // Set up some html
     var num_element_options = data.length;
     var initial_value = +data[0].key;
     var num_elements = selection.select( '.elementspicker' )
-                                .attr( 'value', initial_value )
-                                .attr( 'min', initial_value )
-                                .attr( 'max', initial_value + num_element_options - 1 )
-                                .attr( 'step', 1 );
+        .attr( 'value', initial_value )
+        .attr( 'min', initial_value )
+        .attr( 'max', initial_value + num_element_options - 1 )
+        .attr( 'step', 1 );
 
     var chart_stage = selection.select( '.stage' );
     var chart_elements = chart()
@@ -20,12 +19,12 @@ function part_2a ( selection, data ) {
 
         var ne = +this.value;
         var selection = chart_stage.selectAll( '.chart' )
-                                   .data( [data[ ne-initial_value ]] );
+            .data( [data[ ne-initial_value ]] );
 
         selection = selection.enter()
-                             .append( 'div' )
-                             .attr( 'class', 'chart' )
-                             .merge( selection );
+            .append( 'div' )
+            .attr( 'class', 'chart' )
+            .merge( selection );
 
         selection.each( function ( d ) {
 

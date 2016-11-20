@@ -1,3 +1,6 @@
+@import url(//fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i|PT+Sans|PT+Sans:b);
+
+/* Plot stuff */
 .axis line {
     shape-rendering: crispEdges;
     stroke: #000;
@@ -11,4 +14,68 @@
 
 .dot {
     stroke-width: 0;
+}
+
+
+
+/* Page stuff */
+body {
+    font-family: 'PT Serif', serif;
+    margin: 0 auto 4em auto;
+    tab-size: 2;
+    -webkit-text-size-adjust: none;
+}
+
+header {
+    color: #999;
+    width: 100%;
+    top: 0;
+    left: 0;
+    padding: 1.5em 0;
+}
+
+header,
+footer,
+h1,
+h2,
+h3,
+h4 {
+    font-family: "PT Sans", sans-serif;
+}
+
+.section {
+    max-width: 960px;
+    position: relative;
+    display: block;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.right {
+    float: right;
+}
+
+.sub {
+    font-size: 11px;
+}
+
+.selector {
+    display: flex;
+    justify-content: center;
+    padding: 5px 0;
+
+    font-weight: bold;
+}
+
+.selector input {
+    margin: 0 10px;
+}
+
+.stage {
+    display: flex;
+    justify-content: center;
+}
+
+.chart {
+    padding: 10px 0;
 }
