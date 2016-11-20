@@ -15,8 +15,8 @@ function part_2a ( selection, data ) {
         .x( function ( d ) { return d.x; } )
         .y( function ( d ) { return d.y; } );
 
-    // Listen for events
-    num_elements.on( 'change', function () {
+    // Function to call when change occurs
+    function change () {
 
         var ne = +this.value;
         var selection = chart_stage.selectAll( '.chart' )
@@ -32,32 +32,12 @@ function part_2a ( selection, data ) {
             d3.select( this ).datum( d.values ).call( chart_elements );
 
         });
+    }
 
-    });
+    // Listen for events
+    num_elements.on( 'change', change );
 
-    // // Create div to hold charts
-    // var chart_stage = d3.select( 'body' ).append( 'div' ).attr( 'class', 'stage' );
-    //
-    // // Create chart stamp
-    // var elements_chart = chart()
-    //   .x( function ( d ) { return d.x; } )
-    //   .y( function ( d ) { return d.y; } );
-    //
-    // // Bind data
-    // chart_stage.selectAll( 'div' ).data( data )
-    //          .enter()
-    //          .append( 'div' )
-    //          .each( function ( data ) {
-    //
-    //              d3.select( this ).selectAll( 'div' ).data( data.values )
-    //                .enter()
-    //                .append( 'div' )
-    //                .each( function ( data ) {
-    //
-    //                    d3.select( this ).datum( data.values ).call( elements_chart );
-    //
-    //                });
-    //
-    //          });
+    // Trigger initial
+    num_elements.each( change );
 
 }
