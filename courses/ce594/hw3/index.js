@@ -92,12 +92,12 @@ function chart () {
             // Update the x-scale
             xScale
                 .domain( d3.extent( data, function ( d ) { return d[0]; } ) )
-                .range( [ 0, width - margin.left - margin.right ] );
+                .range( [ 0, width - margin.left - margin.right ] ).nice();
 
             // Update the y-scale
             yScale
                 .domain( d3.extent( data, function ( d ) { return d[1]; } ) )
-                .range( [ height - margin.top - margin.bottom, 0 ] );
+                .range( [ height - margin.top - margin.bottom, 0 ] ).nice();
 
             // Select the svg element, if it exists
             var svg = d3.select( this ).selectAll( 'svg' ).data( [data] );
@@ -134,6 +134,8 @@ function chart () {
                 .attr( 'cx', X )
                 .attr( 'cy', Y )
                 .attr( 'r', 3 );
+
+            select_points.exit().remove();
 
             // Update the x-axis
             g.select( '.x.axis' )
