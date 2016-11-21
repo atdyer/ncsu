@@ -49,28 +49,6 @@ function load_page () {
             part_2a_errors( d3.select( '#p2a' ), data );
 
         });
-    //
-    //       data = d3.nest()
-    //                .key( function ( d ) { return d.num_element_nodes } )
-    //                .entries( data );
-    //
-    //       // console.log( data );
-    //
-    //       // Create div to hold charts
-    //       var chart_stage = d3.select( 'body' ).append( 'div' ).classed( 'stage', true );
-    //
-    //       // Create chart
-    //       var error_energy_chart = chart()
-    //           .x( function ( d ) { return d.h; } )
-    //           .y( function ( d ) { return d.error_energy; } );
-    //
-    //       chart_stage.selectAll( 'div' ).data( data )
-    //                  .enter()
-    //                  .append( 'div' )
-    //                  .each( function ( data ) {
-    //                      d3.select( this ).datum( data.values ).call( error_energy_chart );
-    //                  });
-    //
-    //   });
+
 
 }

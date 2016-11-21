@@ -7,7 +7,15 @@ function part_2a_errors ( selection, data ) {
 
     var chart_errors = log_chart()
         .x( function ( d ) { return d.h; } )
-        .y( function ( d ) { return d.error_energy; } );
+        .y( function ( d ) { return d.error_energy; } )
+        .xRange( [ .02, 1 ] )
+        .yRange( [ .02, 1.5 ] )
+        .xLabel( 'Element size' )
+        .yLabel( 'Error in Energy Norm')
+        .legendItems( [
+            '2 Element Nodes',
+            '3 Element Nodes',
+            '4 Element Nodes' ] );
 
     var select = chart_stage.selectAll( '.chart' )
         .data( [data] );
@@ -19,13 +27,6 @@ function part_2a_errors ( selection, data ) {
         .call( chart_errors );
 
     select.exit().remove();
-
-    //
-    //select.each( function ( d ) {
-    //
-    //    d3.select( this ).data( d ).call( chart_errors );
-    //
-    //});
 
 }
 
