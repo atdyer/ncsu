@@ -1,13 +1,13 @@
 
 function part_2a_errors ( selection, data ) {
 
-    console.log( data );
-
     var chart_stage = selection.select( '.errors.stage' );
 
-    var chart_errors = log_chart()
+    var chart_errors = chart()
         .x( function ( d ) { return d.h; } )
         .y( function ( d ) { return d.error_energy; } )
+        .xScale( d3.scaleLog() )
+        .yScale( d3.scaleLog() )
         .xRange( [ .02, 1 ] )
         .yRange( [ .02, 1.5 ] )
         .xLabel( 'Element size' )
@@ -44,25 +44,46 @@ function part_2a_elements ( selection, data ) {
     var chart_stage = selection.select( '.elements.stage' );
     var chart_elements = chart()
         .x( function ( d ) { return d.x; } )
-        .y( function ( d ) { return d.y; } );
+        .y( function ( d ) { return d.y; } )
+        .xLabel( 'x (m)' )
+        .yLabel( 'u (\u2103)')
+        .xRange( [ 0, 1.3 ] )
+        .showPoints( [ true, false ] )
+        .pointSize( 3 )
+        .legendItems( [ 'FE Solution', 'Exact Solution' ]);
+
+    // Create values for plotting the exact solution
+    function exact_solution ( x ) {
+        return 100 * x + 10 - ( 100 * Math.pow( x, 3 ) / 6.0 );
+    }
+    var n_exact = 100;
+    var x_exact = Array.apply( null, new Array( n_exact+1 ) ).map( function ( x, i ) { return i/n_exact; } );
 
     // Function to call when change occurs
     function change () {
 
         var ne = +this.value;
+
+        var dat = [];
+        dat.push( data[ ne-initial_value ].values  );
+        dat.push( x_exact.map( function ( x ) { return {x: x, y: exact_solution(x)}; } ) );
+
         var selection = chart_stage.selectAll( '.chart' )
-                                   .data( [data[ ne-initial_value ]] );
+                                   .data( [dat] );
 
         selection = selection.enter()
                              .append( 'div' )
                              .attr( 'class', 'chart' )
-                             .merge( selection );
+                             .merge( selection )
+                             .call( chart_elements );
 
-        selection.each( function ( d ) {
+        selection.exit().remove();
 
-            d3.select( this ).datum( d.values ).call( chart_elements );
-
-        });
+        // selection.each( function ( d ) {
+        //
+        //     d3.select( this ).datum( d.values ).call( chart_elements );
+        //
+        // });
     }
 
     // Listen for events

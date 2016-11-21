@@ -19,18 +19,16 @@ function part_2b ( selection, data ) {
 
         var ne = +this.value;
         var selection = chart_stage.selectAll( '.chart' )
-            .data( [data[ ne-initial_value ]] );
+            .data( [[data[ ne-initial_value ].values]] );
 
         selection = selection.enter()
             .append( 'div' )
             .attr( 'class', 'chart' )
-            .merge( selection );
+            .merge( selection )
+            .call( chart_elements );
 
-        selection.each( function ( d ) {
+        selection.exit().remove();
 
-            d3.select( this ).datum( d.values ).call( chart_elements );
-
-        });
     }
 
     // Listen for events
