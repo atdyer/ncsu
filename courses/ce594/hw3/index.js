@@ -32,7 +32,7 @@ function load_page () {
                 .entries( data );
 
             part_2a_elements( d3.select( '#p2a' ), data[0].values );
-            part_2b( d3.select( '#p2b' ), data[1].values );
+            part_2b_elements( d3.select( '#p2b' ), data[1].values );
 
         });
 
@@ -45,6 +45,8 @@ function load_page () {
                 .entries( data );
 
             data = [ data[0].values, data[1].values, data[2].values ];
+
+            console.log( data );
 
             part_2a_errors( d3.select( '#p2a' ), data );
 

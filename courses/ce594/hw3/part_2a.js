@@ -3,7 +3,7 @@ function part_2a_errors ( selection, data ) {
 
     var chart_stage = selection.select( '.errors.stage' );
 
-    var chart_errors = chart()
+    var chart_error_energy = chart()
         .x( function ( d ) { return d.h; } )
         .y( function ( d ) { return d.error_energy; } )
         .xScale( d3.scaleLog() )
@@ -11,22 +11,51 @@ function part_2a_errors ( selection, data ) {
         .xRange( [ .02, 1 ] )
         .yRange( [ .02, 1.5 ] )
         .xLabel( 'Element size' )
-        .yLabel( 'Error in Energy Norm')
+        .yLabel( 'Error in Energy Norm' )
         .legendItems( [
             '2 Element Nodes',
             '3 Element Nodes',
             '4 Element Nodes' ] );
 
-    var select = chart_stage.selectAll( '.chart' )
+    var chart_error_l2 = chart()
+        .x( function ( d ) { return d.h; } )
+        .y( function ( d ) { return d.error_l2; } )
+        .xScale( d3.scaleLog() )
+        .yScale( d3.scaleLog() )
+        .xRange( [ .02, 1 ] )
+        .yRange( [ .00001, 1.5 ] )
+        .xLabel( 'Element size' )
+        .yLabel( 'Error in L2 Norm' )
+        .legendItems( [
+            '2 Element Nodes',
+            '3 Element Nodes',
+            '4 Element Nodes' ] );
+
+    var select_energy = chart_stage
+        .append( 'div' )
+        .selectAll( '.chart' )
         .data( [data] );
 
-    select = select.enter()
+    select_energy = select_energy.enter()
         .append( 'div' )
         .attr( 'class', 'chart' )
-        .merge( select )
-        .call( chart_errors );
+        .merge( select_energy )
+        .call( chart_error_energy );
 
-    select.exit().remove();
+    select_energy.exit().remove();
+
+    var select_l2 = chart_stage
+        .append( 'div' )
+        .selectAll( '.chart' )
+        .data( [data] );
+
+    select_l2 = select_l2.enter()
+        .append( 'div' )
+        .attr( 'class', 'chart' )
+        .merge( select_l2 )
+        .call( chart_error_l2 );
+
+    select_l2.exit().remove();
 
 }
 
@@ -47,7 +76,6 @@ function part_2a_elements ( selection, data ) {
         .y( function ( d ) { return d.y; } )
         .xLabel( 'x (m)' )
         .yLabel( 'u (\u2103)')
-        .xRange( [ 0, 1.3 ] )
         .showPoints( [ true, false ] )
         .pointSize( 3 )
         .legendItems( [ 'FE Solution', 'Exact Solution' ]);
@@ -78,12 +106,7 @@ function part_2a_elements ( selection, data ) {
                              .call( chart_elements );
 
         selection.exit().remove();
-
-        // selection.each( function ( d ) {
-        //
-        //     d3.select( this ).datum( d.values ).call( chart_elements );
-        //
-        // });
+        
     }
 
     // Listen for events
