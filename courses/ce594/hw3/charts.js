@@ -140,32 +140,14 @@ function log_chart () {
         line = d3.line().x(X).y(Y);
 
 
-    function _chart ( selection ) {
+    function _chart ( selection, d ) {
 
         selection.each( function ( data ) {
 
-            // Convert data to standard representation
-            data = data.map( function ( d, i ) {
-                return [ xValue.call( data, d, i ), yValue.call( data, d, i ) ];
-            });
+            var svg = selection.selectAll( 'svg' ).data( [ 'placeholder' ] );
 
-            // Update the x-scale
-            xScale
-                .domain( d3.extent( data, function ( d ) { return d[0]; } ) )
-                .range( [ 0, width - margin.left - margin.right ] ).nice();
-
-            // Update the y-scale
-            yScale
-                .domain( d3.extent( data, function ( d ) { return d[1]; } ) )
-                .range( [ height - margin.top - margin.bottom, 0 ] ).nice();
-
-            // Select the svg element, if it exists
-            var svg = d3.select( this ).selectAll( 'svg' ).data( [data] );
-
-            // Otherwise, create the skeletal chart
             var enter = svg.enter().append( 'svg' );
             var g = enter.append( 'g' );
-            g.append( 'path' ).attr( 'class', 'line' );
             g.append( 'g' ).attr( 'class', 'x axis' );
             g.append( 'g' ).attr( 'class', 'y axis' );
 
@@ -178,24 +160,33 @@ function log_chart () {
             g = svg.select( 'g' )
                 .attr( 'transform', 'translate(' + margin.left + ',' + margin.top + ')' );
 
-            // Update the line path
-            g.select( '.line' )
-                .attr( 'd', line );
+            var lines = g.selectAll( '.line' ).data( data );
 
-            // Update the points
-            var select_points = g.selectAll( '.dot' ).data( data );
+            lines = lines.enter()
+                .append( 'path' )
+                .attr( 'class', 'line' )
+                .merge( lines );
 
-            select_points
-                .enter()
-                .append( 'circle' )
-                .attr( 'class', 'dot' )
-                .style( 'fill', 'black' )
-                .merge( select_points )
-                .attr( 'cx', X )
-                .attr( 'cy', Y )
-                .attr( 'r', 3 );
+            lines.each( function ( data ) {
 
-            select_points.exit().remove();
+                var current_xdomain = xScale.domain();
+                var current_ydomain = yScale.domain();
+                var x_extent = d3.extent( data, function ( d ) { return d.h; } );
+                var y_extent = d3.extent( data, function ( d ) { return d.error_energy; } );
+
+                xScale
+                    .domain( d3.extent( current_xdomain.concat( x_extent ) ) )
+                    .range( [ 0, width - margin.left - margin.right ])
+                    .nice();
+
+                yScale
+                    .domain( d3.extent( current_ydomain.concat( y_extent ) ) )
+                    .range( [ height - margin.top - margin.bottom, 0 ] )
+                    .nice();
+
+            });
+
+            lines.attr( 'd', line );
 
             // Update the x-axis
             g.select( '.x.axis' )
@@ -212,12 +203,12 @@ function log_chart () {
 
     // The x-accessor
     function X( d ) {
-        return xScale( d[0] );
+        return xScale( d.h );
     }
 
     // The y-accessor
     function Y( d ) {
-        return yScale( d[1] );
+        return yScale( d.error_energy );
     }
 
     _chart.margin = function(_) {

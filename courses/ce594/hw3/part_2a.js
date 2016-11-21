@@ -1,5 +1,35 @@
 
-function part_2a ( selection, data ) {
+function part_2a_errors ( selection, data ) {
+
+    console.log( data );
+
+    var chart_stage = selection.select( '.errors.stage' );
+
+    var chart_errors = log_chart()
+        .x( function ( d ) { return d.h; } )
+        .y( function ( d ) { return d.error_energy; } );
+
+    var select = chart_stage.selectAll( '.chart' )
+        .data( [data] );
+
+    select = select.enter()
+        .append( 'div' )
+        .attr( 'class', 'chart' )
+        .merge( select )
+        .call( chart_errors );
+
+    select.exit().remove();
+
+    //
+    //select.each( function ( d ) {
+    //
+    //    d3.select( this ).data( d ).call( chart_errors );
+    //
+    //});
+
+}
+
+function part_2a_elements ( selection, data ) {
 
     // Set up some html
     var num_element_options = data.length;
@@ -10,7 +40,7 @@ function part_2a ( selection, data ) {
                                 .attr( 'max', initial_value + num_element_options - 1 )
                                 .attr( 'step', 1 );
 
-    var chart_stage = selection.select( '.stage' );
+    var chart_stage = selection.select( '.elements.stage' );
     var chart_elements = chart()
         .x( function ( d ) { return d.x; } )
         .y( function ( d ) { return d.y; } );

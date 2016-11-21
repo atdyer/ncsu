@@ -21,26 +21,34 @@ function load_page () {
         }
     }
 
-
+    // Fetch data
     d3.csv( 'data/part_2_elements.csv' )
-      .row( row_element )
-      .get( function ( error, data ) {
+        .row( row_element )
+        .get( function ( error, data ) {
 
-          data = d3.nest()
-              .key( function ( d ) { return d.num_element_nodes } )
-              .key( function ( d ) { return d.num_elements } )
-              .entries( data );
+            data = d3.nest()
+                .key( function ( d ) { return d.num_element_nodes } )
+                .key( function ( d ) { return d.num_elements } )
+                .entries( data );
 
-          part_2a( d3.select( '#p2a' ), data[0].values );
-          part_2b( d3.select( '#p2b' ), data[1].values );
+            part_2a_elements( d3.select( '#p2a' ), data[0].values );
+            part_2b( d3.select( '#p2b' ), data[1].values );
 
-      });
+        });
 
+    d3.csv( 'data/part_2_errors.csv' )
+        .row( row_error )
+        .get( function ( error, data ) {
 
-    // Fetch the data
-    // d3.csv( 'data/part_2.csv' )
-    //   .row( row_error )
-    //   .get( function ( error, data ) {
+            data = d3.nest()
+                .key( function ( d ) { return d.num_element_nodes } )
+                .entries( data );
+
+            data = [ data[0].values, data[1].values, data[2].values ];
+
+            part_2a_errors( d3.select( '#p2a' ), data );
+
+        });
     //
     //       data = d3.nest()
     //                .key( function ( d ) { return d.num_element_nodes } )
