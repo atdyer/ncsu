@@ -9,6 +9,7 @@
     <script src="lib/d3.min.js"></script>
     <script src="index.js"></script>
     <script src="charts.js"></script>
+    <script src="part_1.js"></script>
     <script src="part_2a.js"></script>
     <script src="part_2b.js"></script>
 
@@ -60,6 +61,17 @@
             Each shape function and derivative that is generated is a Python lambda function and is callable with a
             value of <code>xi</code> (i.e. any value between -1 and 1).
         </p>
+        <p>
+            The solution to Problem #1 is plotted below. Only 2-node linear elements are used in this problem, and the
+            finite element solution is plotted alongside the exact solution. Use the number picker below the chart
+            to plot the solution for a different number of elements (up to 8 are provided).
+        </p>
+        <div class="elements stage"></div>
+            <div class="selector">
+                Select number of elements:
+                <input type="number" class="elementspicker">
+            </div>
+        </div>
     </div>
     <div class="section">
         <div id="p2a">

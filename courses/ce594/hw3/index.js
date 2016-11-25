@@ -22,6 +22,19 @@ function load_page () {
     }
 
     // Fetch data
+    d3.csv( 'data/part_1_elements.csv' )
+        .row( row_element )
+        .get( function ( error, data ) {
+
+            data = d3.nest()
+                .key( function ( d ) { return d.num_element_nodes } )
+                .key( function ( d ) { return d.num_elements } )
+                .entries( data );
+
+            part_1_elements( d3.select( '#p1' ), data[0].values );
+
+        });
+
     d3.csv( 'data/part_2_elements.csv' )
         .row( row_element )
         .get( function ( error, data ) {
@@ -45,8 +58,6 @@ function load_page () {
                 .entries( data );
 
             data = [ data[0].values, data[1].values, data[2].values ];
-
-            console.log( data );
 
             part_2a_errors( d3.select( '#p2a' ), data );
 
