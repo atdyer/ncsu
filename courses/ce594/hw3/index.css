@@ -43,6 +43,21 @@ h4 {
     font-family: "PT Sans", sans-serif;
 }
 
+h1 {
+    font-size: 46px;
+    font-weight: 500;
+    letter-spacing: -1px;
+    margin: 0.1em 0;
+}
+
+h2 {
+    font-size: 18px;
+}
+
+h1, h2 {
+    text-rendering: optimizeLegibility;
+}
+
 .section {
     max-width: 960px;
     position: relative;

@@ -23,10 +23,45 @@
         </div>
     </header>
 
-    <div id="p1" class="section"></div>
+    <div id="p1" class="section">
+        <h1>Problem #1</h1>
+        <h2>
+            Write a 1D finite element code to solve the following linear heat conduction problem:
+            <ul>
+                <li>Area = 0.1 m<sup>2</sup></li>
+                <li>k = 0.5 W/m&deg;C</li>
+                <li>Length = 1m</li>
+                <li>u(0) = u(1) = 0</li>
+                <li>s = 5 W/m</li>
+            </ul>
+        </h2>
+        <p>
+            The code used for all problems in this assignment is provided in the following two files:
+            <div class="selector"><a href="fe.html">Finite Element Code</a></div>
+            <div class="selector"><a href="shape_functions.html">Shape Function Code</a></div>
+        </p>
+        <p>
+            The finite element code is capable of solving the 1D linear heat conduction problem for any set of valid
+            boundary conditions, a source term, and with any number of element nodes. The boundary values are provided
+            as Python dictionaries, one each for the essential and natural boundary conditions. The source term must
+            be provided as a callable function (or lambda function) that returns the source value given an x-location.
+            Additional parameters are required, as outlined by the documentation in the comments at the start of the
+            <code>solve_fe</code> function.
+        </p>
+        <p>
+            Take note that the number of element nodes is provided as an option in the <code>solve_fe</code> function.
+            The finite element code will generate all of the shape functions and derivatives using the
+            <code>shape_functions</code> function. This function returns the three following lists:
+            <ul>
+                <li>N - List of shape functions, one for each element node</li>
+                <li>dN - The first derivative of each shape function in the list N</li>
+                <li>xi - The coordinates of each node in the element, on the domain [-1,1]</li>
+            </ul>
+            Each shape function and derivative that is generated is a Python lambda function and is callable with a
+            value of <code>xi</code> (i.e. any value between -1 and 1).
+        </p>
+    </div>
     <div class="section">
-        <a href="fe.html">Finite Element Code</a>
-        <a href="shape_functions.html">Shape Function Code</a>
         <div id="p2a">
             <h2>Problem #2a</h2>
             <div class="elements stage"></div>
