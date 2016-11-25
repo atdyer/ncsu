@@ -1,8 +1,8 @@
 
 function chart () {
 
-    var margin = {top: 20, right: 20, bottom: 20, left: 40},
-        width = 760,
+    var margin = {top: 20, right: 220, bottom: 20, left: 40},
+        width = 960,
         height = 400,
         xValue = function(d) { return d[0]; },
         yValue = function(d) { return d[1]; },
@@ -59,7 +59,7 @@ function chart () {
              .style( 'font', '10px sans-serif');
             g.append( 'g' )
              .attr( 'class', 'legend' )
-             .attr( 'transform', 'translate(' + (width - margin.left - margin.right) + ',0)' );
+             .attr( 'transform', 'translate(' + ( width - margin.right - margin.left + 24 ) + ',0)' );
 
             // Update the outer dimensions
             svg = enter.merge( svg )
@@ -161,9 +161,9 @@ function chart () {
                 .attr( 'fill', function ( d, i ) { return colors[i]; } );
 
             leg.append( 'text' )
-               .attr( 'text-anchor', 'end' )
+               // .attr( 'text-anchor', 'end' )
                .attr( 'y', 9 )
-               .attr( 'dx', -6 )
+               .attr( 'dx', 24 )
                .attr( 'dy', '.35em' )
                .merge( leg )
                .text( function ( d ) { return d; } );
