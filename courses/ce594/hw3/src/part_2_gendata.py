@@ -4,7 +4,7 @@ from scipy.integrate import quadrature as integrate
 
 outfile = '../data/part_2_errors.csv'
 
-nel = [ i for i in range( 2, 33 ) ]
+nel = [ i for i in range( 2, 17 ) ]
 nen = [ i for i in range( 2, 5 )]
 
 with open( outfile, 'w' ) as f:
@@ -53,29 +53,24 @@ with open( outfile, 'w' ) as f:
             ye = [ exact( _x ) for _x in xe ]
 
             ### Calculate errors
-            def IEN ( element_number, local_node_number ):
-                    return ( num_element_nodes - 1 ) * element_number + local_node_number
-
             error_l2 = 0
             error_energy = 0
             for i in range( len( d ) - 1 ):
 
                 xcoords = [ x[i], x[i+1] ]
                 uvals = [ d[i], d[i+1] ]
-                slope = (uvals[1]-uvals[0]) / (xcoords[1]-xcoords[0])
+                slope = ( uvals[1]-uvals[0] ) / ( xcoords[1]-xcoords[0] )
 
                 def error_function_l2 ( xval ):
-                    return np.interp( xval, xcoords, uvals ) - exact( xval )
+                    return pow( np.interp( xval, xcoords, uvals ) - exact( xval ), 2 )
 
                 def error_function_energy ( xval ):
                     return A * k * pow( dexact( xval ) - slope, 2 )
 
-                error_l2 += pow(integrate(error_function_l2, xcoords[0], xcoords[1])[0], 2)
-                error_energy += 0.5 * integrate( error_function_energy, xcoords[0], xcoords[1] )[0]
+                error_l2 += np.sqrt( integrate( error_function_l2, xcoords[0], xcoords[1])[0] )
+                error_energy += np.sqrt( 0.5 * integrate( error_function_energy, xcoords[0], xcoords[1] )[0] )
 
 
             h = x[_nen-1]-x[0]
-            error_l2 = np.sqrt(error_l2)
-            error_energy = np.sqrt(error_energy)
 
             f.write( '{:d},{:d},{:f},{:f},{:f}\n'.format( _nel, _nen, h, error_l2, error_energy))

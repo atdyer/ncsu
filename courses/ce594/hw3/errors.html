@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CE 594 - Homework #3 - Error Calculation Code</title>
+
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/highlight.min.js"></script>
+
+    <link href="index.css" rel="stylesheet">
+    <link href="lib/styles/github.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <div class="section">
+        <div class="right">Tristan Dyer</div>
+        CE 594 - Assignment 3
+        <div class="sub">October 20, 2016</div>
+    </div>
+</header>
+
+<div class="section">
+    <pre><code id="errcode" class="python"></code></pre>
+</div>
+<script>
+    d3.text( 'src/part_2_gendata.py', function ( error, data ) {
+        var fe = d3.select( '#errcode' );
+        fe.text( data.trim() );
+        console.log( fe.nodes() );
+        hljs.highlightBlock( fe.nodes()[0] );
+    });
+</script>
+
+</body>
+</html>

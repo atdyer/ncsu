@@ -9,7 +9,7 @@ function part_2a_errors ( selection, data ) {
         .xScale( d3.scaleLog() )
         .yScale( d3.scaleLog() )
         .xRange( [ 1, .02 ] )
-        .yRange( [ .02, 1.5 ] )
+        .yRange( [ .004, 5 ] )
         .xLabel( 'Element size' )
         .yLabel( 'Error in Energy Norm' )
         .legendItems( [
@@ -23,7 +23,7 @@ function part_2a_errors ( selection, data ) {
         .xScale( d3.scaleLog() )
         .yScale( d3.scaleLog() )
         .xRange( [ 1, .02 ] )
-        .yRange( [ .00001, 1.5 ] )
+        .yRange( [ .004, 5 ] )
         .xLabel( 'Element size' )
         .yLabel( 'Error in L2 Norm' )
         .legendItems( [
