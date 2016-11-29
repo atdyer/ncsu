@@ -75,24 +75,61 @@
     </div>
     <div class="section">
         <div id="p2a">
-            <h2>Problem #2a</h2>
+            <h1>Problem #2</h1>
+            <h2>
+                For this part you will extend your 1D finite element code from Problem #1 to solve the following linear
+                heat conduction problem (the boundary conditions and source term have changed):
+                <ul>
+                    <li>Area = 0.1m<sup>2</sup></li>
+                    <li>k = 0.5 W/m&deg;C</li>
+                    <li>Length = 1m</li>
+                    <li>u(0) = 10&deg;C</li>
+                    <li>h = 25 W/m&deg;C at x = 1</li>
+                    <li>s(x) = 5x W/m<sup>2</sup></li>
+                </ul>
+            </h2>
+            <p>
+                The code used for this problem is identical to the code used in Problem #1. The only change required is
+                to provide the correct boundary conditions and source terms. Additionally, parts A and B of this problem
+                are solved using different numbers of element nodes, which is also an input option in my finite element
+                code.
+            </p>
+            <h2>Part A.</h2>
+            <p>
+                The following plot shows the results of the finite element solution for part A. Choose the number of
+                two node linear elements below the plot.
+            </p>
             <div class="elements stage"></div>
             <div class="selector">
                 Select number of elements:
                 <input type="number" class="elementspicker">
             </div>
-            <div class="errors stage"></div>
         </div>
         <div id="p2b">
-            <h2>Problem #2b</h2>
+            <h2>Part B.</h2>
+            <p>
+                The following plot shows the results of the finite element solution for part B. Choose the number of
+                three node quadratic elements below the plot.
+            </p>
             <div class="stage"></div>
             <div class="selector">
                 Select number of elements:
                 <input type="number" class="elementspicker">
             </div>
         </div>
+        <div id="p2errors">
+            <h2>Parts A and B.</h2>
+            <p>
+                The following two plots show the errors calculated in parts A and B (along with and additional solution
+                calculated using 4-node elements). The first plot shows the displacement error in the L2 norm and the
+                second shows the error in the energy norm. Note that for each plot, the x-axis is reversed, with element
+                size decreasing to the right.
+            </p>
+            <div class="errors stage"></div>
+        </div>
         <div id="p2c">
-            <h2>Problem #2c</h2>
+            <h2>Part C.</h2>
+
         </div>
     </div>
 

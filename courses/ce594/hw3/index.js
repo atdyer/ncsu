@@ -59,7 +59,7 @@ function load_page () {
 
             data = [ data[0].values, data[1].values, data[2].values ];
 
-            part_2a_errors( d3.select( '#p2a' ), data );
+            part_2a_errors( d3.select( '#p2errors' ), data );
 
         });
 

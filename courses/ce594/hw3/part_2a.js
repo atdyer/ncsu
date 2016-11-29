@@ -8,7 +8,7 @@ function part_2a_errors ( selection, data ) {
         .y( function ( d ) { return d.error_energy; } )
         .xScale( d3.scaleLog() )
         .yScale( d3.scaleLog() )
-        .xRange( [ .02, 1 ] )
+        .xRange( [ 1, .02 ] )
         .yRange( [ .02, 1.5 ] )
         .xLabel( 'Element size' )
         .yLabel( 'Error in Energy Norm' )
@@ -22,7 +22,7 @@ function part_2a_errors ( selection, data ) {
         .y( function ( d ) { return d.error_l2; } )
         .xScale( d3.scaleLog() )
         .yScale( d3.scaleLog() )
-        .xRange( [ .02, 1 ] )
+        .xRange( [ 1, .02 ] )
         .yRange( [ .00001, 1.5 ] )
         .xLabel( 'Element size' )
         .yLabel( 'Error in L2 Norm' )
@@ -30,19 +30,6 @@ function part_2a_errors ( selection, data ) {
             '2 Element Nodes',
             '3 Element Nodes',
             '4 Element Nodes' ] );
-
-    var select_energy = chart_stage
-        .append( 'div' )
-        .selectAll( '.chart' )
-        .data( [data] );
-
-    select_energy = select_energy.enter()
-        .append( 'div' )
-        .attr( 'class', 'chart' )
-        .merge( select_energy )
-        .call( chart_error_energy );
-
-    select_energy.exit().remove();
 
     var select_l2 = chart_stage
         .append( 'div' )
@@ -56,6 +43,19 @@ function part_2a_errors ( selection, data ) {
         .call( chart_error_l2 );
 
     select_l2.exit().remove();
+
+    var select_energy = chart_stage
+        .append( 'div' )
+        .selectAll( '.chart' )
+        .data( [data] );
+
+    select_energy = select_energy.enter()
+        .append( 'div' )
+        .attr( 'class', 'chart' )
+        .merge( select_energy )
+        .call( chart_error_energy );
+
+    select_energy.exit().remove();
 
 }
 

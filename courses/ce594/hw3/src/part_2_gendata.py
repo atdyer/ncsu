@@ -2,7 +2,7 @@ import numpy as np
 from fe import solve_fe
 from scipy.integrate import quadrature as integrate
 
-outfile = '../data/part_2a.csv'
+outfile = '../data/part_2_errors.csv'
 
 nel = [ i for i in range( 2, 33 ) ]
 nen = [ i for i in range( 2, 5 )]
