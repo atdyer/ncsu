@@ -7,8 +7,8 @@ k = 0.5
 l = 1.0
 
 ### Mesh
-num_elements = 2
-num_element_nodes = 2
+num_elements = 1
+num_element_nodes = 3
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
 ### Boundary conditions
@@ -18,7 +18,7 @@ bc_essential[ 0 ] = 10
 
 # Natural
 bc_natural = dict()
-bc_natural[ num_nodes - 1 ] = 25/k
+bc_natural[ num_nodes - 1 ] = 25
 
 ### Source terms
 s = lambda _x: 5 * _x
@@ -35,6 +35,10 @@ def dexact ( _xe ):
 
 xe = [ float(i) * ( l / ( 250 - 1 ) ) for i in range( 250 ) ]
 ye = [ exact( _x ) for _x in xe ]
+
+
+### Print slope
+print 'Slope =', ( d[len(d)-1] - d[len(d)-2] ) / ( x[len(x)-1] - x[len(x)-2] )
 
 
 ### Plot

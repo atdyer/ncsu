@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.integrate import quadrature as integrate
 from shape_functions import shape_functions
-from jacobian import jacobian
+from jacobian import jacobian, fdenormalize
 
 #
 # A: area
@@ -43,33 +43,31 @@ def solve_fe ( A, k, l, num_elements, num_element_nodes, S, bc_essential, bc_nat
         nodes = [ IEN( element, i ) for i in range( num_element_nodes ) ]
         x = [ x_coord[ node ] for node in nodes ]
 
-        # Calculate the jacobian for this element
+        # Coordinate transformation and jacobian for this element
+        den = fdenormalize( x[0], x[ len( x ) - 1] )
         J = jacobian( x[ 0 ], x[ len( x ) - 1 ] )
 
         # Node loop
         for row in range( num_element_nodes ):
 
-            # Calculate the source term value at this node
-            s = S( x[ row ] )
-
             # Integrate to calculate fe term
-            _f = integrate( lambda _xi: N[ row ]( _xi ) * s,
+            _f = integrate( lambda _xi: N[ row ]( _xi ) * S( den( _xi ) ) * J,
                            xi[ 0 ],
                            xi[ len( xi ) - 1 ] )[ 0 ]
 
             # Add the term to fe, converting to local coordinates
-            fe[ row, 0 ] = _f * J
+            fe[ row, 0 ] = _f
 
             # Check for natural boundary condition contribution
             if nodes[ row ] in bc_natural:
 
-                fe[ row, 0 ] += N[ row ]( x[ row ] ) * bc_natural[ nodes[ row ] ] * A * k
+                fe[ row, 0 ] += N[ row ]( x[ row ] ) * bc_natural[ nodes[ row ] ] * A
 
             # Other node noop
             for col in range( num_element_nodes ):
 
                 # Integrate to calculate ke term
-                _k = integrate( lambda _xi: ( dN[row](_xi) / J )*( dN[col](_xi) / J),
+                _k = integrate( lambda _xi: ( dN[row](_xi) / J )*( dN[col](_xi) / J ),
                                xi[0],
                                xi[len(xi)-1] )[ 0 ]
 
