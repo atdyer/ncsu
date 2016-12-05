@@ -10,7 +10,7 @@ alpha = -5.0
 
 ### Mesh
 num_elements = 1
-num_element_nodes = 3
+num_element_nodes = 8
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
 ### Boundary conditions

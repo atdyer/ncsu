@@ -19,7 +19,7 @@ def solve_fe ( A, k, l, alpha, num_elements, num_element_nodes, bc_essential, bc
     num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
     # Get x-coordinate for each node
-    x_coord = [ float(i) * ( float(l) / ( num_nodes - 1 ) ) for i in range( num_nodes ) ]
+    x_coord = [ float(i) * ( float(l) / float( num_nodes - 1 ) ) for i in range( num_nodes ) ]
 
     # Get the shape functions
     N, dN, xi = shape_functions( num_element_nodes )

@@ -1,0 +1,116 @@
+@import url(//fonts.googleapis.com/css?family=PT+Serif|PT+Serif:b|PT+Serif:i|PT+Sans|PT+Sans:b);
+
+/* Plot stuff */
+.axis line {
+    shape-rendering: crispEdges;
+    stroke: #000;
+}
+
+.line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1.5px;
+}
+
+.dot {
+    stroke-width: 0;
+}
+
+
+
+/* Page stuff */
+body {
+    font-family: 'PT Serif', serif;
+    margin: 0 auto 4em auto;
+    tab-size: 2;
+    -webkit-text-size-adjust: none;
+}
+
+header {
+    color: #999;
+    width: 100%;
+    top: 0;
+    left: 0;
+    padding: 1.5em 0;
+}
+
+header,
+footer,
+h1,
+h2,
+h3,
+h4 {
+    font-family: "PT Sans", sans-serif;
+}
+
+body > p,
+body > aside,
+body > blockquote,
+li > p {
+  line-height: 1.5em;
+}
+
+h1 {
+  font-size: 64px;
+  font-weight: 300;
+  letter-spacing: -2px;
+  line-height: 1em;
+  margin: .5em 0;
+}
+
+h1,
+h2 {
+  text-rendering: optimizeLegibility;
+}
+
+.section {
+    max-width: 960px;
+    position: relative;
+    display: block;
+    margin: 0 auto;
+    padding: 0 10px;
+}
+
+.right {
+    float: right;
+}
+
+.sub {
+    font-size: 11px;
+}
+
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+
+.selector {
+    display: flex;
+    justify-content: center;
+    padding: 5px 0;
+
+    font-weight: bold;
+}
+
+.selector input {
+    margin: 0 10px;
+}
+
+.stage {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.chart {
+    padding: 10px 0;
+}
+
+.equation {
+    display: flex;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.katex { font-size: 1em !important; }

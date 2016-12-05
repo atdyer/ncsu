@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CE 594 - Final Project</title>
+
+    <link href="index.css" rel="stylesheet">
+
+    <!-- d3 -->
+    <script src="lib/d3.min.js"></script>
+
+    <!-- Katex -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+
+</head>
+<body>
+
+<header>
+    <div class="section">
+        <div class="right">Tristan Dyer</div>
+        CE 594 - Final Project
+        <div class="sub">December 6, 2016</div>
+    </div>
+</header>
+
+<div class="section">
+    <h1>CE 594 - Final Project</h1>
+    <p>
+        For this project, we are going to analyze a seepage problem. Imagine there is a sand filled pipe buried
+        underground below the water table and oriented from left to right. The pipe has a cross-sectional area of
+        2m<sup>2</sup> and is 10m long. Water is flowing into the left end of the pipe at a rate of 100m<sup>3</sup>/day. At the right
+        end of the pipe we measure the hydraulic head, <i class="ie">h</i>, (look it up on wiki if you need to) to be 3m. The wall
+        of the pipe is made of a permeable material so that water can pass through, which effectively creates a
+        source or sink depending on the hydraulic head inside the pipe. We will represent this as a source term
+        of the form <i class="ie">\alpha_0 h</i>.
+    </p>
+    <p>
+        The governing differential equation can be derived from Darcy’s Law, which relates the volume rate of
+        flow per unit area to the rate of change of the hydraulic head, given by
+        <div id="e1"></div>
+        where <i class="ie">k</i> is the hydraulic conductivity. For a steady state flow and assuming that water is incompressible,
+        conservation of mass tells us that the amount of water flowing into any part of the pipe must be equal to
+        the amount of water flowing out. In other words, any change in the volume rate of flow must balance
+        any water gained or lost through a source or sink, respectively. Mathematically, this is stated as
+        <div id="e2"></div>
+        where <i class="ie">s</i> is the source term. For this problem we can replace <i class="ie">s</i> with
+        <i class="ie">\alpha_0 h</i>.
+    </p>
+    <p>
+        Using the following parameters
+        <ol>
+            <li>State the governing strong form problem, identifying essential and natural boundary conditions</li>
+            <li>Derive the weak form</li>
+            <li>Define appropriate approximation spaces and the Galerkin problem</li>
+            <li>Develop the matrix equations showing how all coefficients are calculated</li>
+            <li>Modify your finite element code to solve this problem using at least 8 elements</li>
+            <li>Plot your solution and state the hydraulic head at the left end of the pipe and the amount of
+            water flowing out of the right end</li>
+        </ol>
+        <div id="e3"></div>
+    </p>
+    <h1>Solution</h1>
+    <h2>Strong Form</h2>
+    <div id="e4"></div>
+    <div id="e5"></div>
+    <div id="e6"></div>
+    <h2>Weak Form</h2>
+    <div id="e7"></div>
+    <h2>Galerkin Form</h2>
+    <div id="e8"></div>
+    <h2>Matrix Form</h2>
+    <div id="e9"></div>
+</div>
+
+<script src="index.js"></script>
+
+</body>
+</html>
