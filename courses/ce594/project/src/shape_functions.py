@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 def shape_functions ( num_element_nodes ):
 
     # Create xi array
-    xi = [ -1 + i * 2. / ( num_element_nodes - 1 )  for i in range( num_element_nodes ) ]
+    xi = [ -1. + float(i) * 2. / float( num_element_nodes - 1 )  for i in range( num_element_nodes ) ]
 
     # Create N and dN arrays
     N = []
