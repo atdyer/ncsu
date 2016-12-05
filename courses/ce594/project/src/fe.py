@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.integrate import quadrature as integrate
 from shape_functions import shape_functions
-from jacobian import jacobian, fnormalize
+from jacobian import jacobian
 
 #
 # A: area
@@ -46,19 +46,15 @@ def solve_fe ( A, k, l, alpha, num_elements, num_element_nodes, bc_essential, bc
         x = [ x_coord[ node ] for node in nodes ]
 
         # Coordinate transformation and jacobian for this element
-        fnorm = fnormalize( x[ 0 ], x[ len( x ) - 1 ] )
         J = jacobian( x[ 0 ], x[ len( x ) - 1 ] )
 
         # Node loop
         for row in range( num_element_nodes ):
 
-            # Add the term to fe, converting to local coordinates
-            fe[ row, 0 ] = 0.0
-
             # Check for natural boundary condition contribution
             if nodes[ row ] in bc_natural:
 
-                fe[ row, 0 ] -= N[ row ]( fnorm( x[ row ] ) ) * bc_natural[ nodes[ row ] ] * A * k
+                fe[ row, 0 ] -= N[ row ]( xi[ row ] ) * bc_natural[ nodes[ row ] ] * A * k
 
             # Other node noop
             for col in range( num_element_nodes ):
@@ -100,7 +96,7 @@ def solve_fe ( A, k, l, alpha, num_elements, num_element_nodes, bc_essential, bc
     dof = num_nodes - len( bc_essential )
     for node, value in bc_essential.iteritems():
 
-        # Mask row and column in the K matrix
+        # Mask row and column in the K matrix and M matrix
         K_mask[ node, : ] = False
         K_mask[ :, node ] = False
 
