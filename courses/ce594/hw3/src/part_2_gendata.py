@@ -34,7 +34,7 @@ with open( outfile, 'w' ) as f:
 
             # Natural
             bc_natural = dict()
-            bc_natural[ num_nodes - 1 ] = 25/k
+            bc_natural[ num_nodes - 1 ] = 25
 
             ### Source terms
             s = lambda _x: 5 * _x
