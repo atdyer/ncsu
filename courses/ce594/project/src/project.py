@@ -9,8 +9,8 @@ l = 10.0
 alpha = -5.0
 
 ### Mesh
-num_elements = 1
-num_element_nodes = 8
+num_elements = 100
+num_element_nodes = 5
 num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
 ### Boundary conditions
@@ -32,9 +32,12 @@ def exact ( _xe ):
 xe = [ float(i) * ( float(l) / ( 250 - 1 ) ) for i in range( 250 ) ]
 ye = [ exact( _x ) for _x in xe ]
 
+### Print values we're interested in
+print 'Hydraulic head at left end:', d[0]
+print 'Flow rate at right end:', ( d[len(d)-1] - d[len(d)-2 ] ) / ( x[len(x)-1] - x[len(x)-2] ) * -k * A
 
 ### Plot
 plt.plot( x, d, label='FE Solution' )
 plt.plot( xe, ye, label='Exact Solution')
-plt.legend()
-plt.show()
+# plt.legend()
+# plt.show()

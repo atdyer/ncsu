@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="lib/katex/katex.min.css">
     <script src="lib/katex/katex.min.js"></script>
 
+    <!-- Plotting -->
+    <script src="charts.js"></script>
+
 </head>
 <body>
 
@@ -62,7 +65,7 @@
     </p>
     <h1>Solution</h1>
     <p>The complete hand-written solution can be found in the following pdf document:</p>
-    <div class=selector><a href="project.pdf">Solution</a></div>
+    <div class=selector><a href="pdf/written_project.pdf">Solution</a></div>
     <p>
     The hand-written solution contains the complete derivation of the matrix form starting from the
     strong form. Below, the strong form, weak form, Galerkin form, and matrix form are shown for
@@ -78,7 +81,9 @@
     <div id="e8"></div>
     <h2>Matrix Form</h2>
     <div id="e9"></div>
+</div>
 
+<div class="section">
     <h1>Code and Implementation</h1>
     <p>
         The code used to solve the matrix form of the equation is written in Python and composed
@@ -95,6 +100,28 @@
         <li><a href="shape_functions.html">shape_functions.py</a> - This script contains a function that can be used
         to generate shape functions and their derivatives for any number of element nodes. Further implementation
         details can be found on the page.</li>
+    </ul>
+
+</div>
+
+<div class="section">
+    <h1>Results</h1>
+    <p>
+        The following interactive plot shows the results of the finite element code compared to the exact solution.
+        Use the number pickers below the plot to change the number of element nodes and number of elements.
+    </p>
+    <div id="plots" class="stage"></div>
+    <div class="selector">
+        Number of Element Nodes:<input id="nen_picker" type="number">
+        Number of Elements:<input id="ne_picker" type="number">
+    </div>
+    <p>
+        We can see that as the number of element nodes and number of elements increase, the finite element solution
+        converges on the exact solution, and we're able to calculate the following values:
+    </p>
+    <ul>
+        <li>Hydraulic head at the left end of the pipe: <strong>3.47m</strong></li>
+        <li>Flow rate at the right end of the pipe: <strong>-49.43m<sup>3</sup>/day</strong></li>
     </ul>
 </div>
 
