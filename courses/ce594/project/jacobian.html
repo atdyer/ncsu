@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CE 594 - Final Project - jacobian.py</title>
+    <script src="lib/d3.min.js"></script>
+    <script src="lib/highlight.min.js"></script>
+
+    <link href="index.css" rel="stylesheet">
+    <link href="lib/styles/github.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <div class="section">
+        <div class="right">Tristan Dyer</div>
+        CE 594 - Final Project
+        <div class="sub">December 6, 2016</div>
+    </div>
+</header>
+
+<div class="section">
+    <pre><code id="fe" class="python"></code></pre>
+</div>
+<script>
+    d3.text( 'src/jacobian.py', function ( error, data ) {
+        var fe = d3.select( '#fe' );
+        fe.text( data.trim() );
+        console.log( fe.nodes() );
+        hljs.highlightBlock( fe.nodes()[0] );
+    });
+</script>
+
+</body>
+</html>

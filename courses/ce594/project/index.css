@@ -63,6 +63,14 @@ h2 {
   text-rendering: optimizeLegibility;
 }
 
+a {
+    font-weight: bold;
+}
+
+pre {
+    margin: 0;
+}
+
 .section {
     max-width: 960px;
     position: relative;
@@ -93,7 +101,8 @@ sup {
     font-weight: bold;
 }
 
-.selector input {
+.selector input,
+.selector a {
     margin: 0 10px;
 }
 

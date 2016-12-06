@@ -29,7 +29,7 @@ var equations = {
     'e4': '\\frac{d}{dx}(-Ak\\frac{du}{dx}) - S = 0',
     'e5': 'u(L) = 3',
     'e6': '\\frac{du}{dx}(0) = -0.2',
-    'e7': '\\int_\\Omega \\frac{dw}{dx}Ak\\frac{du}{dx}dx = \\int_\\Omega ws dx - wAk\\frac{du}{dx}\\Biggr|_{\\Gamma_h}',
+    'e7': '\\int_\\Omega \\frac{dw}{dx}Ak\\frac{du}{dx}dx = \\int_\\Omega wS dx - wAk\\frac{du}{dx}\\Biggr|_{\\Gamma_h}',
     'e8': 'a(w^h,v^h) - (w^h,v^h) = (w^h,g^h) - a(w^h,g^h) - w^hAk\\frac{du}{dx}\\Biggr|_{\\Gamma_h}',
     'e9': '([K] - [M])\\{d\\} = [F]'
 };

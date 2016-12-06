@@ -10,8 +10,8 @@
     <script src="lib/d3.min.js"></script>
 
     <!-- Katex -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"></script>
+    <link rel="stylesheet" href="lib/katex/katex.min.css">
+    <script src="lib/katex/katex.min.js"></script>
 
 </head>
 <body>
@@ -61,6 +61,13 @@
         <div id="e3"></div>
     </p>
     <h1>Solution</h1>
+    <p>The complete hand-written solution can be found in the following pdf document:</p>
+    <div class=selector><a href="project.pdf">Solution</a></div>
+    <p>
+    The hand-written solution contains the complete derivation of the matrix form starting from the
+    strong form. Below, the strong form, weak form, Galerkin form, and matrix form are shown for
+    reference.
+    </p>
     <h2>Strong Form</h2>
     <div id="e4"></div>
     <div id="e5"></div>
@@ -71,6 +78,24 @@
     <div id="e8"></div>
     <h2>Matrix Form</h2>
     <div id="e9"></div>
+
+    <h1>Code and Implementation</h1>
+    <p>
+        The code used to solve the matrix form of the equation is written in Python and composed
+        of 3 scripts. A fourth script, containing the problem definition is used to execute the
+        code and plot the results.
+    </p>
+    <ul>
+        <li><a href="project.html">project.py</a> - This script contains the problem definition. Run this script to
+        solve the problem and generate a plot.</li>
+        <li><a href="fe.html">fe.py</a> - This is the finite element implementation used to solve this problem. It
+        builds the matrices defined in the above matrix form of the governing equation and solves for the profile
+        of the hydraulic head along the length of the pipe.</li>
+        <li><a href="jacobian.html">jacobian.py</a> - This script contains functions used in coordinate transformations.</li>
+        <li><a href="shape_functions.html">shape_functions.py</a> - This script contains a function that can be used
+        to generate shape functions and their derivatives for any number of element nodes. Further implementation
+        details can be found on the page.</li>
+    </ul>
 </div>
 
 <script src="index.js"></script>
