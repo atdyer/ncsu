@@ -9,24 +9,22 @@ l = 10.0
 alpha = -5.0
 
 
-for _nen in range( 2, 9 ):
+### Mesh
+num_elements = 1
+num_element_nodes = 6
+num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
 
-    ### Mesh
-    num_elements = 1
-    num_element_nodes = _nen
-    num_nodes = num_elements * ( num_element_nodes - 1 ) + 1
+### Boundary conditions
+# Essential
+bc_essential = dict()
+bc_essential[ num_nodes - 1 ] = 3.0
 
-    ### Boundary conditions
-    # Essential
-    bc_essential = dict()
-    bc_essential[ num_nodes - 1 ] = 3.0
+# Natural
+bc_natural = dict()
+bc_natural[ 0 ] = -0.2
 
-    # Natural
-    bc_natural = dict()
-    bc_natural[ 0 ] = -0.2
-
-    ### Solve
-    d, x = solve_fe( A, k, l, alpha, num_elements, num_element_nodes, bc_essential, bc_natural )
+### Solve
+d, x = solve_fe( A, k, l, alpha, num_elements, num_element_nodes, bc_essential, bc_natural )
 
 ### Exact solution as a function
 def exact ( _xe ):
@@ -40,7 +38,7 @@ print 'Hydraulic head at left end:', d[0]
 print 'Flow rate at right end:', ( d[len(d)-1] - d[len(d)-2 ] ) / ( x[len(x)-1] - x[len(x)-2] ) * -k * A
 
 ### Plot
-# plt.plot( x, d, label='FE Solution' )
-# plt.plot( xe, ye, label='Exact Solution')
-# plt.legend()
-# plt.show()
+plt.plot( x, d, label='FE Solution' )
+plt.plot( xe, ye, label='Exact Solution')
+plt.legend()
+plt.show()
