@@ -70,7 +70,14 @@ def plot_f_df ( f, df ):
 
 
 if __name__ == '__main__':
-    N, dN, xi = shape_functions( 3 )
-    plot_shape_functions( N )
+
+    nen = 7
+    N, dN, xi = shape_functions( nen )
+
+    # Check values
+    for i in range( nen ):
+        print 'N' + str(i) + '(', xi[i], ') = ', N[i](xi[i])
+
+    plot_shape_functions( dN )
     # plot_f_df( N[0], dN[0] )
 

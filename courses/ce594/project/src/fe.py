@@ -124,4 +124,6 @@ def solve_fe ( A, k, l, alpha, num_elements, num_element_nodes, bc_essential, bc
 
         d = np.insert( d, node, value )
 
+    print num_element_nodes, d[0]
+
     return d, x_coord
